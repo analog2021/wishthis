@@ -465,4 +465,9 @@ class Wish
     {
         return $this->wishlist;
     }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
 }
