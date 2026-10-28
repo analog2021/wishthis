@@ -48,6 +48,11 @@ $page->navigation();
                                             <?= __('Rename') ?>
                                         </div>
 
+                                        <div class="item wishlist-spoilers disabled" title="<?= __('Show spoilers') ?>">
+                                            <i class="eye icon"></i>
+                                            <?= __('Show spoilers') ?>
+                                        </div>
+
                                         <div class="item wishlist-delete disabled" title="<?= __('Delete') ?>">
                                             <i class="trash icon"></i>
                                             <?= __('Delete') ?>

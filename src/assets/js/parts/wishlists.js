@@ -71,6 +71,7 @@ $(function () {
                     'action' : 'select'
                 });
                 $('.wishlist-rename').removeClass('disabled');
+                $('.wishlist-spoilers').removeClass('disabled');
                 $('.wishlist-delete').removeClass('disabled');
 
                 /** Update URL */
@@ -98,6 +99,7 @@ $(function () {
                 $('.wishlist-share button').removeClass('disabled');
                 $('.button.wishlist-options').removeClass('disabled');
                 $('.wishlist-rename').removeClass('disabled');
+                $('.wishlist-spoilers').removeClass('disabled');
                 $('.wishlist-delete').removeClass('disabled');
             }
         },
@@ -189,6 +191,17 @@ $(function () {
             autoShow  :  true,
             onApprove : wishlistRenameApprove
         });
+    });
+
+    /**
+     * Show spoilers
+     */
+    $(document).on('click', '.wishlist-options .wishlist-spoilers', function () {
+        var wishlist_id = wishthis.$_GET.id;
+
+        if (wishlist_id) {
+            window.location.href = '/spoilers/' + encodeURIComponent(wishlist_id);
+        }
     });
 
     /**
