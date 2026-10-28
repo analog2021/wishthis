@@ -266,7 +266,18 @@ switch ($step) {
 
         foreach ($_SESSION as $key => $value) {
             if ('DATABASE' === \substr($key, 0, 8)) {
-                $configContents = \preg_replace('/(' . $key . '.+?\').*?(\')/', '$1' . $value . '$2', $configContents);
+                /**
+                 * Use a callback, so values like `1abc` or `$1` aren't parsed
+                 * as backreferences, and escape the value for a single-quoted
+                 * PHP string.
+                 */
+                $configContents = \preg_replace_callback(
+                    '/(' . $key . '.+?\').*?(\')/',
+                    function ($matches) use ($value) {
+                        return $matches[1] . \addcslashes($value, '\'\\') . $matches[2];
+                    },
+                    $configContents
+                );
             }
         }
 
