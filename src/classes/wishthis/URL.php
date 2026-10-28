@@ -41,8 +41,6 @@ class URL
             echo \curl_error($ch);
         }
 
-        \curl_close($ch);
-
         return $responseCode;
     }
 
