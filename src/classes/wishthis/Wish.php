@@ -100,6 +100,25 @@ class Wish
         return $url;
     }
 
+    /**
+     * Returns a large version of an Amazon product image by replacing the size
+     * modifiers in its file name (e. g. `._AC_SY300_SX300_`) with one for
+     * 1500 pixels on the longest side. Images are never scaled up and other
+     * URLs are returned unchanged.
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    public static function getFullSizeImage(string $url): string
+    {
+        return \preg_replace(
+            '#^(https?://(?:m\.media-amazon\.com|images-[a-z]+\.ssl-images-amazon\.com)/images/[A-Z]/[^/.]+)(?:\.[^/]*_)?\.(jpe?g|png|gif|webp)$#i',
+            '$1._AC_SL1500_.$2',
+            $url
+        );
+    }
+
     public static function hasAffiliateLink(string $url): bool
     {
         $urlParts = \parse_url($url);

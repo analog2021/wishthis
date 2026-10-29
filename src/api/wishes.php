@@ -187,7 +187,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 /** Update */
                 $wish_title       = empty($wish_title) ? null : \substr($wish_title, 0, 128);
                 $wish_description = empty($wish_description) ? null : $wish_description;
-                $wish_image       = empty($wish_image) || Wish::NO_IMAGE === $wish_image ? null : $wish_image;
+                $wish_image       = empty($wish_image) || Wish::NO_IMAGE === $wish_image ? null : Wish::getFullSizeImage($wish_image);
                 $wish_url         = empty($wish_url) ? null : \substr(Wish::getAffiliateLink($wish_url), 0, 255);
                 $wish_priority    = empty($wish_priority) ? null : $wish_priority;
 
@@ -280,7 +280,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 /** Update */
                 $wish_title       = empty($wish_title) ? null : \substr($wish_title, 0, 128) ;
                 $wish_description = empty($wish_description) ? null : $wish_description ;
-                $wish_image       = empty($wish_image) || Wish::NO_IMAGE === $wish_image ? null : $wish_image ;
+                $wish_image       = empty($wish_image) || Wish::NO_IMAGE === $wish_image ? null : Wish::getFullSizeImage($wish_image);
                 $wish_url         = empty($wish_url) ? null : \substr(Wish::getAffiliateLink($wish_url), 0, 255);
 
                 $database

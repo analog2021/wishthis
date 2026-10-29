@@ -197,6 +197,29 @@ final class EmbedAutofillTest extends TestCase
         $this->assertSame('', $info->description);
     }
 
+    public function testFullSizeImage(): void
+    {
+        $large = 'https://m.media-amazon.com/images/I/61dNySbeVWL._AC_SL1500_.jpg';
+
+        $this->assertSame($large, \wishthis\Wish::getFullSizeImage('https://m.media-amazon.com/images/I/61dNySbeVWL._AC_SY300_SX300_QL70_ML2_.jpg'));
+        $this->assertSame($large, \wishthis\Wish::getFullSizeImage('https://m.media-amazon.com/images/I/61dNySbeVWL.jpg'));
+        $this->assertSame($large, \wishthis\Wish::getFullSizeImage($large));
+        $this->assertSame(
+            'https://images-na.ssl-images-amazon.com/images/I/41ML5EvJ+5L._AC_SL1500_.png',
+            \wishthis\Wish::getFullSizeImage('https://images-na.ssl-images-amazon.com/images/I/41ML5EvJ+5L._SX38_SY50_CR,0,0,38,50_.png')
+        );
+
+        foreach (
+            [
+                'https://shop.example/images/I/61dNySbeVWL._AC_SY300_.jpg',
+                'https://m.media-amazon.com/images/S/aplus-media/sc/1234.jpg',
+                'https://m.media-amazon.com/images/I/61dNySbeVWL._AC_SY300_.jpg?size=small',
+            ] as $url
+        ) {
+            $this->assertSame($url, \wishthis\Wish::getFullSizeImage($url), 'Unchanged: ' . $url);
+        }
+    }
+
     public function testCacheIgnoresEmptyResults(): void
     {
         $cache = new FixtureEmbedCache('https://shop.example/missing', $this->cacheDirectory);
