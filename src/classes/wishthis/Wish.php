@@ -67,7 +67,12 @@ class Wish
         }
 
         $wishData = $wishQuery->fetch();
-        $wish     = new self($wishData);
+
+        if (false === $wishData) {
+            return false;
+        }
+
+        $wish = new self($wishData);
 
         return $wish;
     }
@@ -464,5 +469,21 @@ class Wish
     public function getWishlistId(): int
     {
         return $this->wishlist;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    /**
+     * Returns whether this wish is hidden from everybody except the wishlist
+     * owner, because it has been fulfilled or claimed.
+     *
+     * @return bool
+     */
+    public function isHiddenFromGuests(): bool
+    {
+        return \in_array($this->status, [self::STATUS_FULFILLED, self::STATUS_UNAVAILABLE], true);
     }
 }
