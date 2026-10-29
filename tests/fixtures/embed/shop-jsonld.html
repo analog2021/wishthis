@@ -1,0 +1,21 @@
+<!doctype html>
+<!-- Hand-written fixture: a shop with linked data, where the image is a plain string inside a @graph. -->
+<html>
+<head>
+    <title>Foam Roller | Example Shop</title>
+    <meta name="description" content="A soft foam roller.">
+    <link rel="icon" href="/favicon.png">
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@graph": [
+                {"@type": "WebSite", "name": "Example Shop"},
+                {"@type": "Product", "name": "Foam Roller", "image": ["https://shop.example/img/roller-large.jpg", "https://shop.example/img/roller-small.jpg"]}
+            ]
+        }
+    </script>
+</head>
+<body>
+    <h1>Foam Roller</h1>
+</body>
+</html>

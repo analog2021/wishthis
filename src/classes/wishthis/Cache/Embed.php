@@ -10,8 +10,33 @@
 
 namespace wishthis\Cache;
 
+use Psr\Http\Client\ClientInterface;
+use wishthis\EmbedAdapters\Amazon\Extractor as AmazonExtractor;
+use wishthis\EmbedAdapters\Detectors\Image as ImageDetector;
+
 class Embed extends Cache
 {
+    /**
+     * Returns an Embed instance with wishthis' own adapters and detectors.
+     *
+     * @param ClientInterface|null $client The HTTP client (for testing).
+     *
+     * @return \Embed\Embed
+     */
+    public static function createEmbed(?ClientInterface $client = null): \Embed\Embed
+    {
+        $embed   = new \Embed\Embed($client ? new \Embed\Http\Crawler($client) : null);
+        $factory = $embed->getExtractorFactory();
+
+        foreach (\array_keys(AmazonExtractor::DOMAINS) as $domain) {
+            $factory->addAdapter($domain, AmazonExtractor::class);
+        }
+
+        $factory->addDetector('image', ImageDetector::class);
+
+        return $embed;
+    }
+
     /**
      * Private
      */
@@ -44,8 +69,25 @@ class Embed extends Cache
                  *
                  * @link https://github.com/oscarotero/Embed
                  */
-                $embed     = new \Embed\Embed();
-                $embedInfo = $embed->get($this->url);
+                $embedInfo = static::createEmbed()->get($this->url);
+                $codePage  = $embedInfo->getResponse()->getStatusCode();
+
+                /**
+                 * The shop refused to show the page. Nothing is cached, and a
+                 * previously cached result is still better than nothing.
+                 */
+                if ($embedInfo instanceof AmazonExtractor && $embedInfo->isBlocked()) {
+                    if (!$this->exists()) {
+                        $info->url     = $this->url;
+                        $info->blocked = true;
+                    }
+
+                    return $info;
+                }
+
+                if ($codePage < 200 || $codePage >= 400) {
+                    $generateCache = false;
+                }
 
                 /** Convert embed info to a saveable format (JSON) stdClass */
                 $info->authorName    = (string) $embedInfo->authorName;
@@ -67,6 +109,36 @@ class Embed extends Cache
                 $info->redirect      = (string) $embedInfo->redirect;
                 $info->title         = (string) $embedInfo->title;
                 $info->url           = (string) $embedInfo->url;
+                $info->price         = null;
+                $info->currency      = null;
+                $info->blocked       = false;
+
+                if ($embedInfo instanceof AmazonExtractor) {
+                    $info->price    = $embedInfo->getPrice();
+                    $info->currency = $embedInfo->getCurrency();
+                }
+
+                /** Some websites repeat the title as description */
+                if ($info->description === $info->title) {
+                    $info->description = '';
+                }
+
+                /** Don't keep a result without any useful information */
+                if (!$info->title && !$info->description && !$info->image) {
+                    $generateCache = false;
+                }
+
+                /**
+                 * The detected (canonical) URL may differ from the page which
+                 * was fetched. Only then does it need to be checked separately.
+                 */
+                if ($info->url && $info->url !== (string) $embedInfo->getUri()) {
+                    $codeURL = \wishthis\URL::getResponseCode($info->url);
+
+                    if ($codeURL < 200 || $codeURL >= 400) {
+                        $info->url = $this->url;
+                    }
+                }
             } catch (\Throwable $ex) {
                 $generateCache = false;
 
@@ -95,13 +167,6 @@ class Embed extends Cache
                     $code    = \curl_getinfo($ch, \CURLINFO_HTTP_CODE);
 
                     $info->favicon = $favicon && ($code >= 200 && $code < 400) ? 'data:image/x-icon;base64,' . \base64_encode($favicon) : '';
-                }
-
-                /** URL */
-                $codeURL = \wishthis\URL::getResponseCode($info->url);
-
-                if ($codeURL < 200 || $codeURL >= 400) {
-                    $generateCache = false;
                 }
             }
 

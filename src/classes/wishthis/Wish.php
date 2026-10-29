@@ -20,6 +20,8 @@ class Wish
 
     public const NO_IMAGE = '/src/assets/img/no-image.svg';
 
+    public const TITLE_MAX_LENGTH = 128;
+
     public const STATUS_TEMPORARY         = 'temporary';
     public const STATUS_TEMPORARY_MINUTES = 30;
     public const STATUS_UNAVAILABLE       = 'unavailable';
@@ -98,6 +100,44 @@ class Wish
         }
 
         return $url;
+    }
+
+    /**
+     * Returns a large version of an Amazon product image by replacing the size
+     * modifiers in its file name (e. g. `._AC_SY300_SX300_`) with one for
+     * 1500 pixels on the longest side. Images are never scaled up and other
+     * URLs are returned unchanged.
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    public static function getFullSizeImage(string $url): string
+    {
+        return \preg_replace(
+            '#^(https?://(?:m\.media-amazon\.com|images-[a-z]+\.ssl-images-amazon\.com)/images/[A-Z]/[^/.]+)(?:\.[^/]*_)?\.(jpe?g|png|gif|webp)$#i',
+            '$1._AC_SL1500_.$2',
+            $url
+        );
+    }
+
+    /**
+     * Shortens an (HTML encoded) title to fit the database column, without
+     * cutting a multibyte character or an HTML entity in half.
+     *
+     * @param string $title
+     *
+     * @return string
+     */
+    public static function truncateTitle(string $title): string
+    {
+        if (\mb_strlen($title) <= self::TITLE_MAX_LENGTH) {
+            return $title;
+        }
+
+        $title = \mb_substr($title, 0, self::TITLE_MAX_LENGTH);
+
+        return \preg_replace('/&[#a-zA-Z0-9]*$/', '', $title);
     }
 
     public static function hasAffiliateLink(string $url): bool

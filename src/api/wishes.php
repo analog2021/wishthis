@@ -52,15 +52,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             } else {
                 $url   = trim($_GET['wish_url']);
                 $cache = new Cache\Embed($url);
-                $info  = $cache->get(true);
-
-                if (isset($info->url) && $info->url) {
-                    $code = URL::getResponseCode($info->url);
-
-                    if ($code < 200 || $code >= 400) {
-                        $info->url = $url;
-                    }
-                }
+                $info  = $cache->get($cache->generateCache());
 
                 $response = [
                     'info' => $info,
@@ -149,6 +141,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $wish_image = '';
             }
 
+            $wish_price_found = null;
+
             if (isset($_POST['wish_id'], $_POST['wishlist_id'])) {
                 /** Update wish */
                 $wish = Wish::getFromId($_POST['wish_id']);
@@ -156,7 +150,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 /** Update wish information */
                 if (!empty($wish_url)) {
                     $cache = new Cache\Embed($wish_url);
-                    $info  = $cache->get(true);
+                    $info  = $cache->get($cache->generateCache());
 
                     if (empty($wish_title) && empty($wish->title)) {
                         $wish_title = Sanitiser::getTitle($info->title);
@@ -172,9 +166,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             $codeImage = URL::getResponseCode($info->image);
 
                             if ($codeImage >= 200 && $codeImage < 400) {
-                                $wish_image = '"' . $info->image . '"';
+                                $wish_image = $info->image;
                             }
                         }
+                    }
+
+                    /**
+                     * Price, if the shop shows it in the user's currency. Only
+                     * for wishes the user marked as purchasable.
+                     */
+                    if ($wish_is_purchasable && empty($_POST['wish_price']) && !empty($info->price) && ($info->currency ?? null) === $user->getCurrency()) {
+                        $wish_price_found = $info->price;
                     }
 
                     $response = [
@@ -183,9 +185,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 }
 
                 /** Update */
-                $wish_title       = empty($wish_title) ? null : \substr($wish_title, 0, 128);
+                $wish_title       = empty($wish_title) ? null : Wish::truncateTitle($wish_title);
                 $wish_description = empty($wish_description) ? null : $wish_description;
-                $wish_image       = empty($wish_image) || Wish::NO_IMAGE === $wish_image ? null : $wish_image;
+                $wish_image       = empty($wish_image) || Wish::NO_IMAGE === $wish_image ? null : Wish::getFullSizeImage($wish_image);
                 $wish_url         = empty($wish_url) ? null : \substr(Wish::getAffiliateLink($wish_url), 0, 255);
                 $wish_priority    = empty($wish_priority) ? null : $wish_priority;
 
@@ -216,7 +218,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                  * Product
                  */
                 $wish_price = empty($_POST['wish_price']) || 'false' === $wish_is_purchasable
-                            ? null
+                            ? $wish_price_found
                             : Sanitiser::getNumber($_POST['wish_price']);
 
                 $database
@@ -243,7 +245,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 /** Update wish information */
                 if (!empty($wish_url)) {
                     $cache = new Cache\Embed($wish_url);
-                    $info  = $cache->get(true);
+                    $info  = $cache->get($cache->generateCache());
 
                     if (empty($wish_title) && isset($info->title)) {
                         $wish_title = Sanitiser::getTitle($info->title);
@@ -264,15 +266,21 @@ switch ($_SERVER['REQUEST_METHOD']) {
                         }
                     }
 
+                    /** Price, if the shop shows it in the user's currency */
+                    if (empty($_POST['wish_price']) && !empty($info->price) && ($info->currency ?? null) === $user->getCurrency()) {
+                        $wish_price_found    = $info->price;
+                        $wish_is_purchasable = true;
+                    }
+
                     $response = [
                         'info' => $info,
                     ];
                 }
 
                 /** Update */
-                $wish_title       = empty($wish_title) ? null : \substr($wish_title, 0, 128) ;
+                $wish_title       = empty($wish_title) ? null : Wish::truncateTitle($wish_title);
                 $wish_description = empty($wish_description) ? null : $wish_description ;
-                $wish_image       = empty($wish_image) || Wish::NO_IMAGE === $wish_image ? null : $wish_image ;
+                $wish_image       = empty($wish_image) || Wish::NO_IMAGE === $wish_image ? null : Wish::getFullSizeImage($wish_image);
                 $wish_url         = empty($wish_url) ? null : \substr(Wish::getAffiliateLink($wish_url), 0, 255);
 
                 $database
@@ -310,7 +318,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                  * Product
                  */
                 $wish_id    = $database->lastInsertId();
-                $wish_price = !empty($_POST['wish_price']) ? Sanitiser::getNumber($_POST['wish_price']) : null;
+                $wish_price = !empty($_POST['wish_price']) ? Sanitiser::getNumber($_POST['wish_price']) : $wish_price_found;
 
                 if ($wish_price > 0) {
                     $database
