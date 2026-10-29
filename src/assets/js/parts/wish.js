@@ -332,6 +332,8 @@ $(function () {
 
                 $('body').toast({ message: wishthis.strings.toast.wish.update });
 
+                showToastAutofillBlocked(response);
+
                 $('.ui.dropdown.filter.priority').api('query');
             });
 

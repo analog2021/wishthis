@@ -300,3 +300,19 @@ function showFailure(title = '', content = '', status = 200) {
 
     $('body').modal(modal_failure);
 }
+
+/**
+ * Tells the user when a shop refused to let wishthis read the wish URL.
+ */
+function showToastAutofillBlocked(response) {
+    if (!response || !response.info || !response.info.blocked) {
+        return;
+    }
+
+    $('body').toast({
+        'class'       : 'warning',
+        'showIcon'    : 'exclamation triangle',
+        'message'     : wishthis.strings.toast.wish.blocked,
+        'displayTime' : 15000,
+    });
+}
