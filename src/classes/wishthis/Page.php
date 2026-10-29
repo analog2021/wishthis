@@ -36,6 +36,7 @@ class Page
     public const PAGE_PROFILE         = '/index.php?page=profile';
     public const PAGE_REGISTER        = '/index.php?page=register';
     public const PAGE_SETTINGS        = '/index.php?page=settings';
+    public const PAGE_SPOILERS        = '/index.php?page=spoilers';
     public const PAGE_UPDATE          = '/index.php?page=update';
     public const PAGE_WISHLIST        = '/index.php?page=wishlist';
     public const PAGE_WISHLISTS_SAVED = '/index.php?page=wishlists-saved';

@@ -1,0 +1,29 @@
+/**
+ * Still need it
+ *
+ * Fulfilled wishes show "Still need it" when hovered, focused or (on touch
+ * screens) tapped once.
+ */
+.ui.label.still-need-it {
+    border: 0;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.ui.label.still-need-it .hover,
+.ui.label.still-need-it:hover .default,
+.ui.label.still-need-it:focus-visible .default,
+.ui.label.still-need-it.armed .default {
+    display: none;
+}
+
+.ui.label.still-need-it:hover .hover,
+.ui.label.still-need-it:focus-visible .hover,
+.ui.label.still-need-it.armed .hover {
+    display: inline;
+}
+
+.ui.label.still-need-it:disabled {
+    opacity: 0.5;
+    cursor: default;
+}

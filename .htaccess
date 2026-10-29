@@ -17,6 +17,9 @@
   # Wishlist
   RewriteRule wishlist/([0-9a-f]{40})$ index.php?page=wishlist&hash=$1 [QSA,L]
 
+  # Spoilers
+  RewriteRule spoilers/([0-9]+)$ index.php?page=spoilers&wishlist=$1 [QSA,L]
+
   # Blog Post
   RewriteRule blog/([a-z\-0-9]+)$ index.php?page=post&slug=$1 [QSA,L]
 

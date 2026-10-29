@@ -112,9 +112,10 @@ global $options;
             },
 
             'wish' : {
-                'create' : '<?= __('Wish successfully created.') ?>',
-                'update' : '<?= __('Wish information updated.') ?>',
-                'delete' : '<?= __('Wish successfully deleted.') ?>',
+                'create'    : '<?= __('Wish successfully created.') ?>',
+                'update'    : '<?= __('Wish information updated.') ?>',
+                'delete'    : '<?= __('Wish successfully deleted.') ?>',
+                'available' : '<?= __('The wish is available again.') ?>',
             },
 
             'clipboard' : {

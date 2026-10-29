@@ -172,6 +172,42 @@ class Wishlist
         return $this->wishes;
     }
 
+    /**
+     * Returns the wishes which are normally hidden from the wishlist owner
+     * because they have been fulfilled or claimed by someone else.
+     *
+     * @return Wish[]
+     */
+    public function getSpoilers(): array
+    {
+        global $database;
+
+        $wishesQuery = $database->query(
+            '  SELECT ' . Wish::SELECT . '
+                 FROM ' . Wish::FROM . '
+            LEFT JOIN ' . Wish::LEFT_JOIN . '
+                WHERE `wishes`.`wishlist` = :wishlist_id
+                  AND `wishes`.`status`  IN (:status_fulfilled, :status_unavailable)
+             ORDER BY `wishes`.`status` ASC, `priority` DESC, `title` ASC;',
+            [
+                'wishlist_id'        => $this->id,
+                'status_fulfilled'   => Wish::STATUS_FULFILLED,
+                'status_unavailable' => Wish::STATUS_UNAVAILABLE,
+            ]
+        );
+
+        if (false === $wishesQuery) {
+            return [];
+        }
+
+        return \array_map(
+            function (array $wishData) {
+                return new Wish($wishData);
+            },
+            $wishesQuery->fetchAll()
+        );
+    }
+
     public function getCards(array $options = ['placeholders' => []]): string
     {
         \ob_start();
