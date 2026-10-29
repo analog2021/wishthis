@@ -87,10 +87,12 @@ $page->navigation();
         <?php } else { ?>
             <?php $wishes = $wishlist->getSpoilers(); ?>
 
-            <?php if (empty($wishes)) { ?>
+            <div class="spoilers-empty" <?= empty($wishes) ? '' : 'hidden' ?>>
                 <?= Page::info(__('No wishes on this list have been fulfilled or claimed yet.'), __('Nothing to spoil')) ?>
-            <?php } else { ?>
-                <table class="ui celled unstackable table spoilers">
+            </div>
+
+            <?php if (!empty($wishes)) { ?>
+                <table class="ui celled table spoilers">
                     <thead>
                         <tr>
                             <th><?= __('Wish') ?></th>
@@ -116,10 +118,27 @@ $page->navigation();
                                 </td>
                                 <td><?= \nl2br($escape($wish_data['description'])) ?></td>
                                 <td>
-                                    <div class="ui <?= $wish_status['color'] ?> label">
-                                        <i class="<?= $wish_status['icon'] ?> icon"></i>
-                                        <?= $wish_status['name'] ?>
-                                    </div>
+                                    <?php if (Wish::STATUS_FULFILLED === $wish->getStatus()) { ?>
+                                        <button class="ui <?= $wish_status['color'] ?> label still-need-it"
+                                                type="button"
+                                                data-wish-id="<?= $wish->getId() ?>"
+                                                title="<?= __('Still need it') ?>"
+                                        >
+                                            <span class="default">
+                                                <i class="<?= $wish_status['icon'] ?> icon"></i>
+                                                <?= $wish_status['name'] ?>
+                                            </span>
+                                            <span class="hover">
+                                                <i class="undo icon"></i>
+                                                <?= __('Still need it') ?>
+                                            </span>
+                                        </button>
+                                    <?php } else { ?>
+                                        <div class="ui <?= $wish_status['color'] ?> label">
+                                            <i class="<?= $wish_status['icon'] ?> icon"></i>
+                                            <?= $wish_status['name'] ?>
+                                        </div>
+                                    <?php } ?>
                                     <p><?= $wish_status['description'] ?></p>
                                 </td>
                             </tr>
