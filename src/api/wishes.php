@@ -15,9 +15,31 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $getWish = isset($_GET['wish_id']);
 
         if ($getWish) {
-            $wish = Wish::getFromId($_GET['wish_id']);
+            $wish = Wish::getFromId((int) $_GET['wish_id']);
+
+            if (false === $wish) {
+                \http_response_code(404);
+
+                die(__('The requested Wish was not found.'));
+            }
+
+            /**
+             * Only the wishlist owner may see the status of a wish or wishes
+             * which have been fulfilled or claimed.
+             */
+            $userOwnsWish = User::getCurrent()->ownsWishlist($wish->getWishlistId());
+
+            if (!$userOwnsWish && $wish->isHiddenFromGuests()) {
+                \http_response_code(404);
+
+                die(__('The requested Wish was not found.'));
+            }
 
             $response['info'] = $wish->serialise();
+
+            if (!$userOwnsWish) {
+                unset($response['info']['status']);
+            }
 
             if (isset($_GET['wishlist_user'])) {
                 $response['html'] = $wish->getCard($_GET['wishlist_user']);
@@ -96,7 +118,15 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
             $user = User::getCurrent();
 
-            if (!$user->ownsWishlist()) {
+            /** Updates are checked against the wishlist the wish actually belongs to. */
+            if (isset($_POST['wish_id'])) {
+                $wishToSave         = Wish::getFromId((int) $_POST['wish_id']);
+                $wishlistIdToModify = false === $wishToSave ? 0 : $wishToSave->getWishlistId();
+            } else {
+                $wishlistIdToModify = (int) $_POST['wishlist_id'];
+            }
+
+            if (!$user->ownsWishlist($wishlistIdToModify)) {
                 \http_response_code(403);
 
                 die(__('You may only modify wishes you own.'));
@@ -311,12 +341,55 @@ switch ($_SERVER['REQUEST_METHOD']) {
         if (isset($_PUT['wish_id'], $_PUT['wish_status'])) {
             /**
              * Update Wish Status
+             *
+             * The wishlist owner may set any status, including an empty one to
+             * make the wish available again. Everybody else (also guests) may
+             * only claim a wish which is currently available.
              */
             $wish_status = Sanitiser::getStatus($_PUT['wish_status']);
-            $wish_id     = Sanitiser::getNumber($_PUT['wish_id']);
+            $wish        = Wish::getFromId((int) $_PUT['wish_id']);
+
+            $statusesValid = [
+                '',
+                Wish::STATUS_TEMPORARY,
+                Wish::STATUS_UNAVAILABLE,
+                Wish::STATUS_FULFILLED,
+            ];
+            $statusesGuest = [
+                Wish::STATUS_TEMPORARY,
+                Wish::STATUS_UNAVAILABLE,
+            ];
+
+            if (!\in_array($wish_status, $statusesValid, true)) {
+                \http_response_code(400);
+
+                die(__('Invalid wish status.'));
+            }
+
+            if (false === $wish) {
+                \http_response_code(404);
+
+                die(__('The requested Wish was not found.'));
+            }
+
+            $userOwnsWish    = User::getCurrent()->ownsWishlist($wish->getWishlistId());
+            $wishIsAvailable = null === $wish->getStatus() || \is_numeric($wish->getStatus());
+            $guestMayClaimIt = $wishIsAvailable && \in_array($wish_status, $statusesGuest, true);
+
+            if (!$userOwnsWish && !$guestMayClaimIt) {
+                \http_response_code(403);
+
+                die(__('You may not change the status of this wish.'));
+            }
+
+            $wish_id = $wish->getId();
 
             if (Wish::STATUS_TEMPORARY === $wish_status) {
-                $wish_status =  \time();
+                $wish_status = \time();
+            }
+
+            if ('' === $wish_status) {
+                $wish_status = null;
             }
 
             $database->query(
@@ -333,14 +406,30 @@ switch ($_SERVER['REQUEST_METHOD']) {
         } elseif (isset($_PUT['wish_url_current'], $_PUT['wish_url_proposed'])) {
             /**
              * Update Wish URL
+             *
+             * Only affects wishes on the current user's own wishlists.
              */
+            $user = User::getCurrent();
+
+            if (!$user->isLoggedIn()) {
+                \http_response_code(403);
+
+                die(__('You may only modify wishes you own.'));
+            }
+
             $database->query(
                 'UPDATE `wishes`
-                    SET `url` = :wish_url_proposed
-                  WHERE `url` = :wish_url_current',
+                    SET `url`      = :wish_url_proposed
+                  WHERE `url`      = :wish_url_current
+                    AND `wishlist` IN (
+                        SELECT `id`
+                          FROM `wishlists`
+                         WHERE `user` = :user_id
+                    )',
                 [
                     'wish_url_proposed' => Sanitiser::getURL($_PUT['wish_url_proposed']),
                     'wish_url_current'  => Sanitiser::getURL($_PUT['wish_url_current']),
+                    'user_id'           => $user->getId(),
                 ]
             );
 

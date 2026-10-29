@@ -320,21 +320,22 @@ class User
         return $wishlists;
     }
 
-    public function ownsWishlist(): bool
+    /**
+     * Returns whether the user is logged in and owns the specified wishlist.
+     *
+     * @param int $wishlistId
+     *
+     * @return bool
+     */
+    public function ownsWishlist(int $wishlistId): bool
     {
         if (!$this->isLoggedIn()) {
             return false;
         }
 
-        $wishlists = $this->getWishlists();
+        $wishlist = Wishlist::getFromId($wishlistId);
 
-        foreach ($wishlists as $wishlistData) {
-            if ($wishlistData['user'] === $this->id) {
-                return true;
-            }
-        }
-
-        return false;
+        return false !== $wishlist && $wishlist->getUserId() === $this->id;
     }
 
     public function getSavedWishlists(): array
