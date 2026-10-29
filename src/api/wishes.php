@@ -141,6 +141,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $wish_image = '';
             }
 
+            $wish_price_found = null;
+
             if (isset($_POST['wish_id'], $_POST['wishlist_id'])) {
                 /** Update wish */
                 $wish = Wish::getFromId($_POST['wish_id']);
@@ -167,6 +169,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
                                 $wish_image = $info->image;
                             }
                         }
+                    }
+
+                    /**
+                     * Price, if the shop shows it in the user's currency. Only
+                     * for wishes the user marked as purchasable.
+                     */
+                    if ($wish_is_purchasable && empty($_POST['wish_price']) && !empty($info->price) && ($info->currency ?? null) === $user->getCurrency()) {
+                        $wish_price_found = $info->price;
                     }
 
                     $response = [
@@ -208,7 +218,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                  * Product
                  */
                 $wish_price = empty($_POST['wish_price']) || 'false' === $wish_is_purchasable
-                            ? null
+                            ? $wish_price_found
                             : Sanitiser::getNumber($_POST['wish_price']);
 
                 $database
@@ -254,6 +264,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
                                 $wish_image = $info->image;
                             }
                         }
+                    }
+
+                    /** Price, if the shop shows it in the user's currency */
+                    if (empty($_POST['wish_price']) && !empty($info->price) && ($info->currency ?? null) === $user->getCurrency()) {
+                        $wish_price_found    = $info->price;
+                        $wish_is_purchasable = true;
                     }
 
                     $response = [
@@ -302,7 +318,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                  * Product
                  */
                 $wish_id    = $database->lastInsertId();
-                $wish_price = !empty($_POST['wish_price']) ? Sanitiser::getNumber($_POST['wish_price']) : null;
+                $wish_price = !empty($_POST['wish_price']) ? Sanitiser::getNumber($_POST['wish_price']) : $wish_price_found;
 
                 if ($wish_price > 0) {
                     $database
