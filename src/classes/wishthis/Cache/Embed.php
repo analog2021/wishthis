@@ -46,6 +46,11 @@ class Embed extends Cache
                  */
                 $embed     = new \Embed\Embed();
                 $embedInfo = $embed->get($this->url);
+                $codePage  = $embedInfo->getResponse()->getStatusCode();
+
+                if ($codePage < 200 || $codePage >= 400) {
+                    $generateCache = false;
+                }
 
                 /** Convert embed info to a saveable format (JSON) stdClass */
                 $info->authorName    = (string) $embedInfo->authorName;
@@ -67,6 +72,18 @@ class Embed extends Cache
                 $info->redirect      = (string) $embedInfo->redirect;
                 $info->title         = (string) $embedInfo->title;
                 $info->url           = (string) $embedInfo->url;
+
+                /**
+                 * The detected (canonical) URL may differ from the page which
+                 * was fetched. Only then does it need to be checked separately.
+                 */
+                if ($info->url && $info->url !== (string) $embedInfo->getUri()) {
+                    $codeURL = \wishthis\URL::getResponseCode($info->url);
+
+                    if ($codeURL < 200 || $codeURL >= 400) {
+                        $info->url = $this->url;
+                    }
+                }
             } catch (\Throwable $ex) {
                 $generateCache = false;
 
@@ -95,13 +112,6 @@ class Embed extends Cache
                     $code    = \curl_getinfo($ch, \CURLINFO_HTTP_CODE);
 
                     $info->favicon = $favicon && ($code >= 200 && $code < 400) ? 'data:image/x-icon;base64,' . \base64_encode($favicon) : '';
-                }
-
-                /** URL */
-                $codeURL = \wishthis\URL::getResponseCode($info->url);
-
-                if ($codeURL < 200 || $codeURL >= 400) {
-                    $generateCache = false;
                 }
             }
 

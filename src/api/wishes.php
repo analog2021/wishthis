@@ -52,15 +52,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             } else {
                 $url   = trim($_GET['wish_url']);
                 $cache = new Cache\Embed($url);
-                $info  = $cache->get(true);
-
-                if (isset($info->url) && $info->url) {
-                    $code = URL::getResponseCode($info->url);
-
-                    if ($code < 200 || $code >= 400) {
-                        $info->url = $url;
-                    }
-                }
+                $info  = $cache->get($cache->generateCache());
 
                 $response = [
                     'info' => $info,
@@ -156,7 +148,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 /** Update wish information */
                 if (!empty($wish_url)) {
                     $cache = new Cache\Embed($wish_url);
-                    $info  = $cache->get(true);
+                    $info  = $cache->get($cache->generateCache());
 
                     if (empty($wish_title) && empty($wish->title)) {
                         $wish_title = Sanitiser::getTitle($info->title);
@@ -243,7 +235,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 /** Update wish information */
                 if (!empty($wish_url)) {
                     $cache = new Cache\Embed($wish_url);
-                    $info  = $cache->get(true);
+                    $info  = $cache->get($cache->generateCache());
 
                     if (empty($wish_title) && isset($info->title)) {
                         $wish_title = Sanitiser::getTitle($info->title);
