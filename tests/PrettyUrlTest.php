@@ -11,7 +11,9 @@ final class PrettyUrlTest extends TestCase
 {
     public function testPrettyUrl(): void
     {
-        \define('ROOT', \dirname(__DIR__));
+        if (!\defined('ROOT')) {
+            \define('ROOT', \dirname(__DIR__));
+        }
 
         $requestUris = [
             '//api/database-test',
@@ -21,7 +23,7 @@ final class PrettyUrlTest extends TestCase
             'http://wishthis.online.localhost/index.php//api/database-test',
         ];
 
-        require __DIR__ . '/../src/classes/wishthis/URL.php';
+        require_once __DIR__ . '/../src/classes/wishthis/URL.php';
 
         $expected_GET = [
             'page'   => 'api',
