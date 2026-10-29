@@ -111,6 +111,16 @@ switch ($step) {
          */
         @\mkdir($directoryCache);
 
+        $phpVersionIsTested = \version_compare(
+            \sprintf(
+                '%1$s.%2$s',
+                \PHP_MAJOR_VERSION,
+                \PHP_MINOR_VERSION
+            ),
+            '8.5',
+            '<='
+        );
+
         $prerequisites = [
             [
                 'filename'  => __('PHP Version >= 8.1'),
@@ -119,18 +129,10 @@ switch ($step) {
                 'label'     => __('Compatible'),
             ],
             [
-                'filename'  => __('PHP Version <= 8.4'),
+                'filename'  => __('PHP Version <= 8.5'),
                 'icon'      => 'php',
-                'condition' => \version_compare(
-                    \sprintf(
-                        '%1$s.%2$s',
-                        \PHP_MAJOR_VERSION,
-                        \PHP_MINOR_VERSION
-                    ),
-                    '8.4',
-                    '<='
-                ),
-                'label'     => __('Compatible'),
+                'condition' => $phpVersionIsTested,
+                'label'     => $phpVersionIsTested ? __('Compatible') : __('Not tested'),
             ],
             [
                 'filename'  => 'PHP Extension: Intl',
@@ -266,7 +268,18 @@ switch ($step) {
 
         foreach ($_SESSION as $key => $value) {
             if ('DATABASE' === \substr($key, 0, 8)) {
-                $configContents = \preg_replace('/(' . $key . '.+?\').*?(\')/', '$1' . $value . '$2', $configContents);
+                /**
+                 * Use a callback, so values like `1abc` or `$1` aren't parsed
+                 * as backreferences, and escape the value for a single-quoted
+                 * PHP string.
+                 */
+                $configContents = \preg_replace_callback(
+                    '/(' . $key . '.+?\').*?(\')/',
+                    function ($matches) use ($value) {
+                        return $matches[1] . \addcslashes($value, '\'\\') . $matches[2];
+                    },
+                    $configContents
+                );
             }
         }
 

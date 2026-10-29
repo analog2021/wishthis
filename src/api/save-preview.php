@@ -8,11 +8,19 @@
 
 namespace wishthis;
 
-global $page;
+global $page, $options;
 
 if (!isset($page)) {
     \http_response_code(403);
     die('Direct access to this location is not allowed.');
+}
+
+/**
+ * Don't save previews before wishthis is installed. Creating a `Page` below
+ * would redirect to the installer, which resets the installer's session.
+ */
+if (!$options || !$options->getOption('isInstalled')) {
+    return;
 }
 
 $user = User::getCurrent();

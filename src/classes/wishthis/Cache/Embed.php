@@ -94,8 +94,6 @@ class Embed extends Cache
                     $favicon = \curl_exec($ch);
                     $code    = \curl_getinfo($ch, \CURLINFO_HTTP_CODE);
 
-                    \curl_close($ch);
-
                     $info->favicon = $favicon && ($code >= 200 && $code < 400) ? 'data:image/x-icon;base64,' . \base64_encode($favicon) : '';
                 }
 

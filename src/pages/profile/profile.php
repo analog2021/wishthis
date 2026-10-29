@@ -273,7 +273,12 @@ $page->navigation();
                     );
 
                     $count_users_rc = $database
-                    ->query($query . 'AND `channel` = "release-candidate"')
+                    ->query(
+                        $query . ' AND `channel` = :channel',
+                        [
+                            'channel' => 'release-candidate',
+                        ]
+                    )
                     ->fetch();
                     $count_users_rc = reset($count_users_rc);
                     ?>
