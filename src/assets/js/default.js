@@ -312,7 +312,8 @@ function showToastAutofillBlocked(response) {
     $('body').toast({
         'class'       : 'warning',
         'showIcon'    : 'exclamation triangle',
-        'message'     : wishthis.strings.toast.wish.blocked,
+        'title'       : wishthis.strings.toast.wish.blocked.title,
+        'message'     : wishthis.strings.toast.wish.blocked.content,
         'displayTime' : 15000,
     });
 }
