@@ -13,6 +13,50 @@ if ($options && $options->getOption('isInstalled')) {
 }
 
 $page = new Page(__FILE__, __('Install'));
+
+/**
+ * Never install over an existing configuration.
+ *
+ * Getting here with a config.php means wishthis could not use it (e.g. missing
+ * settings or no database connection). Installing would overwrite it and
+ * delete all data in the database.
+ */
+if ($config->exists()) {
+    \http_response_code(503);
+
+    $page->header();
+    $page->bodyStart();
+    ?>
+    <main>
+        <div class="ui hidden divider"></div>
+        <div class="ui container">
+            <?= \file_get_contents(ROOT . '/src/assets/img/logo.svg') ?>
+
+            <h1 class="ui header"><?= $page->title ?></h1>
+
+            <?= Page::error(
+                \sprintf(
+                    /** TRANSLATORS: %1$s: config.php, %2$s: config-sample.php */
+                    __('wishthis is already configured, but the configuration in %1$s can not be used. Please compare it with %2$s and make sure the database is reachable with these settings.'),
+                    '<code>src/config/config.php</code>',
+                    '<code>src/config/config-sample.php</code>'
+                ),
+                __('Configuration can not be used')
+            ) ?>
+
+            <div class="ui segment">
+                <p><?= \sprintf(
+                    /** TRANSLATORS: %s: config.php */
+                    __('The installer does not run while %s exists, because installing deletes all wishlists, wishes and users. To start over on purpose, delete this file first.'),
+                    '<code>src/config/config.php</code>'
+                ) ?></p>
+            </div>
+        </div>
+    </main>
+    <?php
+    die();
+}
+
 $page->header();
 $page->bodyStart();
 
@@ -169,7 +213,7 @@ switch ($step) {
             [
                 'filename'  => '/src/config/config.php',
                 'icon'      => 'file',
-                'condition' => !\file_exists('/src/config/config.php'),
+                'condition' => !\file_exists(ROOT . '/src/config/config.php'),
                 'label'     => __('Doesn\'t exist (yet)'),
             ],
         ];
@@ -245,6 +289,11 @@ switch ($step) {
      * Perform installation
      */
     case 3:
+        /** Checked again right before anything is overwritten or deleted. */
+        if (\file_exists(ROOT . '/src/config/config.php')) {
+            die(__('The installer does not run while src/config/config.php exists.'));
+        }
+
         /**
          * To do: Set absolute sitemap path in robots.txt.
          */
