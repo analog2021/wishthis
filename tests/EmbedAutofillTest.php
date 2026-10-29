@@ -220,6 +220,23 @@ final class EmbedAutofillTest extends TestCase
         }
     }
 
+    public function testTitleIsNotCutInsideAnEntity(): void
+    {
+        $short = 'Rice Cooker&comma; 3-Cup';
+
+        $this->assertSame($short, \wishthis\Wish::truncateTitle($short));
+
+        /** 125 characters, then an entity which would be cut at 128. */
+        $long = \str_repeat('a', 125) . '&comma; Stainless Steel';
+
+        $this->assertSame(\str_repeat('a', 125), \wishthis\Wish::truncateTitle($long));
+
+        /** Multibyte characters count as one character. */
+        $umlauts = \str_repeat('ü', 130);
+
+        $this->assertSame(\str_repeat('ü', 128), \wishthis\Wish::truncateTitle($umlauts));
+    }
+
     public function testCacheIgnoresEmptyResults(): void
     {
         $cache = new FixtureEmbedCache('https://shop.example/missing', $this->cacheDirectory);

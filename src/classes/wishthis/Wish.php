@@ -20,6 +20,8 @@ class Wish
 
     public const NO_IMAGE = '/src/assets/img/no-image.svg';
 
+    public const TITLE_MAX_LENGTH = 128;
+
     public const STATUS_TEMPORARY         = 'temporary';
     public const STATUS_TEMPORARY_MINUTES = 30;
     public const STATUS_UNAVAILABLE       = 'unavailable';
@@ -117,6 +119,25 @@ class Wish
             '$1._AC_SL1500_.$2',
             $url
         );
+    }
+
+    /**
+     * Shortens an (HTML encoded) title to fit the database column, without
+     * cutting a multibyte character or an HTML entity in half.
+     *
+     * @param string $title
+     *
+     * @return string
+     */
+    public static function truncateTitle(string $title): string
+    {
+        if (\mb_strlen($title) <= self::TITLE_MAX_LENGTH) {
+            return $title;
+        }
+
+        $title = \mb_substr($title, 0, self::TITLE_MAX_LENGTH);
+
+        return \preg_replace('/&[#a-zA-Z0-9]*$/', '', $title);
     }
 
     public static function hasAffiliateLink(string $url): bool
