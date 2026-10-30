@@ -53,19 +53,6 @@ $(function() {
         observerWishlists.observe(document.querySelector('#wishlists'));
         observerUsers.observe(document.querySelector('#users'));
     });
-
-    /**
-     * News
-     */
-    fetch('/index.php?page=api&module=blog', {
-        method      : 'GET',
-        credentials : 'include',
-    })
-    .then(handleFetchError)
-    .then(handleFetchResponse)
-    .then(function(response) {
-        $('.ui.list.news').html(response.html);
-    });
 });
 
 function showStatistic(elementStatistic, amount, timeout, modified) {

@@ -142,50 +142,6 @@ $user = User::getCurrent();
                         </ul>
                     </div>
                 </div>
-
-                <div class="ui segment">
-                    <h2 class="ui header"><?= __('News') ?></h2>
-
-                    <div class="ui relaxed divided list news">
-
-                        <div class="item">
-                            <i class="large rss middle aligned icon"></i>
-                            <div class="content">
-                                <div class="ui placeholder">
-                                    <div class="paragraph">
-                                        <div class="full line"></div>
-                                        <div class="long line"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="item">
-                            <i class="large rss middle aligned icon"></i>
-                            <div class="content">
-                                <div class="ui placeholder">
-                                    <div class="paragraph">
-                                        <div class="short line"></div>
-                                        <div class="very short line"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="item">
-                            <i class="large rss middle aligned icon"></i>
-                            <div class="content">
-                                <div class="ui placeholder">
-                                    <div class="paragraph">
-                                        <div class="medium line"></div>
-                                        <div class="very long line"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
             </div>
 
             <div class="five wide column">
