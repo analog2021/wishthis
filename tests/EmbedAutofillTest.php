@@ -27,7 +27,8 @@ if (!\defined('ROOT')) {
 );
 
 /**
- * Serves fixture files instead of making real requests.
+ * Serves fixture files instead of making real requests. A fixture is either a
+ * file name or `[file, status, headers]`.
  */
 final class FixtureClient implements ClientInterface
 {
@@ -48,10 +49,18 @@ final class FixtureClient implements ClientInterface
             return $responseFactory->createResponse(404);
         }
 
-        return $responseFactory
-        ->createResponse(200)
+        [$file, $status, $headers] = \is_array($this->fixtures[$url]) ? $this->fixtures[$url] + [1 => 200, 2 => []] : [$this->fixtures[$url], 200, []];
+
+        $response = $responseFactory
+        ->createResponse($status)
         ->withHeader('Content-Type', 'text/html; charset=utf-8')
-        ->withBody($streamFactory->createStreamFromFile(__DIR__ . '/fixtures/embed/' . $this->fixtures[$url]));
+        ->withBody($streamFactory->createStreamFromFile(__DIR__ . '/fixtures/embed/' . $file));
+
+        foreach ($headers as $name => $value) {
+            $response = $response->withHeader($name, $value);
+        }
+
+        return $response;
     }
 }
 
@@ -74,6 +83,11 @@ final class FixtureEmbedCache extends Embed
 
         $this->directory = $directory;
     }
+
+    public function seed(\stdClass $info): void
+    {
+        $this->write($info);
+    }
 }
 
 final class EmbedAutofillTest extends TestCase
@@ -84,6 +98,9 @@ final class EmbedAutofillTest extends TestCase
         'https://www.amazon.com/dp/BLOCKED'       => 'amazon-blocked.html',
         'https://shop.example/foam-roller'        => 'shop-jsonld.html',
         'https://shop.example/desk-lamp'          => 'shop-microdata.html',
+        'https://shop.example/challenge'          => ['cloudflare-challenge.html', 403, ['cf-mitigated' => 'challenge', 'Server' => 'cloudflare']],
+        'https://shop.example/too-many-requests'  => ['not-found.html', 429],
+        'https://shop.example/gone'               => ['not-found.html', 404],
     ];
 
     private FixtureClient $client;
@@ -235,6 +252,58 @@ final class EmbedAutofillTest extends TestCase
         $umlauts = \str_repeat('ü', 130);
 
         $this->assertSame(\str_repeat('ü', 128), \wishthis\Wish::truncateTitle($umlauts));
+    }
+
+    public function testCacheIgnoresBotCheckOfOtherShops(): void
+    {
+        $cache = new FixtureEmbedCache('https://shop.example/challenge', $this->cacheDirectory);
+        $info  = $cache->get(true);
+
+        $this->assertTrue($info->blocked);
+        $this->assertSame('https://shop.example/challenge', $info->url);
+        $this->assertObjectNotHasProperty('title', $info, 'The title of the bot check page ("Just a moment...") must not be used.');
+        $this->assertFalse($cache->exists(), 'The bot check page must not be cached.');
+    }
+
+    public function testRefusedRequestIsBlocked(): void
+    {
+        $cache = new FixtureEmbedCache('https://shop.example/too-many-requests', $this->cacheDirectory);
+        $info  = $cache->get(true);
+
+        $this->assertTrue($info->blocked);
+        $this->assertObjectNotHasProperty('title', $info);
+        $this->assertFalse($cache->exists());
+    }
+
+    public function testErrorPageIsIgnored(): void
+    {
+        $cache = new FixtureEmbedCache('https://shop.example/gone', $this->cacheDirectory);
+        $info  = $cache->get(true);
+
+        $this->assertFalse($info->blocked, 'An error page is not a refusal.');
+        $this->assertSame('https://shop.example/gone', $info->url);
+        $this->assertObjectNotHasProperty('title', $info, 'The title of the error page must not be used.');
+        $this->assertObjectNotHasProperty('image', $info);
+        $this->assertFalse($cache->exists());
+    }
+
+    public function testCachedResultSurvivesBotCheck(): void
+    {
+        $url   = 'https://shop.example/challenge';
+        $cache = new FixtureEmbedCache($url, $this->cacheDirectory);
+
+        $cached        = new \stdClass();
+        $cached->url   = $url;
+        $cached->title = 'Babydoll Top';
+
+        $cache->seed($cached);
+
+        $this->assertTrue($cache->exists());
+
+        $info = $cache->get(true);
+
+        $this->assertSame('Babydoll Top', $info->title);
+        $this->assertObjectNotHasProperty('blocked', $info);
     }
 
     public function testCacheIgnoresEmptyResults(): void
