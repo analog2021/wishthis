@@ -12,6 +12,7 @@ $(function () {
     var wishlistsItems = [];
     var wishlistsApi   = {
         'action'    : 'get wishlists',
+        'on'        : false,
         'onSuccess' : function(response, dropdownWishlists, xhr) {
             /** Save response for later use */
             wishlists      = response.wishlists;

@@ -30,6 +30,7 @@
 -   "Login as" reporting success without switching to the selected user
 -   The "Insufficient power" page not showing the required power
 -   An endless redirect loop for URLs containing encoded characters (such as `%3C`)
+-   The wishlist selection on "My lists" closing immediately when clicking the wishlist name
 
 ### Security
 
