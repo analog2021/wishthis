@@ -5,6 +5,7 @@
 -   Textfield for public wishlist url (#220)
 -   SQLite support (#67)
 -   PHP 8.4 support
+-   "Return to admin" while using "Login as"
 
 ### Changed
 
@@ -25,6 +26,7 @@
 -   Outdated transifex project link (#231)
 -   Apache RewriteRules not working (56bbc6d)
 -   Installations from v1.2.3 and older being sent to the installer after updating, because their `config.php` has no `DATABASE_ENGINE`
+-   "Login as" reporting success without switching to the selected user
 
 ### Security
 
