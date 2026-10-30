@@ -1,3 +1,12 @@
+/**
+ * Fomantic's `.ui.form .two.fields .ui.input input` (width: 0) also hits the
+ * dropdown's absolutely positioned search input, which then only covers the
+ * start of the wishlist name, so clicks on the rest of it don't open the menu.
+ */
+.ui.form .fields .ui.input > .ui.search.dropdown > input.search {
+    width: 100%;
+}
+
 @media (max-width: 991px) {
     .ui.form .two.fields {
         flex-wrap: wrap;
