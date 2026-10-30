@@ -332,7 +332,7 @@ $(function () {
 
                 $('body').toast({ message: wishthis.strings.toast.wish.update });
 
-                showToastAutofillBlocked(response);
+                showToastAutofillBlocked(response, wish_edit.find(form_wish_edit));
 
                 $('.ui.dropdown.filter.priority').api('query');
             });

@@ -28,6 +28,9 @@
 -   Apache RewriteRules not working (56bbc6d)
 -   Installations from v1.2.3 and older being sent to the installer after updating, because their `config.php` has no `DATABASE_ENGINE`
 -   "Login as" reporting success without switching to the selected user
+-   Wishes from shops behind a bot check (e.g. Cloudflare) getting the title "Just a moment..."; wishthis now says that the details need to be added manually
+-   Error pages (e.g. "Page not found") being used as wish details
+-   The "Details not filled in" warning showing although the title and image were already added
 -   The "Insufficient power" page not showing the required power
 -   An endless redirect loop for URLs containing encoded characters (such as `%3C`)
 -   The wishlist selection on "My lists" closing immediately when clicking the wishlist name

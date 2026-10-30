@@ -152,11 +152,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $cache = new Cache\Embed($wish_url);
                     $info  = $cache->get($cache->generateCache());
 
-                    if (empty($wish_title) && empty($wish->title)) {
+                    if (empty($wish_title) && empty($wish->title) && isset($info->title)) {
                         $wish_title = Sanitiser::getTitle($info->title);
                     }
 
-                    if (empty($wish_description) && empty($wish->description)) {
+                    if (empty($wish_description) && empty($wish->description) && isset($info->description)) {
                         $wish_description = Sanitiser::getText($info->description);
                     }
 

@@ -38,6 +38,30 @@ class Embed extends Cache
     }
 
     /**
+     * Whether the shop served a bot check or refused the request, instead of
+     * the page itself.
+     *
+     * @param \Embed\Extractor $embedInfo
+     *
+     * @return bool
+     */
+    private static function isBlocked(\Embed\Extractor $embedInfo): bool
+    {
+        if ($embedInfo instanceof AmazonExtractor && $embedInfo->isBlocked()) {
+            return true;
+        }
+
+        $response = $embedInfo->getResponse();
+
+        /** @see https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/detect-response/ */
+        if ('challenge' === \strtolower($response->getHeaderLine('cf-mitigated'))) {
+            return true;
+        }
+
+        return \in_array($response->getStatusCode(), [403, 429], true);
+    }
+
+    /**
      * Private
      */
     protected function getFilepath(): string
@@ -76,7 +100,7 @@ class Embed extends Cache
                  * The shop refused to show the page. Nothing is cached, and a
                  * previously cached result is still better than nothing.
                  */
-                if ($embedInfo instanceof AmazonExtractor && $embedInfo->isBlocked()) {
+                if (self::isBlocked($embedInfo)) {
                     if (!$this->exists()) {
                         $info->url     = $this->url;
                         $info->blocked = true;
@@ -85,8 +109,14 @@ class Embed extends Cache
                     return $info;
                 }
 
+                /** An error page doesn't describe the wish either */
                 if ($codePage < 200 || $codePage >= 400) {
-                    $generateCache = false;
+                    if (!$this->exists()) {
+                        $info->url     = $this->url;
+                        $info->blocked = false;
+                    }
+
+                    return $info;
                 }
 
                 /** Convert embed info to a saveable format (JSON) stdClass */
