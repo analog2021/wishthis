@@ -240,6 +240,20 @@ class Page
         */
 
         /**
+         * Impersonation notice
+         */
+        if (isset($_SESSION['impersonator'])) {
+            $this->messages[] = self::info(
+                \sprintf(
+                    __('You are logged in as %s. Use %s to return to your own account.'),
+                    $user->getEmail(),
+                    '<a href="' . Page::PAGE_LOGIN_AS . '">' . __('Return to admin') . '</a>'
+                ),
+                __('Impersonating')
+            );
+        }
+
+        /**
          * Link preview
          */
         $screenshot_filepath = ROOT . '/src/assets/img/screenshots/' . $this->name . '.png';
@@ -495,11 +509,18 @@ class Page
                 'url'  => Page::PAGE_PROFILE,
                 'icon' => 'user circle alternate',
             ];
-            if (100 === $user->getPower()) {
+            if (100 === $user->getPower() || isset($_SESSION['impersonator'])) {
                 $pages[$account]['items'][] = [
                     'text' => __('Login as'),
                     'url'  => Page::PAGE_LOGIN_AS,
                     'icon' => 'sign out alternate',
+                ];
+            }
+            if (isset($_SESSION['impersonator'])) {
+                $pages[$account]['items'][] = [
+                    'text' => __('Return to admin'),
+                    'url'  => Page::PAGE_LOGIN_AS,
+                    'icon' => 'undo',
                 ];
             }
             $pages[$account]['items'][] = [
