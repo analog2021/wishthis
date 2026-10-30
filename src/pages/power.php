@@ -8,7 +8,7 @@
 
 namespace wishthis;
 
-$page = new Page(__FILE__, __('Insufficient power'));
+$page = new Page(__FILE__, __('Access denied'));
 $page->header();
 $page->bodyStart();
 $page->navigation();
