@@ -180,12 +180,17 @@ global $options;
         /** API */
         $.fn.api.settings.api = {
             <?php
+            /** `new URL()` replaces `$_GET`, which the page still needs after the header. */
+            $requestGET = $_GET;
+
             foreach ($api_urls as $action => $url) {
                 $url    = new URL($url);
                 $pretty = $url->getPretty();
 
                 echo '\'' . $action . '\' : \'' . $pretty . '\',' . PHP_EOL;
             }
+
+            $_GET = $requestGET;
             ?>
         };
     });

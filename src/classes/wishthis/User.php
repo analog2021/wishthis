@@ -502,7 +502,7 @@ class User
             'DELETE FROM `sessions`
                    WHERE `session` = :session',
             [
-                'session' => $_COOKIE['wishthis'],
+                'session' => $_COOKIE['wishthis_session'] ?? '',
             ]
         );
 
@@ -510,7 +510,8 @@ class User
         unset($_SESSION);
 
         /** Delete cookie */
-        \setcookie('wishthis_session', '', \time() - 3600);
+        \setcookie('wishthis_session', '', \time() - 3600, '/');
+        unset($_COOKIE['wishthis_session']);
     }
 
     public function delete(): void
