@@ -8,12 +8,13 @@
 
 namespace wishthis;
 
-$page = new Page(__FILE__, __('Insufficient power'));
+$page = new Page(__FILE__, __('Access denied'));
 $page->header();
 $page->bodyStart();
 $page->navigation();
 
-$user = User::getCurrent();
+/** Administrators have a power of 100, see `User::$power`. */
+$requiresAdmin = (int) ($_GET['required'] ?? 0) >= 100;
 ?>
 
 <main>
@@ -22,7 +23,7 @@ $user = User::getCurrent();
 
         <div class="ui segment">
             <h2 class="ui header"><?= __('Restricted access') ?></h2>
-            <p><?= \sprintf(__('You do not have enough power to view this page. You need %s to see this page, but only have %s.'), '<strong>' . (int) ($_GET['required'] ?? 0) . '</strong>', '<strong>' . $user->getPower() . '</strong>') ?></p>
+            <p><?= $requiresAdmin ? __('Admin permissions required - access denied.') : __('Access denied.') ?></p>
         </div>
     </div>
 </main>

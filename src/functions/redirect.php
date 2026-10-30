@@ -56,7 +56,11 @@ function redirect(string $target)
         }
     }
 
-    if ($target !== $_SERVER['REQUEST_URI']) {
+    /**
+     * `URL` decodes the request URI, so targets built from it are decoded too.
+     * Compare decoded values, otherwise URLs like `?q=%3C` redirect forever.
+     */
+    if (\urldecode($target) !== \urldecode($_SERVER['REQUEST_URI'])) {
         \header('Location: ' . $target);
         die();
     }

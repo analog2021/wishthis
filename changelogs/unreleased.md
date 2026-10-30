@@ -10,6 +10,7 @@
 ### Changed
 
 -   Updated translations from transifex
+-   The "Insufficient power" page says "Admin permissions required - access denied." instead of showing power numbers
 -   The installer no longer runs while `src/config/config.php` exists, since installing overwrites it and deletes all data
 
 ### Deprecated
@@ -28,6 +29,7 @@
 -   Installations from v1.2.3 and older being sent to the installer after updating, because their `config.php` has no `DATABASE_ENGINE`
 -   "Login as" reporting success without switching to the selected user
 -   The "Insufficient power" page not showing the required power
+-   An endless redirect loop for URLs containing encoded characters (such as `%3C`)
 
 ### Security
 
