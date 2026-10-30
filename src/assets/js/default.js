@@ -302,10 +302,15 @@ function showFailure(title = '', content = '', status = 200) {
 }
 
 /**
- * Tells the user when a shop refused to let wishthis read the wish URL.
+ * Tells the user when a shop refused to let wishthis read the wish URL and
+ * the title or image of the submitted wish form is still missing.
  */
-function showToastAutofillBlocked(response) {
+function showToastAutofillBlocked(response, form) {
     if (!response || !response.info || !response.info.blocked) {
+        return;
+    }
+
+    if (form && form.find('[name="wish_title"]').val() && form.find('[name="wish_image"]').val()) {
         return;
     }
 
