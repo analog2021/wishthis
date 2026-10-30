@@ -91,6 +91,37 @@ $user = User::getCurrent();
                 </div>
 
                 <div class="ui segment">
+                    <h2 class="ui header"><?= __('Sharing lists & fulfilling wishes') ?></h2>
+
+                    <?php if ($user->isLoggedIn()) { ?>
+                        <p><?= \sprintf(
+                            /** TRANSLATORS: %1$s: Remember list, %2$s: Wishlists, %3$s: Remembered lists */
+                            __('When someone shares their wishlist link with you, click %1$s to save it. Then use the %2$s menu and select %3$s to see saved lists of family and friends!'),
+                            '<strong>' . __('Remember list') . '</strong>',
+                            '<strong>' . __('Wishlists') . '</strong>',
+                            '<strong>' . __('Remembered lists') . '</strong>'
+                        ) ?></p>
+
+                        <div class="ui two column doubling stackable centered grid actions">
+                            <div class="column">
+                                <a class="ui fluid primary button"
+                                   href="<?= Page::PAGE_WISHLISTS_SAVED ?>"
+                                   title="<?= __('Remembered lists') ?>"
+                                >
+                                    <?= __('Remembered lists') ?>
+                                </a>
+                            </div>
+                        </div>
+                    <?php } else { ?>
+                        <p><?= \sprintf(
+                            /** TRANSLATORS: %s: Remember list */
+                            __('When someone shares their wishlist link with you, click %s to save it. Log in to see the saved lists of family and friends in one place!'),
+                            '<strong>' . __('Remember list') . '</strong>'
+                        ) ?></p>
+                    <?php } ?>
+                </div>
+
+                <div class="ui segment">
                     <h2 class="ui header"><?= __('Use case') ?></h2>
 
                     <p><?= __('Your birthday is coming up and you just created a wishlist with all the cool stuff you want. Your friends and family want to make sure you get something you are happy with so you send them your wishlist link and if anybody decides to fulfil one of your wishes, it will disappear for everybody else.') ?></p>
@@ -140,50 +171,6 @@ $user = User::getCurrent();
                                 <div class="content"><?= __('open for feedback and suggestions') ?></div>
                             </li>
                         </ul>
-                    </div>
-                </div>
-
-                <div class="ui segment">
-                    <h2 class="ui header"><?= __('News') ?></h2>
-
-                    <div class="ui relaxed divided list news">
-
-                        <div class="item">
-                            <i class="large rss middle aligned icon"></i>
-                            <div class="content">
-                                <div class="ui placeholder">
-                                    <div class="paragraph">
-                                        <div class="full line"></div>
-                                        <div class="long line"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="item">
-                            <i class="large rss middle aligned icon"></i>
-                            <div class="content">
-                                <div class="ui placeholder">
-                                    <div class="paragraph">
-                                        <div class="short line"></div>
-                                        <div class="very short line"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="item">
-                            <i class="large rss middle aligned icon"></i>
-                            <div class="content">
-                                <div class="ui placeholder">
-                                    <div class="paragraph">
-                                        <div class="medium line"></div>
-                                        <div class="very long line"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </div>
