@@ -120,6 +120,7 @@ global $options;
                     'title'   : '<?= __('Details not filled in') ?>',
                     'content' : '<?= __('This shop did not let wishthis read the page. Please add the title and image yourself. Tip: right-click the product image and copy its address.') ?>',
                 },
+                'missing'   : '<?= __('Not found automatically: {fields}.') ?>',
             },
 
             'clipboard' : {
@@ -130,6 +131,50 @@ global $options;
                 'success' : {
                     'content' : '<?= __('Link copied to clipboard.') ?>',
                 },
+            },
+        },
+
+        /** Looking up the details of a wish URL */
+        'lookup' : {
+            'loading'     : '<?= __('Looking up the product…') ?>',
+            'found'       : {
+                'title' : '<?= __('Found it!') ?>',
+                'add'   : '<?= __('Check the details and press Add.') ?>',
+                'edit'  : '<?= __('Check the details and press Save.') ?>',
+            },
+            'blocked'     : {
+                'title'   : '<?= __('Couldn\'t get the details automatically.') ?>',
+                'content' : '<?= __('This shop blocks automatic lookups (bot protection).') ?>',
+            },
+            'not_found'   : {
+                'title'   : '<?= __('This link doesn\'t lead to a product page.') ?>',
+                'content' : '<?= __('Please check the link.') ?>',
+            },
+            'unreachable' : {
+                'title'   : '<?= __('The shop\'s website didn\'t answer.') ?>',
+                'content' : '<?= __('Try again later, or fill in the details yourself.') ?>',
+            },
+            'error'       : {
+                'title'   : '<?= __('Couldn\'t look up the product.') ?>',
+                'content' : '<?= __('Please fill in the details yourself.') ?>',
+            },
+            'no_image'    : '<?= __('Couldn\'t tell which picture to use.') ?>',
+            'no_title'    : '<?= __('Couldn\'t find the product name.') ?>',
+            'image_error' : '<?= __('Couldn\'t load the picture.') ?>',
+            'image_check' : '<?= __('Please check the picture address. The wish can be added anyway.') ?>',
+            'add'         : {
+                'title_image' : '<?= __('Please type a title and add a picture yourself.') ?>',
+                'title'       : '<?= __('Please type a title yourself.') ?>',
+                'image'       : '<?= __('Please add a picture yourself.') ?>',
+            },
+            'tip'         : '<?= __('Tip: in the shop, right-click the product picture (on a phone: press and hold it) and choose "Copy image address", then paste it into the Image field.') ?>',
+            'currency'    : '<?= __('The price is in {currency}, so it wasn\'t filled in.') ?>',
+            'add_anyway'  : '<?= __('Add anyway') ?>',
+            'fields'      : {
+                'title'       : '<?= __('title') ?>',
+                'image'       : '<?= __('picture') ?>',
+                'description' : '<?= __('description') ?>',
+                'price'       : '<?= __('price') ?>',
             },
         },
 

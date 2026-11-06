@@ -19,6 +19,7 @@ $wishlist_user                             = User::getFromID($wishlist->getUserI
 $page                                      = new Page(__FILE__, $wishlist->getTitle());
 $page->stylesheets['wish']                 = 'src/assets/css/wish.css';
 $page->stylesheets['wish-card']            = 'src/assets/css/wish-card.css';
+$page->scripts['wish-lookup']              = 'src/assets/js/parts/wish-lookup.js';
 $page->scripts['wish']                     = 'src/assets/js/parts/wish.js';
 $page->scripts['wishlist-filter-priority'] = 'src/assets/js/parts/wishlist-filter-priority.js';
 $page->scripts['wishlists']                = 'src/assets/js/parts/wishlists.js';
