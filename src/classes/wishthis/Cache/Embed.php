@@ -13,9 +13,17 @@ namespace wishthis\Cache;
 use Psr\Http\Client\ClientInterface;
 use wishthis\EmbedAdapters\Amazon\Extractor as AmazonExtractor;
 use wishthis\EmbedAdapters\Detectors\Image as ImageDetector;
+use wishthis\EmbedAdapters\Detectors\Price as PriceDetector;
 
 class Embed extends Cache
 {
+    /**
+     * Why a page could not be read, in `$info->problem`.
+     */
+    public const PROBLEM_BLOCKED     = 'blocked';
+    public const PROBLEM_NOT_FOUND   = 'not_found';
+    public const PROBLEM_UNREACHABLE = 'unreachable';
+
     /**
      * Returns an Embed instance with wishthis' own adapters and detectors.
      *
@@ -33,6 +41,7 @@ class Embed extends Cache
         }
 
         $factory->addDetector('image', ImageDetector::class);
+        $factory->addDetector('price', PriceDetector::class);
 
         return $embed;
     }
@@ -59,6 +68,26 @@ class Embed extends Cache
         }
 
         return \in_array($response->getStatusCode(), [403, 429], true);
+    }
+
+    /**
+     * Returns the cached info if there is one, since it is still better than
+     * nothing. Otherwise only says why the page could not be read.
+     *
+     * @param \stdClass $info    The cached info (or an empty one).
+     * @param string    $problem One of the `PROBLEM_*` constants.
+     *
+     * @return \stdClass
+     */
+    private function getWithProblem(\stdClass $info, string $problem): \stdClass
+    {
+        if (!$this->exists()) {
+            $info->url     = $this->url;
+            $info->blocked = self::PROBLEM_BLOCKED === $problem;
+            $info->problem = $problem;
+        }
+
+        return $info;
     }
 
     /**
@@ -101,22 +130,15 @@ class Embed extends Cache
                  * previously cached result is still better than nothing.
                  */
                 if (self::isBlocked($embedInfo)) {
-                    if (!$this->exists()) {
-                        $info->url     = $this->url;
-                        $info->blocked = true;
-                    }
-
-                    return $info;
+                    return $this->getWithProblem($info, self::PROBLEM_BLOCKED);
                 }
 
                 /** An error page doesn't describe the wish either */
                 if ($codePage < 200 || $codePage >= 400) {
-                    if (!$this->exists()) {
-                        $info->url     = $this->url;
-                        $info->blocked = false;
-                    }
-
-                    return $info;
+                    return $this->getWithProblem(
+                        $info,
+                        \in_array($codePage, [404, 410], true) ? self::PROBLEM_NOT_FOUND : self::PROBLEM_UNREACHABLE
+                    );
                 }
 
                 /** Convert embed info to a saveable format (JSON) stdClass */
@@ -142,10 +164,16 @@ class Embed extends Cache
                 $info->price         = null;
                 $info->currency      = null;
                 $info->blocked       = false;
+                $info->problem       = null;
 
                 if ($embedInfo instanceof AmazonExtractor) {
                     $info->price    = $embedInfo->getPrice();
                     $info->currency = $embedInfo->getCurrency();
+                }
+
+                if (null === $info->price && $embedInfo->price) {
+                    $info->price    = $embedInfo->price['price'];
+                    $info->currency = $embedInfo->price['currency'];
                 }
 
                 /** Some websites repeat the title as description */
@@ -170,9 +198,9 @@ class Embed extends Cache
                     }
                 }
             } catch (\Throwable $ex) {
-                $generateCache = false;
+                \error_log('Unable to read ' . $this->url . ': ' . $ex->getMessage());
 
-                echo $ex->getMessage();
+                return $this->getWithProblem($info, self::PROBLEM_UNREACHABLE);
             }
 
             if ($generateCache) {

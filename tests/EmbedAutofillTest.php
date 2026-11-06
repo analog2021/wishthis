@@ -28,7 +28,7 @@ if (!\defined('ROOT')) {
 
 /**
  * Serves fixture files instead of making real requests. A fixture is either a
- * file name or `[file, status, headers]`.
+ * file name, `[file, status, headers]` or an exception to throw.
  */
 final class FixtureClient implements ClientInterface
 {
@@ -47,6 +47,10 @@ final class FixtureClient implements ClientInterface
 
         if (!isset($this->fixtures[$url])) {
             return $responseFactory->createResponse(404);
+        }
+
+        if ($this->fixtures[$url] instanceof \Throwable) {
+            throw $this->fixtures[$url];
         }
 
         [$file, $status, $headers] = \is_array($this->fixtures[$url]) ? $this->fixtures[$url] + [1 => 200, 2 => []] : [$this->fixtures[$url], 200, []];
@@ -92,6 +96,11 @@ final class FixtureEmbedCache extends Embed
 
 final class EmbedAutofillTest extends TestCase
 {
+    private const FIXTURES_SHOP = [
+        'https://shop.example/hoodie'             => 'shop-meta-price.html',
+        'https://shop.example/server-error'       => ['not-found.html', 500],
+    ];
+
     private const FIXTURES = [
         'https://www.amazon.com/dp/PRODUCT'       => 'amazon-product.html',
         'https://www.amazon.de/dp/BOOK'           => 'amazon-book.html',
@@ -108,7 +117,11 @@ final class EmbedAutofillTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->client                = new FixtureClient(self::FIXTURES);
+        $this->client                = new FixtureClient(
+            self::FIXTURES + self::FIXTURES_SHOP + [
+                'https://shop.example/timeout' => new \RuntimeException('Operation timed out'),
+            ]
+        );
         FixtureEmbedCache::$client   = $this->client;
         $this->cacheDirectory        = \sys_get_temp_dir() . '/wishthis-embed-test-' . \bin2hex(\random_bytes(4)) . '/embed';
     }
@@ -166,6 +179,7 @@ final class EmbedAutofillTest extends TestCase
         $info = $this->extract('https://shop.example/foam-roller');
 
         $this->assertSame('https://shop.example/img/roller-large.jpg', (string) $info->image);
+        $this->assertSame(['price' => 24.95, 'currency' => 'USD'], $info->price, 'The price is read from the linked data offers.');
     }
 
     public function testMicrodataImage(): void
@@ -173,6 +187,18 @@ final class EmbedAutofillTest extends TestCase
         $info = $this->extract('https://shop.example/desk-lamp');
 
         $this->assertSame('https://shop.example/images/lamp.jpg', (string) $info->image);
+        $this->assertSame(['price' => 19.99, 'currency' => 'EUR'], $info->price, 'A decimal comma is understood.');
+    }
+
+    public function testPriceFromProductMetas(): void
+    {
+        $cache = new FixtureEmbedCache('https://shop.example/hoodie', $this->cacheDirectory);
+        $info  = $cache->get(true);
+
+        $this->assertSame('Hoodie', $info->title);
+        $this->assertSame(1299.0, $info->price, 'Thousands separators are removed.');
+        $this->assertSame('EUR', $info->currency);
+        $this->assertNull($info->problem);
     }
 
     public function testCacheStoresAmazonDetails(): void
@@ -200,6 +226,7 @@ final class EmbedAutofillTest extends TestCase
         $info  = $cache->get(true);
 
         $this->assertTrue($info->blocked);
+        $this->assertSame(Embed::PROBLEM_BLOCKED, $info->problem);
         $this->assertSame('https://www.amazon.com/dp/BLOCKED', $info->url);
         $this->assertObjectNotHasProperty('title', $info);
         $this->assertFalse($cache->exists(), 'The bot check page must not be cached.');
@@ -260,6 +287,7 @@ final class EmbedAutofillTest extends TestCase
         $info  = $cache->get(true);
 
         $this->assertTrue($info->blocked);
+        $this->assertSame(Embed::PROBLEM_BLOCKED, $info->problem);
         $this->assertSame('https://shop.example/challenge', $info->url);
         $this->assertObjectNotHasProperty('title', $info, 'The title of the bot check page ("Just a moment...") must not be used.');
         $this->assertFalse($cache->exists(), 'The bot check page must not be cached.');
@@ -281,10 +309,33 @@ final class EmbedAutofillTest extends TestCase
         $info  = $cache->get(true);
 
         $this->assertFalse($info->blocked, 'An error page is not a refusal.');
+        $this->assertSame(Embed::PROBLEM_NOT_FOUND, $info->problem);
         $this->assertSame('https://shop.example/gone', $info->url);
         $this->assertObjectNotHasProperty('title', $info, 'The title of the error page must not be used.');
         $this->assertObjectNotHasProperty('image', $info);
         $this->assertFalse($cache->exists());
+    }
+
+    public function testUnreachableShop(): void
+    {
+        /** The failed request is logged, which is expected here */
+        $errorLog = \ini_set('error_log', '/dev/null');
+
+        foreach (['https://shop.example/server-error', 'https://shop.example/timeout'] as $url) {
+            $cache = new FixtureEmbedCache($url, $this->cacheDirectory);
+
+            \ob_start();
+            $info   = $cache->get(true);
+            $output = \ob_get_clean();
+
+            $this->assertSame(Embed::PROBLEM_UNREACHABLE, $info->problem, $url);
+            $this->assertFalse($info->blocked, $url);
+            $this->assertObjectNotHasProperty('title', $info, $url);
+            $this->assertSame('', $output, 'Nothing is printed into the API response.');
+            $this->assertFalse($cache->exists(), $url);
+        }
+
+        \ini_set('error_log', (string) $errorLog);
     }
 
     public function testCachedResultSurvivesBotCheck(): void
