@@ -67,16 +67,31 @@ final class WishDetailsTest extends TestCase
         $this->assertSame(['title', 'image', 'description', 'price'], $details['missing']);
     }
 
-    public function testUnreachableImageIsMissing(): void
+    public function testMissingImageIsLeftOut(): void
     {
         $details = Wish::getDetailsFromInfo(
             self::info(['title' => 'Hoodie', 'image' => 'https://shop.example/hoodie.jpg']),
             'EUR',
-            self::imageResponse(403)
+            self::imageResponse(404)
         );
 
         $this->assertSame('', $details['image']);
+        $this->assertTrue($details['imageError']);
         $this->assertContains('image', $details['missing']);
+    }
+
+    public function testImageRefusedToServersIsKept(): void
+    {
+        foreach ([403, 429] as $code) {
+            $details = Wish::getDetailsFromInfo(
+                self::info(['title' => 'Hoodie', 'image' => 'https://shop.example/hoodie.jpg']),
+                'EUR',
+                self::imageResponse($code)
+            );
+
+            $this->assertSame('https://shop.example/hoodie.jpg', $details['image'], (string) $code);
+            $this->assertFalse($details['imageError']);
+        }
     }
 
     public function testPriceInOtherCurrencyIsNotUsed(): void
