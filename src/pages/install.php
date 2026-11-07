@@ -167,9 +167,9 @@ switch ($step) {
 
         $prerequisites = [
             [
-                'filename'  => __('PHP Version >= 8.1'),
+                'filename'  => __('PHP Version >= 8.4.1'),
                 'icon'      => 'php',
-                'condition' => \version_compare(\PHP_VERSION, '8.1', '>='),
+                'condition' => \version_compare(\PHP_VERSION, '8.4.1', '>='),
                 'label'     => __('Compatible'),
             ],
             [

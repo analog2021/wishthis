@@ -41,7 +41,7 @@ wishthis is a simple, intuitive and modern wishlist platform to create, manage a
 ## :heavy_check_mark: Requirements
 
 -   Apache
--   PHP 8.1 - 8.5
+-   PHP 8.4.1 - 8.5
     -   [intl](https://www.php.net/manual/en/book.intl.php)
     -   [mbstring](https://www.php.net/manual/en/mbstring.installation.php)
     -   [session](https://www.php.net/manual/en/book.session.php) (enabled by default)
