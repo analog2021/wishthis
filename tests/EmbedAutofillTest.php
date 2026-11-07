@@ -5,94 +5,9 @@ declare(strict_types=1);
 namespace wishthis\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Client\ClientInterface;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Slim\Psr7\Factory\ResponseFactory;
-use Slim\Psr7\Factory\StreamFactory;
 use wishthis\Cache\Embed;
-
-require_once __DIR__ . '/../vendor/autoload.php';
-
-if (!\defined('ROOT')) {
-    \define('ROOT', \dirname(__DIR__));
-}
-
-\spl_autoload_register(
-    function (string $class) {
-        if (\str_starts_with($class, 'wishthis\\') && !\str_starts_with($class, 'wishthis\\Tests\\')) {
-            require ROOT . '/src/classes/' . \str_replace('\\', '/', $class) . '.php';
-        }
-    }
-);
-
-/**
- * Serves fixture files instead of making real requests. A fixture is either a
- * file name, `[file, status, headers]` or an exception to throw.
- */
-final class FixtureClient implements ClientInterface
-{
-    public array $requested = [];
-
-    public function __construct(private array $fixtures)
-    {
-    }
-
-    public function sendRequest(RequestInterface $request): ResponseInterface
-    {
-        $url                 = (string) $request->getUri();
-        $this->requested[]   = $url;
-        $responseFactory     = new ResponseFactory();
-        $streamFactory       = new StreamFactory();
-
-        if (!isset($this->fixtures[$url])) {
-            return $responseFactory->createResponse(404);
-        }
-
-        if ($this->fixtures[$url] instanceof \Throwable) {
-            throw $this->fixtures[$url];
-        }
-
-        [$file, $status, $headers] = \is_array($this->fixtures[$url]) ? $this->fixtures[$url] + [1 => 200, 2 => []] : [$this->fixtures[$url], 200, []];
-
-        $response = $responseFactory
-        ->createResponse($status)
-        ->withHeader('Content-Type', 'text/html; charset=utf-8')
-        ->withBody($streamFactory->createStreamFromFile(__DIR__ . '/fixtures/embed/' . $file));
-
-        foreach ($headers as $name => $value) {
-            $response = $response->withHeader($name, $value);
-        }
-
-        return $response;
-    }
-}
-
-/**
- * The embed cache, writing to a temporary directory and using the fixture
- * client.
- */
-final class FixtureEmbedCache extends Embed
-{
-    public static ?ClientInterface $client = null;
-
-    public static function createEmbed(?ClientInterface $client = null): \Embed\Embed
-    {
-        return parent::createEmbed(self::$client);
-    }
-
-    public function __construct(string $url, string $directory)
-    {
-        parent::__construct($url);
-
-        $this->directory = $directory;
-    }
-
-    public function seed(\stdClass $info): void
-    {
-        $this->write($info);
-    }
-}
+use wishthis\Tests\Support\FixtureClient;
+use wishthis\Tests\Support\FixtureEmbedCache;
 
 final class EmbedAutofillTest extends TestCase
 {
@@ -115,15 +30,34 @@ final class EmbedAutofillTest extends TestCase
     private FixtureClient $client;
     private string $cacheDirectory;
 
+    public static function setUpBeforeClass(): void
+    {
+        require_once __DIR__ . '/../vendor/autoload.php';
+
+        if (!\defined('ROOT')) {
+            \define('ROOT', \dirname(__DIR__));
+        }
+
+        \spl_autoload_register(
+            function (string $class) {
+                if (\str_starts_with($class, 'wishthis\\Tests\\Support\\')) {
+                    require __DIR__ . '/Support/' . \substr($class, \strlen('wishthis\\Tests\\Support\\')) . '.php';
+                } elseif (\str_starts_with($class, 'wishthis\\') && !\str_starts_with($class, 'wishthis\\Tests\\')) {
+                    require ROOT . '/src/classes/' . \str_replace('\\', '/', $class) . '.php';
+                }
+            }
+        );
+    }
+
     protected function setUp(): void
     {
-        $this->client                = new FixtureClient(
+        $this->client              = new FixtureClient(
             self::FIXTURES + self::FIXTURES_SHOP + [
                 'https://shop.example/timeout' => new \RuntimeException('Operation timed out'),
             ]
         );
-        FixtureEmbedCache::$client   = $this->client;
-        $this->cacheDirectory        = \sys_get_temp_dir() . '/wishthis-embed-test-' . \bin2hex(\random_bytes(4)) . '/embed';
+        FixtureEmbedCache::$client = $this->client;
+        $this->cacheDirectory      = \sys_get_temp_dir() . '/wishthis-embed-test-' . \bin2hex(\random_bytes(4)) . '/embed';
     }
 
     protected function tearDown(): void
