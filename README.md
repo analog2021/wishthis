@@ -1,5 +1,21 @@
 ![wishthis logo](/src/assets/img/logo-readme.svg?v=2 "wishthis logo")
 
+> [!NOTE]
+> Heads up: this is my personal fork of [wishthis](https://github.com/wishthis/wishthis), and the changes are vibe-coded. I described what I wanted, an AI (Claude Code) wrote most of the code, and I tested it. It's not part of the official wishthis project.
+
+### What's different in this fork
+
+-   Runs on PHP 8.5
+-   Spoilers page for wishlist owners: see which wishes were fulfilled, and mark them as still needed
+-   Smarter wish auto-fill: details and a picture preview as soon as a link is pasted, Amazon product details, prices from any shop that publishes them, and a clear message when a shop blocks lookups
+-   Links are kept exactly as pasted, so size and colour options aren't lost
+-   Security fixes: users can only change their own wishlists and wishes, and logging out now ends the session
+-   "Login as" works, with a "Return to admin" option
+-   Installer and update fixes so existing installs and configs aren't overwritten
+-   Home page: a section on sharing lists replaces the news section
+
+Full list of changes: [changelogs/unreleased.md](changelogs/unreleased.md)
+
 # Make a wish
 
 wishthis is a simple, intuitive and modern wishlist platform to create, manage and view your wishes for any kind of occasion ([demo](https://wishthis.online)). Currently, wishthis is available in **99** different locales!
