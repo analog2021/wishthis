@@ -166,6 +166,21 @@ class Wish
     }
 
     /**
+     * Returns how many characters a title takes up in the database. Saving
+     * encodes some symbols (`&`, quotes, `<`, `>` and control characters
+     * become e. g. `&#38;`) and escapes backslashes, see `src/api/wishes.php`.
+     * `getWishTitleStoredLength()` in `wish-lookup.js` counts the same way.
+     *
+     * @param string $title Plain text, as typed by the user.
+     *
+     * @return int
+     */
+    public static function getStoredTitleLength(string $title): int
+    {
+        return \mb_strlen(\addslashes(\filter_var($title, \FILTER_SANITIZE_SPECIAL_CHARS)));
+    }
+
+    /**
      * Shortens a title found by looking up a URL, at a word break if there is
      * one, so the title field isn't full and the user can still type in it.
      *
@@ -175,21 +190,34 @@ class Wish
      */
     public static function shortenLookupTitle(string $title): string
     {
-        if (\mb_strlen($title) <= self::TITLE_LOOKUP_LENGTH) {
+        if (self::getStoredTitleLength($title) <= self::TITLE_LOOKUP_LENGTH) {
             return $title;
         }
 
-        /** One character more, to tell whether the cut is at a word break */
-        $title     = \mb_substr($title, 0, self::TITLE_LOOKUP_LENGTH + 1);
-        $lastSpace = \mb_strrpos($title, ' ');
+        /** The number of characters which fit, as stored in the database */
+        $fit    = 0;
+        $length = 0;
 
-        if (false !== $lastSpace && $lastSpace >= self::TITLE_LOOKUP_LENGTH / 2) {
-            $title = \mb_substr($title, 0, $lastSpace);
-        } else {
-            $title = \mb_substr($title, 0, self::TITLE_LOOKUP_LENGTH);
+        foreach (\mb_str_split($title) as $character) {
+            $length += self::getStoredTitleLength($character);
+
+            if ($length > self::TITLE_LOOKUP_LENGTH) {
+                break;
+            }
+
+            $fit++;
         }
 
-        return \preg_replace('/[\s,;:|\/\-–—]+$/u', '', $title);
+        /** One character more, to tell whether the cut is at a word break */
+        $lastSpace = \mb_strrpos(\mb_substr($title, 0, $fit + 1), ' ');
+
+        if (false !== $lastSpace && $lastSpace >= $fit / 2) {
+            $title = \mb_substr($title, 0, $lastSpace);
+        } else {
+            $title = \mb_substr($title, 0, $fit);
+        }
+
+        return \preg_replace('/[\s,;:|\/\-–—&+]+$/u', '', $title);
     }
 
     /**

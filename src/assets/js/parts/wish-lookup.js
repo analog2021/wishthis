@@ -42,27 +42,85 @@ function resetWishLookup(form) {
 }
 
 /**
- * Shows how long the title is once it gets near the limit, and says so when
- * it is full: the browser silently ignores typing in a full field.
+ * Returns how many characters a title takes up in the database. Saving
+ * encodes some symbols (`&`, quotes, `<`, `>` and control characters become
+ * e. g. `&#38;`) and escapes backslashes. Counts the same way as
+ * `Wish::getStoredTitleLength()`.
+ */
+function getWishTitleStoredLength(title) {
+    return Array.from(title).reduce(function(length, character) {
+        var code = character.codePointAt(0);
+
+        if ('&\'"<>'.includes(character) || code < 32) {
+            return length + ('&#' + code + ';').length;
+        }
+
+        if ('\\' === character) {
+            return length + 2;
+        }
+
+        return length + 1;
+    }, 0);
+}
+
+/**
+ * Shows how long the title is (as stored) once it gets near the limit, says
+ * so when it is full (the browser silently ignores typing in a full field)
+ * and when symbols have made it too long.
+ *
+ * @returns {boolean} Whether the title is too long to be saved.
  */
 function updateWishTitleLength(form) {
     var input  = form.find('[name="wish_title"]');
+    var field  = input.closest('.field');
     var hint   = form.find('.wish-title-length');
     var max    = parseInt(input.attr('maxlength'), 10);
-    var length = input.val().length;
+    var length = getWishTitleStoredLength(input.val());
 
     if (!max || length < max - 28) {
-        hint.hide().removeClass('at-limit').empty();
+        hint.hide().removeClass('at-limit too-long').empty();
+        field.removeClass('error');
 
-        return;
+        return false;
     }
 
-    var isFull = length >= max;
+    var isFull    = length === max;
+    var isTooLong = length > max;
+    var message   = '';
 
+    if (isFull) {
+        message = ' – ' + wishthis.strings.title_limit;
+    } else if (isTooLong) {
+        message = ' – ' + wishthis.strings.title_too_long.replace('{count}', length - max);
+    }
+
+    /** The strings are HTML */
     hint
     .toggleClass('at-limit', isFull)
-    .text(length + ' / ' + max + (isFull ? ' – ' + wishthis.strings.title_limit : ''))
+    .toggleClass('too-long', isTooLong)
+    .html(length + ' / ' + max + message)
     .show();
+
+    field.toggleClass('error', isTooLong);
+
+    return isTooLong;
+}
+
+/**
+ * Keeps a title which is too long from being saved, as the end would be cut
+ * off.
+ *
+ * @returns {boolean} Whether the title is too long.
+ */
+function isWishTitleTooLong(form) {
+    if (!updateWishTitleLength(form)) {
+        return false;
+    }
+
+    form.find('.item[data-tab="general"]').tab('change tab', 'general');
+    form.find('[name="wish_title"]').trigger('focus');
+
+    return true;
 }
 
 /**
