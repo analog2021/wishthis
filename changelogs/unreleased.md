@@ -33,6 +33,7 @@
 ### Removed
 
 -   The news section on the home page
+-   The unused "Wish temporarily fulfilled" overlay and 30-minute hold. Nothing could start it since the card's Fulfil button was removed; "Fulfil wish" makes a wish unavailable right away, and the person who fulfilled it can undo that for an hour
 -   The "URL mismatch" dialog when adding a wish. The link is kept exactly as pasted, so options like size or colour are never replaced by the address the shop redirected wishthis's server to. This also removes the API request which changed the link of all wishes with the same URL
 
 ### Fixed

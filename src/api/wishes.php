@@ -350,12 +350,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
             $statusesValid = [
                 '',
-                Wish::STATUS_TEMPORARY,
                 Wish::STATUS_UNAVAILABLE,
                 Wish::STATUS_FULFILLED,
             ];
             $statusesGuest = [
-                Wish::STATUS_TEMPORARY,
                 Wish::STATUS_UNAVAILABLE,
             ];
 
@@ -371,6 +369,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 die(__('The requested Wish was not found.'));
             }
 
+            /**
+             * Older versions stored a timestamp while a wish was held for
+             * someone for a while. Such wishes count as available.
+             */
             $userOwnsWish    = User::getCurrent()->ownsWishlist($wish->getWishlistId());
             $wishIsAvailable = null === $wish->getStatus() || \is_numeric($wish->getStatus());
             $guestMayClaimIt = $wishIsAvailable && \in_array($wish_status, $statusesGuest, true);
@@ -382,10 +384,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
             }
 
             $wish_id = $wish->getId();
-
-            if (Wish::STATUS_TEMPORARY === $wish_status) {
-                $wish_status = \time();
-            }
 
             if ('' === $wish_status) {
                 $wish_status = null;

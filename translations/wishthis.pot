@@ -510,26 +510,6 @@ msgstr ""
 msgid "Would love it"
 msgstr ""
 
-#: classes/wishthis/Wish.php:252
-msgid "Wish temporarily fulfilled"
-msgstr ""
-
-#. TRANSLATORS: %s: Duration (e. g. 30 minutes)
-#: classes/wishthis/Wish.php:257
-#, php-format
-msgid "If this wish is a product, confirm the order was successful and mark it as fulfilled here. If you do not confirm this wish as fulfilled, it will become available again to others after %s."
-msgstr ""
-
-#. TRANSLATORS: %d Amount of minutes
-#: classes/wishthis/Wish.php:260
-#, php-format
-msgid "%d minutes"
-msgstr ""
-
-#: classes/wishthis/Wish.php:271
-msgid "Confirm"
-msgstr ""
-
 #: classes/wishthis/Wish.php:320
 msgid "Wish not found"
 msgstr ""
