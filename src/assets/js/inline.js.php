@@ -64,7 +64,7 @@ global $options;
             'wish' : {
                 'delete' : {
                     'title'   : '<?= __('Really delete?') ?>',
-                    'content' : '<?= __('Would you really like to delete to this wish? It will be gone forever.') ?>',
+                    'content' : '<?= __('Would you really like to delete this wish? You can undo this for an hour.') ?>',
                     'approve' : '<?= __('Yes, delete') ?>',
                     'deny'    : '<?= __('No, keep') ?>',
                 }
