@@ -41,7 +41,7 @@ wishthis is a simple, intuitive and modern wishlist platform to create, manage a
 ## :heavy_check_mark: Requirements
 
 -   Apache
--   PHP 8.1 - 8.3
+-   PHP 8.1 - 8.5
     -   [intl](https://www.php.net/manual/en/book.intl.php)
     -   [mbstring](https://www.php.net/manual/en/mbstring.installation.php)
     -   [session](https://www.php.net/manual/en/book.session.php) (enabled by default)
@@ -53,16 +53,18 @@ wishthis is a simple, intuitive and modern wishlist platform to create, manage a
 ### Git (recommended)
 
 ```
-git clone -b stable https://github.com/wishthis/wishthis.git .
+git clone https://github.com/analog2021/wishthis.git .
 ```
+
+This installs this fork. For the official version, use `git clone -b stable https://github.com/wishthis/wishthis.git .` instead.
 
 Note: after pulling updates for a new version you might be prompted to update the database schema in the wishthis user interface (if necessary). Make sure you are logged in.
 
 ### Manual
 
-Download the code using the [stable branch](https://github.com/wishthis/wishthis/tree/stable) and upload it to your server.
+Download the code from [this fork](https://github.com/analog2021/wishthis) (Code -> Download ZIP) and upload it to your server.
 
-Note: You will have to manually update wishthis by replacing all files with the changes from the `stable` branch.
+Note: You will have to manually update wishthis by replacing all files with a newer download.
 
 ### Note
 
