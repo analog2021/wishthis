@@ -45,7 +45,7 @@ wishthis is a simple, intuitive and modern wishlist platform to create, manage a
     -   [intl](https://www.php.net/manual/en/book.intl.php)
     -   [mbstring](https://www.php.net/manual/en/mbstring.installation.php)
     -   [session](https://www.php.net/manual/en/book.session.php) (enabled by default)
--   MySQL/MariaDB or SQLite
+-   MySQL/MariaDB
 -   [MJML](https://mjml.io/api) api keys (not required and used for rendering emails. Make sure [sendmail](https://www.php.net/manual/en/mail.configuration.php) is configured properly.)
 
 ## :hammer: Installation
