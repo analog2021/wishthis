@@ -423,6 +423,19 @@ switch ($step) {
         $database->query($productsTableCreateSql);
 
         /**
+         * Recently deleted wishes
+         */
+        $wishesDeletedTableCreatePath = \sprintf(
+            '%1$s/src/sql/%2$s/install/wishes-deleted-table-create.sql',
+            ROOT,
+            $database->engine
+        );
+        $wishesDeletedTableCreateSql  = \file_get_contents($wishesDeletedTableCreatePath);
+
+        $database->query('DROP TABLE IF EXISTS `wishes_deleted`;');
+        $database->query($wishesDeletedTableCreateSql);
+
+        /**
          * Options
          */
         $optionsTableCreatePath = \sprintf(

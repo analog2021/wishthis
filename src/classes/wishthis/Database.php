@@ -154,4 +154,31 @@ class Database
 
         return $dateNow;
     }
+
+    /**
+     * Returns an SQL expression for the point in time `$minutes` ago.
+     */
+    public function getDateMinutesAgo(int $minutes): string
+    {
+        $dateMinutesAgo = match ($this->engine) {
+            'mysql'  => \sprintf('NOW() - INTERVAL %d MINUTE', $minutes),
+            'sqlite' => \sprintf('datetime(\'now\', \'-%d minutes\')', $minutes),
+        };
+
+        return $dateMinutesAgo;
+    }
+
+    /**
+     * Returns an SQL expression for the whole minutes elapsed since the
+     * timestamp in `$column`.
+     */
+    public function getMinutesSince(string $column): string
+    {
+        $minutesSince = match ($this->engine) {
+            'mysql'  => \sprintf('TIMESTAMPDIFF(MINUTE, %s, NOW())', $column),
+            'sqlite' => \sprintf('CAST((julianday(\'now\') - julianday(%s)) * 1440 AS INTEGER)', $column),
+        };
+
+        return $minutesSince;
+    }
 }
