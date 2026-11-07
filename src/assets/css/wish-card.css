@@ -42,13 +42,55 @@
 
     border-radius: inherit;
 }
-@media (hover: hover) {
+@media (any-hover: hover) {
     @media (prefers-reduced-motion: no-preference) {
         .wishlist .ui.card > .image {
             transition: 0.2s ease height;
         }
     }
 }
+/**
+ * Grid cards: the preview sits below the title (and the one-line
+ * description, if there is one) instead of behind the whole card.
+ *
+ * Top offset = content padding (1em)
+ *            + header margin-top (-0.21425em of the 1.28571429em header)
+ *            + header line (1.28571429em * 1.28571429)
+ *            + flex gap (0.5em)
+ */
+.wishlist .ui:not(.horizontal).card {
+    --wishImageTop: calc(1em - 1.28571429em * 0.21425 + 1.28571429em * 1.28571429 + 0.5em);
+    --wishWashColor: rgba(255, 255, 255, 0.2);
+    --wishVignetteColor: rgba(255, 255, 255, 0.85);
+}
+.wishlist .ui:not(.horizontal).card:has(> .content > .header):has(> .content > .description) {
+    /** Title and description: one more line (1.42857143em) and gap */
+    --wishImageTop: calc(1em - 1.28571429em * 0.21425 + 1.28571429em * 1.28571429 + 0.5em + 1.42857143em + 0.5em);
+}
+@media (prefers-color-scheme: dark) {
+    .wishlist .ui:not(.horizontal).card {
+        --wishWashColor: rgba(27, 28, 29, 0.2);
+        --wishVignetteColor: rgba(27, 28, 29, 0.85);
+    }
+}
+
+.wishlist .ui:not(.horizontal).card > .image {
+    top: var(--wishImageTop);
+    right: var(--padding);
+    bottom: var(--padding);
+    left: var(--padding);
+
+    min-height: 0;
+    height: auto;
+    overflow: hidden;
+
+    border-radius: 0.28571429rem;
+}
+.wishlist .ui:not(.horizontal).card > .image > img.preview {
+    width: 100%;
+}
+
+/** Vignette (always) and a light wash (when the card is revealed) */
 .wishlist .ui:not(.horizontal).card > .image::before {
     content: '';
     position: absolute;
@@ -59,29 +101,20 @@
 
     z-index: 1;
     border-radius: inherit;
-    background-image:
-        linear-gradient(180deg, rgba(255, 255, 255, 1) 0, rgba(255, 255, 255, 0) 100%),
-        linear-gradient(0, rgba(255, 255, 255, 1) 0, rgba(255, 255, 255, 0) 100%);
+    background-color: transparent;
+    background-image: radial-gradient(ellipse at center, transparent 55%, var(--wishVignetteColor) 100%);
 }
-@media (prefers-color-scheme: dark) {
+@media (prefers-reduced-motion: no-preference) {
     .wishlist .ui:not(.horizontal).card > .image::before {
-        background-image:
-            linear-gradient(180deg, rgba(27, 28, 29, 0.8) 0, transparent 100%),
-            linear-gradient(0, rgba(27, 28, 29, 0.8) 0, transparent 100%);
+        transition: 0.4s ease background-color;
     }
 }
-@media (hover: hover) {
-    @media (prefers-reduced-motion: no-preference) {
-        .wishlist .ui.card > .image::before {
-            transition: 0.4s ease opacity;
-        }
-    }
-    .wishlist .ui.card > .image::before {
-        opacity: 0;
-    }
-
-    .wishlist .ui.card:hover > .image::before {
-        opacity: 1;
+.wishlist .ui:not(.horizontal).card:is(.revealed, :has(:focus-visible)) > .image::before {
+    background-color: var(--wishWashColor);
+}
+@media (any-hover: hover) {
+    .wishlist .ui:not(.horizontal).card:hover > .image::before {
+        background-color: var(--wishWashColor);
     }
 }
 
@@ -135,7 +168,7 @@
     }
 }
 
-@media (hover: hover) {
+@media (any-hover: hover) {
     @media (prefers-reduced-motion: no-preference) {
         .wishlist .ui.card > .image > svg {
             transition:
@@ -172,7 +205,7 @@
     z-index: 1;
     text-shadow: 0.02em 0.02em 0.12em #ddd;
 }
-@media (hover: hover) {
+@media (any-hover: hover) {
     @media (prefers-reduced-motion: no-preference) {
         .wishlist .ui.card > .content:not(.extra) {
             transition:
@@ -214,42 +247,37 @@
     text-shadow: none;
 }
 
-.wishlist .ui.card > .content > .header > .ui.small.label {
-    max-width: calc(0.78571429rem + 0.833em * 2);
-}
-@media (min-width: 768px) {
-    .wishlist .ui.card > .content > .header > .ui.label {
-        max-width: 100%;
-    }
-}
-@media (hover: hover) {
-    @media (prefers-reduced-motion: no-preference) {
-        .wishlist .ui.card > .content > .header > .ui.small.label {
-            transition: 0.4s ease max-width;
-        }
-    }
-
+/**
+ * Priority label: full text at rest, collapsed to the heart icon while the
+ * card is revealed (hover, tap on touch devices, or keyboard focus).
+ */
+@media (prefers-reduced-motion: no-preference) {
     .wishlist .ui.card > .content > .header > .ui.small.label {
-        max-width: 100%;
-    }
-
-    .wishlist .ui.card:hover > .content > .header > .ui.label {
-        max-width: calc(0.78571429rem + 0.833em * 2);
-    }
-}
-
-.wishlist .ui.card > .content > .header > .ui.label > span {
-    opacity: 0;
-}
-@media (hover: hover) {
-    @media (prefers-reduced-motion: no-preference) {
-        .wishlist .ui.card > .content > .header > .ui.label > span {
-            transition: 0.4s ease opacity;
-        }
+        transition: 0.4s ease max-width;
     }
 
     .wishlist .ui.card > .content > .header > .ui.label > span {
-        opacity: 1;
+        transition: 0.4s ease opacity;
+    }
+}
+
+.wishlist .ui.card > .content > .header > .ui.small.label {
+    max-width: 100%;
+}
+.wishlist .ui.card:is(.revealed, :has(:focus-visible)) > .content > .header > .ui.label {
+    max-width: calc(0.78571429rem + 0.833em * 2);
+}
+
+.wishlist .ui.card > .content > .header > .ui.label > span {
+    opacity: 1;
+}
+.wishlist .ui.card:is(.revealed, :has(:focus-visible)) > .content > .header > .ui.label > span {
+    opacity: 0;
+}
+
+@media (any-hover: hover) {
+    .wishlist .ui.card:hover > .content > .header > .ui.label {
+        max-width: calc(0.78571429rem + 0.833em * 2);
     }
 
     .wishlist .ui.card:hover > .content > .header > .ui.label > span {
@@ -264,35 +292,40 @@
     overflow: auto;
 }
 
+/** Single line, so the preview below it starts at a fixed offset */
 .wishlist .ui.card > .content > .description > p {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-@media (hover: hover) {
-    .wishlist .ui:not(.horizontal).card:hover > .content > .description > p {
-        white-space: normal;
-    }
-}
 
-/** Meta */
+/**
+ * Meta and buttons: hidden until the card is revealed (hover, tap on touch
+ * devices, or keyboard focus). While hidden they ignore taps, so a tap on an
+ * invisible button reveals the card instead of triggering the button.
+ */
 .wishlist .ui.card .meta {
     display: flex;
     justify-content: space-between;
 }
-@media (hover: hover) {
-    @media (prefers-reduced-motion: no-preference) {
-        .wishlist .ui.card .meta {
-            transition: 0.2s ease opacity;
-        }
-    }
-
+@media (prefers-reduced-motion: no-preference) {
     .wishlist .ui.card .meta {
-        opacity: 0;
+        transition: 0.2s ease opacity;
     }
+}
 
+.wishlist .ui.card .meta {
+    opacity: 0;
+    pointer-events: none;
+}
+.wishlist .ui.card:is(.revealed, :has(:focus-visible)) .meta {
+    opacity: 1;
+    pointer-events: auto;
+}
+@media (any-hover: hover) {
     .wishlist .ui.card:hover .meta {
         opacity: 1;
+        pointer-events: auto;
     }
 }
 
@@ -307,19 +340,24 @@
 
     margin-top: auto;
 }
-@media (hover: hover) {
-    @media (prefers-reduced-motion: no-preference) {
-        .wishlist .ui.card > .content > .extra.buttons {
-            transition: 0.2s ease opacity;
-        }
-    }
-
+@media (prefers-reduced-motion: no-preference) {
     .wishlist .ui.card > .content > .extra.buttons {
-        opacity: 0;
+        transition: 0.2s ease opacity;
     }
+}
 
+.wishlist .ui.card > .content > .extra.buttons {
+    opacity: 0;
+    pointer-events: none;
+}
+.wishlist .ui.card:is(.revealed, :has(:focus-visible)) > .content > .extra.buttons {
+    opacity: 1;
+    pointer-events: auto;
+}
+@media (any-hover: hover) {
     .wishlist .ui.card:hover > .content > .extra.buttons {
         opacity: 1;
+        pointer-events: auto;
     }
 }
 @media (min-width: 768px) {

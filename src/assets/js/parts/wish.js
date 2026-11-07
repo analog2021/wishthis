@@ -42,6 +42,39 @@ function wish_unset() {
 $(function () {
 
     /**
+     * Reveal on tap
+     *
+     * Devices without hover (phones, tablets) show a card's buttons, price
+     * and provider after a tap on the card, like hovering does with a mouse.
+     *
+     * "any-hover" rather than "hover": an iPad with a trackpad reports
+     * touch as its primary input (hover: none) but can still hover, and
+     * then the CSS :hover rules should do the work.
+     */
+    var can_hover = window.matchMedia('(any-hover: hover)');
+
+    $(document).on('click', function(event) {
+        if (can_hover.matches) {
+            return;
+        }
+
+        var card = $(event.target).closest('.wishlist .ui.card.wish');
+
+        if (0 === card.length) {
+            $('.wishlist .ui.card.wish.revealed').removeClass('revealed');
+
+            return;
+        }
+
+        if ($(event.target).closest('a, button, .button, .dimmer').length > 0) {
+            return;
+        }
+
+        $('.wishlist .ui.card.wish.revealed').not(card).removeClass('revealed');
+        card.toggleClass('revealed');
+    });
+
+    /**
      * Details
      */
     $(document).on('click', '.ui.button.wish-details', function() {
