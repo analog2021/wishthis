@@ -8,7 +8,7 @@
 
 namespace wishthis;
 
-\define('VERSION', '1.5.0');
+\define('VERSION', '1.5.1');
 \define('ROOT', __DIR__);
 \define('DEFAULT_LOCALE', 'en_GB');
 

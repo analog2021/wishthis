@@ -14,7 +14,7 @@ CREATE TABLE users (
     name_nick                  TEXT              DEFAULT NULL,
     channel                    TEXT              DEFAULT NULL,
     advertisements             INTEGER  NOT NULL DEFAULT 0,
-    remove_received_wishes     INTEGER  NOT NULL DEFAULT 1
+    remove_received_wishes     INTEGER  NOT NULL DEFAULT 0
 );
 
 CREATE INDEX idx_password ON users(password);
