@@ -1,6 +1,22 @@
 $(function () {
 
     /**
+     * Removes a table row and shows the empty state once the table is empty.
+     */
+    function removeRow(row) {
+        row.fadeOut(400, function () {
+            var table = row.closest('table');
+
+            row.remove();
+
+            if (0 === table.find('tbody tr').length) {
+                table.remove();
+                $('.spoilers-empty').removeAttr('hidden');
+            }
+        });
+    }
+
+    /**
      * Still need it
      *
      * Makes a fulfilled wish available again.
@@ -37,22 +53,47 @@ $(function () {
         .then(function (response) {
             $('body').toast({ message: wishthis.strings.toast.wish.available });
 
-            row.fadeOut(400, function () {
-                var table = row.closest('table');
-
-                row.remove();
-
-                if (0 === table.find('tbody tr').length) {
-                    table.remove();
-                    $('.spoilers-empty').removeAttr('hidden');
-                }
-            });
+            removeRow(row);
         })
         .catch(function (error) {
             button.prop('disabled', false);
 
             handleFetchCatch(error);
         });
+    });
+
+    /**
+     * Restore
+     *
+     * Puts a recently deleted wish back on its wishlist.
+     */
+    $(document).on('click', '.restore-wish', function () {
+        var button = $(this);
+
+        button.addClass('disabled loading');
+
+        wishRestore(button.attr('data-wish-id'))
+        .then(function () {
+            removeRow(button.closest('tr'));
+        })
+        .catch(function (error) {
+            button.removeClass('disabled loading');
+
+            handleFetchCatch(error);
+        });
+    });
+
+    /**
+     * When
+     *
+     * Shows how long ago a change was made, e.g. "12 minutes ago".
+     */
+    var relativeTime = new Intl.RelativeTimeFormat(wishthis.locale, { 'numeric' : 'auto' });
+
+    $('.minutes-ago').each(function () {
+        var minutes = parseInt($(this).attr('data-minutes-ago'), 10) || 0;
+
+        $(this).text(relativeTime.format(-minutes, 'minute'));
     });
 
 });

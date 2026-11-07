@@ -208,6 +208,73 @@ class Wishlist
         );
     }
 
+    /**
+     * Returns the changes the wishlist owner made recently and may want to
+     * undo: wishes they marked as fulfilled and wishes they deleted. Wishes
+     * claimed by someone else are left out so they stay a surprise.
+     *
+     * @return array[] Newest first. Each entry has a `type` (`fulfilled` or
+     *                 `deleted`), the `minutes` since the change, and either a
+     *                 `wish` (a Wish) or the `deleted` wish data.
+     */
+    public function getRecentChanges(): array
+    {
+        global $database;
+
+        $changes = [];
+        $since   = $database->getDateMinutesAgo(Wish::UNDO_MINUTES);
+
+        $fulfilledQuery = $database->query(
+            '  SELECT ' . Wish::SELECT . ',
+                      ' . $database->getMinutesSince('`wishes`.`edited`') . ' AS "minutes_ago"
+                 FROM ' . Wish::FROM . '
+            LEFT JOIN ' . Wish::LEFT_JOIN . '
+                WHERE `wishes`.`wishlist` = :wishlist_id
+                  AND `wishes`.`status`   = :status_fulfilled
+                  AND `wishes`.`edited`  >= ' . $since,
+            [
+                'wishlist_id'      => $this->id,
+                'status_fulfilled' => Wish::STATUS_FULFILLED,
+            ]
+        );
+
+        foreach ($fulfilledQuery ? $fulfilledQuery->fetchAll() : [] as $wishData) {
+            $changes[] = [
+                'type'    => 'fulfilled',
+                'minutes' => \max(0, (int) $wishData['minutes_ago']),
+                'wish'    => new Wish($wishData),
+            ];
+        }
+
+        $deletedQuery = $database->query(
+            'SELECT `id`, `title`, `description`, `url`,
+                    ' . $database->getMinutesSince('`deleted`') . ' AS "minutes_ago"
+               FROM `wishes_deleted`
+              WHERE `wishlist` = :wishlist_id
+                AND `deleted` >= ' . $since,
+            [
+                'wishlist_id' => $this->id,
+            ]
+        );
+
+        foreach ($deletedQuery ? $deletedQuery->fetchAll() : [] as $wishData) {
+            $changes[] = [
+                'type'    => 'deleted',
+                'minutes' => \max(0, (int) $wishData['minutes_ago']),
+                'deleted' => $wishData,
+            ];
+        }
+
+        \usort(
+            $changes,
+            function (array $a, array $b) {
+                return $a['minutes'] <=> $b['minutes'];
+            }
+        );
+
+        return $changes;
+    }
+
     public function getCards(array $options = ['placeholders' => []]): string
     {
         \ob_start();
