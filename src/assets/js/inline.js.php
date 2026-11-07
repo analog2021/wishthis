@@ -66,7 +66,10 @@ global $options;
                     'content' : '<?= __('Would you really like to delete this wish? You can undo this for an hour.') ?>',
                     'approve' : '<?= __('Yes, delete') ?>',
                     'deny'    : '<?= __('No, keep') ?>',
-                }
+                },
+                'delete_received' : {
+                    'content' : '<?= __('Would you really like to delete all received wishes on this list? You can restore them for an hour with Undo a mistake. The people who gave them to you keep them in their gifts.') ?>',
+                },
             }
         },
 
@@ -114,6 +117,7 @@ global $options;
                 'create'    : '<?= __('Wish successfully created.') ?>',
                 'update'    : '<?= __('Wish information updated.') ?>',
                 'delete'    : '<?= __('Wish successfully deleted.') ?>',
+                'delete_received' : '<?= __('The received wishes have been deleted.') ?>',
                 'available' : '<?= __('The wish is available again.') ?>',
                 'undo'      : '<?= __('Undo') ?>',
                 'restore'   : '<?= __('The wish has been restored.') ?>',
