@@ -386,9 +386,3 @@
         padding: 0.589286em !important;
     }
 }
-
-/** Overlay */
-.ui.card .dimmer,
-.ui.cards > .card .dimmer {
-    z-index: calc(var(--dimmerZIndex) + 2);
-}

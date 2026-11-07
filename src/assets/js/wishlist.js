@@ -53,54 +53,6 @@ $(function() {
     }
 
     /**
-     * Fulfil wish
-     */
-    $(document).on('click', '.ui.button.fulfil', function() {
-        var button = $(this);
-        var card   = button.closest('.ui.card');
-        var column = card.closest('.column');
-
-        /**
-         * Update wish status
-         */
-        button.api({
-            action    : 'update wish status',
-            method    : 'PUT',
-            data      : {
-                'wish_id'     : card.attr('data-id'),
-                'wish_status' : wishthis.wish.status.temporary,
-            },
-            on        : 'now',
-            onSuccess : function(response, element, xhr) {
-                card.dimmer('show');
-            },
-        });
-    });
-
-    /** Confirm */
-    $(document).on('click', '.card .button.confirm', function() {
-        var button = $(this);
-        var card   = button.closest('.card');
-
-        button.api({
-            action    : 'update wish status',
-            method    : 'PUT',
-            data      : {
-                'wish_id'     : card.attr('data-id'),
-                'wish_status' : wishthis.wish.status.unavailable,
-            },
-            on        : 'now',
-            onSuccess : function(response, element, xhr) {
-                card.closest('.column').fadeOut(800);
-
-                showToastGift(response.gift, function () {
-                    $('.ui.dropdown.filter.priority').api('query');
-                });
-            },
-        });
-    });
-
-    /**
      * Save wishlist
      */
     $(document).on('click', '.button.save', function() {

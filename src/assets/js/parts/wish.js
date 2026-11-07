@@ -66,7 +66,7 @@ $(function () {
             return;
         }
 
-        if ($(event.target).closest('a, button, .button, .dimmer').length > 0) {
+        if ($(event.target).closest('a, button, .button').length > 0) {
             return;
         }
 

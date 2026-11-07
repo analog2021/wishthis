@@ -22,10 +22,8 @@ class Wish
 
     public const TITLE_MAX_LENGTH = 128;
 
-    public const STATUS_TEMPORARY         = 'temporary';
-    public const STATUS_TEMPORARY_MINUTES = 30;
-    public const STATUS_UNAVAILABLE       = 'unavailable';
-    public const STATUS_FULFILLED         = 'fulfilled';
+    public const STATUS_UNAVAILABLE = 'unavailable';
+    public const STATUS_FULFILLED   = 'fulfilled';
 
     /**
      * How long a wish owner can undo a change (deleting or fulfilling a wish),
@@ -495,41 +493,10 @@ class Wish
 
         $card_style = 'list' === $this->style ? 'horizontal card' : 'card';
         ?>
-        <div class="ui blurring dimmable fluid <?= $card_style ?> wish"
+        <div class="ui fluid <?= $card_style ?> wish"
             data-id="<?= $this->id ?>"
             data-cache="<?= $generateCache ?>"
         >
-            <div class="ui inverted dimmer">
-                <div class="content">
-                    <div class="center">
-                        <div class="ui icon header">
-                        <i class="history icon"></i>
-                            <div class="content">
-                                <?= __('Wish temporarily fulfilled') ?>
-                                <div class="sub header">
-                                    <?php
-                                    \printf(
-                                        /** TRANSLATORS: %s: Duration (e. g. 30 minutes) */
-                                        __('If this wish is a product, confirm the order was successful and mark it as fulfilled here. If you do not confirm this wish as fulfilled, it will become available again to others after %s.'),
-                                        \sprintf(
-                                            /** TRANSLATORS: %d Amount of minutes */
-                                            '<strong>' . __('%d minutes') . '</strong>',
-                                            self::STATUS_TEMPORARY_MINUTES
-                                        )
-                                    )
-                                    ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button class="ui positive labeled icon button confirm">
-                            <i class="check double icon"></i>
-                            <?= __('Confirm') ?>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
             <?= $this->getCardImage() ?>
 
             <div class="content">

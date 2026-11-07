@@ -21,7 +21,6 @@ global $options;
     wishthis.wish = {
         'no_image' : '<?= Wish::NO_IMAGE ?>',
         'status'   : {
-            'temporary'   : '<?= Wish::STATUS_TEMPORARY ?>',
             'unavailable' : '<?= Wish::STATUS_UNAVAILABLE ?>',
             'fulfilled'   : '<?= Wish::STATUS_FULFILLED ?>',
         }
@@ -226,7 +225,6 @@ global $options;
         'get wishes by wishlist id'   => '/index.php?page=api&module=wishlists&style={style}&priority={priority}&wishlist_id={wishlistid}',
         'get wishes by wishlist hash' => '/index.php?page=api&module=wishlists&style={style}&priority={priority}&wishlist_hash={wishlisthash}',
         'delete wishlist'             => '/index.php?page=api&module=wishlists',
-        'update wish status'          => '/index.php?page=api&module=wishes',
         'delete wish'                 => '/index.php?page=api&module=wishes&wish_id={wishid}',
     ];
     ?>
