@@ -200,9 +200,10 @@ class Gift
         if (Wish::STATUS_UNAVAILABLE === $wish->getStatus() && !$hasNewerGift) {
             $database->query(
                 'UPDATE `wishes`
-                    SET `status` = NULL,
-                        `edited` = ' . $database->getDateNow() . '
-                  WHERE `id`     = :wish_id',
+                    SET `status`   = NULL,
+                        `received` = NULL,
+                        `edited`   = ' . $database->getDateNow() . '
+                  WHERE `id`       = :wish_id',
                 [
                     'wish_id' => $wish->getId(),
                 ]

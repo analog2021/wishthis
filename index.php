@@ -18,6 +18,7 @@ namespace wishthis;
 require 'vendor/autoload.php';
 
 require_once ROOT . '/src/functions/getCookieDomain.php';
+require_once ROOT . '/src/functions/getShortDateFormatter.php';
 require_once ROOT . '/src/functions/gettext.php';
 require_once ROOT . '/src/functions/getWishlistNameSuggestion.php';
 require_once ROOT . '/src/functions/redirect.php';
@@ -130,6 +131,25 @@ if ($options && $options->getOption('isInstalled')) {
     if (-1 === \version_compare($options->version, VERSION)) {
         $options->setOption('updateAvailable', true);
     }
+}
+
+/**
+ * Received wishes
+ *
+ * Fulfilled wishes leave the users lists two weeks after their birthday.
+ * Checked once a day per session, and only once the database has the columns
+ * for it.
+ */
+if (
+       $options
+    && $options->getOption('isInstalled')
+    && -1 !== \version_compare($options->version, '1.5.0')
+    && ($_SESSION['received_checked'] ?? '') !== \date('Y-m-d')
+    && $user->isLoggedIn()
+) {
+    $user->markReceivedWishes();
+
+    $_SESSION['received_checked'] = \date('Y-m-d');
 }
 
 /**

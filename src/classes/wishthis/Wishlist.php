@@ -146,9 +146,13 @@ class Wishlist
                 $user->getWishlists()
             );
 
-            /** Show all wishes (except fulfilled) */
+            /**
+             * Show all wishes, except fulfilled ones and the ones which have
+             * been received (and are only shown under Spoilers).
+             */
             if (\in_array($this->id, $wishlist_ids, true)) {
-                $wish_status = ' AND (`wishes`.`status` IS NULL OR `wishes`.`status` != "' . Wish::STATUS_FULFILLED . '")';
+                $wish_status = ' AND (`wishes`.`status` IS NULL OR `wishes`.`status` != "' . Wish::STATUS_FULFILLED . '")
+                                 AND `wishes`.`received` IS NULL';
             }
         }
 
@@ -188,7 +192,7 @@ class Wishlist
             LEFT JOIN ' . Wish::LEFT_JOIN . '
                 WHERE `wishes`.`wishlist` = :wishlist_id
                   AND `wishes`.`status`  IN (:status_fulfilled, :status_unavailable)
-             ORDER BY `wishes`.`status` ASC, `priority` DESC, `title` ASC;',
+             ORDER BY `wishes`.`received` IS NULL ASC, `wishes`.`received` DESC, `wishes`.`status` ASC, `priority` DESC, `title` ASC;',
             [
                 'wishlist_id'        => $this->id,
                 'status_fulfilled'   => Wish::STATUS_FULFILLED,
