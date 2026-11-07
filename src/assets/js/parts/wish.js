@@ -42,6 +42,35 @@ function wish_unset() {
 $(function () {
 
     /**
+     * Reveal on tap
+     *
+     * Devices without hover (phones, tablets) show a card's buttons, price
+     * and provider after a tap on the card, like hovering does with a mouse.
+     */
+    var can_hover = window.matchMedia('(hover: hover)');
+
+    $(document).on('click', function(event) {
+        if (can_hover.matches) {
+            return;
+        }
+
+        var card = $(event.target).closest('.wishlist .ui.card.wish');
+
+        if (0 === card.length) {
+            $('.wishlist .ui.card.wish.revealed').removeClass('revealed');
+
+            return;
+        }
+
+        if ($(event.target).closest('a, button, .button, .dimmer').length > 0) {
+            return;
+        }
+
+        $('.wishlist .ui.card.wish.revealed').not(card).removeClass('revealed');
+        card.toggleClass('revealed');
+    });
+
+    /**
      * Details
      */
     $(document).on('click', '.ui.button.wish-details', function() {
