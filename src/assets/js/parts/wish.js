@@ -46,8 +46,12 @@ $(function () {
      *
      * Devices without hover (phones, tablets) show a card's buttons, price
      * and provider after a tap on the card, like hovering does with a mouse.
+     *
+     * "any-hover" rather than "hover": an iPad with a trackpad reports
+     * touch as its primary input (hover: none) but can still hover, and
+     * then the CSS :hover rules should do the work.
      */
-    var can_hover = window.matchMedia('(hover: hover)');
+    var can_hover = window.matchMedia('(any-hover: hover)');
 
     $(document).on('click', function(event) {
         if (can_hover.matches) {

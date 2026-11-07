@@ -42,7 +42,7 @@
 
     border-radius: inherit;
 }
-@media (hover: hover) {
+@media (any-hover: hover) {
     @media (prefers-reduced-motion: no-preference) {
         .wishlist .ui.card > .image {
             transition: 0.2s ease height;
@@ -112,7 +112,7 @@
 .wishlist .ui:not(.horizontal).card:is(.revealed, :has(:focus-visible)) > .image::before {
     background-color: var(--wishWashColor);
 }
-@media (hover: hover) {
+@media (any-hover: hover) {
     .wishlist .ui:not(.horizontal).card:hover > .image::before {
         background-color: var(--wishWashColor);
     }
@@ -168,7 +168,7 @@
     }
 }
 
-@media (hover: hover) {
+@media (any-hover: hover) {
     @media (prefers-reduced-motion: no-preference) {
         .wishlist .ui.card > .image > svg {
             transition:
@@ -205,7 +205,7 @@
     z-index: 1;
     text-shadow: 0.02em 0.02em 0.12em #ddd;
 }
-@media (hover: hover) {
+@media (any-hover: hover) {
     @media (prefers-reduced-motion: no-preference) {
         .wishlist .ui.card > .content:not(.extra) {
             transition:
@@ -275,7 +275,7 @@
     opacity: 0;
 }
 
-@media (hover: hover) {
+@media (any-hover: hover) {
     .wishlist .ui.card:hover > .content > .header > .ui.label {
         max-width: calc(0.78571429rem + 0.833em * 2);
     }
@@ -322,7 +322,7 @@
     opacity: 1;
     pointer-events: auto;
 }
-@media (hover: hover) {
+@media (any-hover: hover) {
     .wishlist .ui.card:hover .meta {
         opacity: 1;
         pointer-events: auto;
@@ -354,7 +354,7 @@
     opacity: 1;
     pointer-events: auto;
 }
-@media (hover: hover) {
+@media (any-hover: hover) {
     .wishlist .ui.card:hover > .content > .extra.buttons {
         opacity: 1;
         pointer-events: auto;
