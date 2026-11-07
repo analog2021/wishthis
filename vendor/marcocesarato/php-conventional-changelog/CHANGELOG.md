@@ -1,8 +1,70 @@
-<!--- BEGIN HEADER -->
+<!-- BEGIN HEADER -->
 # Changelog
 
 All notable changes to this project will be documented in this file.
-<!--- END HEADER -->
+<!-- END HEADER -->
+
+## [1.19.1](https://github.com/marcocesarato/php-conventional-changelog/compare/v1.19.0...v1.19.1) (2026-10-04)
+
+### Bug Fixes
+
+
+##### Ci
+
+* Validate conventional PR titles without broken preset ([a5bf88](https://github.com/marcocesarato/php-conventional-changelog/commit/a5bf88fd4bc2c75ad4c3bc8b37d08b2b9f998c29))
+
+##### Dist
+
+* Preserve required files and follow PDS layout [#96](https://github.com/marcocesarato/php-conventional-changelog/issues/96) ([eb9359](https://github.com/marcocesarato/php-conventional-changelog/commit/eb93596de3441e594601998fdd0895e9f500cb4b))
+
+
+### Maintenance
+
+* Publish validated GitHub Releases from version tags, with changelog notes, lean ZIP and tar.gz archives, and SHA-256 checksums ([564867](https://github.com/marcocesarato/php-conventional-changelog/commit/564867ee4400ba6b837e034af54004c95baa6154))
+* Verify distribution archive contents with regression tests ([ff5291](https://github.com/marcocesarato/php-conventional-changelog/commit/ff5291becb93f10d5a4213ccbf1aef7697d73af0))
+
+
+---
+
+## [1.19.0](https://github.com/marcocesarato/php-conventional-changelog/compare/v1.18.2...v1.19.0) (2026-09-06)
+
+### Features
+
+* Add calendar versioning ([4f6617](https://github.com/marcocesarato/php-conventional-changelog/commit/4f6617ddbd0b0026f571a8c9f3cac7901a400f44))
+
+
+---
+
+## [1.18.2](https://github.com/marcocesarato/php-conventional-changelog/compare/v1.18.1...v1.18.2) (2026-09-06)
+
+### Bug Fixes
+
+* Preserve changelog header compatibility ([512d41](https://github.com/marcocesarato/php-conventional-changelog/commit/512d41e293e56b06a0d24a1e51ac377010c501f4))
+* Remove PHP 8.4 deprecation ([b6966f](https://github.com/marcocesarato/php-conventional-changelog/commit/b6966ff074ba3a70614e707738a57340b38b7e4d))
+
+
+---
+
+## [1.18.1](https://github.com/marcocesarato/php-conventional-changelog/compare/v1.17.4...v1.18.1) (2026-09-05)
+
+### Bug Fixes
+
+* Correct GitHub Action runtime requirements ([008f70](https://github.com/marcocesarato/php-conventional-changelog/commit/008f703422b4965fdd8025ce3dce04ddf75b4be8))
+* Enable SSH in Codespaces ([31a0cf](https://github.com/marcocesarato/php-conventional-changelog/commit/31a0cf752e9c7b0d2e8adb2f89e5d8e611e738b5))
+* Load the Composer proxy autoloader ([6dacbe](https://github.com/marcocesarato/php-conventional-changelog/commit/6dacbed84466d8bb78405bfcb4e27377d116e67e))
+* Resolve outstanding compatibility issues [#16](https://github.com/marcocesarato/php-conventional-changelog/issues/16), [#27](https://github.com/marcocesarato/php-conventional-changelog/issues/27), [#35](https://github.com/marcocesarato/php-conventional-changelog/issues/35), [#75](https://github.com/marcocesarato/php-conventional-changelog/issues/75), [#22](https://github.com/marcocesarato/php-conventional-changelog/issues/22), [#24](https://github.com/marcocesarato/php-conventional-changelog/issues/24), [#29](https://github.com/marcocesarato/php-conventional-changelog/issues/29), [#43](https://github.com/marcocesarato/php-conventional-changelog/issues/43), [#56](https://github.com/marcocesarato/php-conventional-changelog/issues/56), [#74](https://github.com/marcocesarato/php-conventional-changelog/issues/74), [#90](https://github.com/marcocesarato/php-conventional-changelog/issues/90), [#93](https://github.com/marcocesarato/php-conventional-changelog/issues/93) ([616091](https://github.com/marcocesarato/php-conventional-changelog/commit/61609110c0817dd9c4ae0c847b4df96fdcf40935))
+* Restore the PHP Codespace image ([3ab768](https://github.com/marcocesarato/php-conventional-changelog/commit/3ab76812ddfd4a22fdb2fd02c3841fa3f6d3f594))
+
+
+---
+
+## [1.17.3](https://github.com/marcocesarato/php-conventional-changelog/compare/v1.17.2...v1.17.3) (2026-01-21)
+
+### Features
+
+* Add support for Symfony 8 ([df24e4a](https://github.com/marcocesarato/php-conventional-changelog/commit/df24e4a2495b10986fc89e0be0369e64e65f2056))
+
+---
 
 ## [1.17.2](https://github.com/marcocesarato/php-conventional-changelog/compare/v1.17.1...v1.17.2) (2024-05-19)
 
@@ -855,4 +917,3 @@ All notable changes to this project will be documented in this file.
 - Generate changelogs and release notes from a project's commit messages and metadata using php composer and automate versioning with semver.org and conventionalcommits.org
 
 ---
-

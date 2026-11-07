@@ -78,6 +78,11 @@ abstract class OutputStyle implements OutputInterface, StyleInterface
         return $this->output->getFormatter();
     }
 
+    public function isSilent(): bool
+    {
+        return $this->output->isSilent();
+    }
+
     public function isQuiet(): bool
     {
         return $this->output->isQuiet();

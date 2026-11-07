@@ -25,7 +25,7 @@ use Symfony\Component\Console\Exception\RuntimeException;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-abstract class Input implements InputInterface, StreamableInputInterface
+abstract class Input implements RawInputInterface, StreamableInputInterface
 {
     protected InputDefinition $definition;
     /** @var resource */
@@ -63,10 +63,10 @@ abstract class Input implements InputInterface, StreamableInputInterface
         $definition = $this->definition;
         $givenArguments = $this->arguments;
 
-        $missingArguments = array_filter(array_keys($definition->getArguments()), fn ($argument) => !\array_key_exists($argument, $givenArguments) && $definition->getArgument($argument)->isRequired());
+        $missingArguments = array_filter(array_keys($definition->getArguments()), static fn ($argument) => !\array_key_exists($argument, $givenArguments) && $definition->getArgument($argument)->isRequired());
 
-        if (\count($missingArguments) > 0) {
-            throw new RuntimeException(sprintf('Not enough arguments (missing: "%s").', implode(', ', $missingArguments)));
+        if ($missingArguments) {
+            throw new RuntimeException(\sprintf('Not enough arguments (missing: "%s").', implode(', ', $missingArguments)));
         }
     }
 
@@ -88,7 +88,7 @@ abstract class Input implements InputInterface, StreamableInputInterface
     public function getArgument(string $name): mixed
     {
         if (!$this->definition->hasArgument($name)) {
-            throw new InvalidArgumentException(sprintf('The "%s" argument does not exist.', $name));
+            throw new InvalidArgumentException(\sprintf('The "%s" argument does not exist.', $name));
         }
 
         return $this->arguments[$name] ?? $this->definition->getArgument($name)->getDefault();
@@ -97,7 +97,7 @@ abstract class Input implements InputInterface, StreamableInputInterface
     public function setArgument(string $name, mixed $value): void
     {
         if (!$this->definition->hasArgument($name)) {
-            throw new InvalidArgumentException(sprintf('The "%s" argument does not exist.', $name));
+            throw new InvalidArgumentException(\sprintf('The "%s" argument does not exist.', $name));
         }
 
         $this->arguments[$name] = $value;
@@ -124,7 +124,7 @@ abstract class Input implements InputInterface, StreamableInputInterface
         }
 
         if (!$this->definition->hasOption($name)) {
-            throw new InvalidArgumentException(sprintf('The "%s" option does not exist.', $name));
+            throw new InvalidArgumentException(\sprintf('The "%s" option does not exist.', $name));
         }
 
         return \array_key_exists($name, $this->options) ? $this->options[$name] : $this->definition->getOption($name)->getDefault();
@@ -137,7 +137,7 @@ abstract class Input implements InputInterface, StreamableInputInterface
 
             return;
         } elseif (!$this->definition->hasOption($name)) {
-            throw new InvalidArgumentException(sprintf('The "%s" option does not exist.', $name));
+            throw new InvalidArgumentException(\sprintf('The "%s" option does not exist.', $name));
         }
 
         $this->options[$name] = $value;
@@ -170,5 +170,39 @@ abstract class Input implements InputInterface, StreamableInputInterface
     public function getStream()
     {
         return $this->stream;
+    }
+
+    public function getRawArguments(): array
+    {
+        return $this->arguments;
+    }
+
+    public function getRawOptions(): array
+    {
+        return $this->options;
+    }
+
+    public function unparse(?array $optionNames = null): array
+    {
+        $rawOptions = $this->getRawOptions();
+
+        $filteredRawOptions = null === $optionNames
+            ? $rawOptions
+            : array_intersect_key($rawOptions, array_fill_keys($optionNames, ''));
+
+        $unparsedOptions = [];
+
+        foreach ($filteredRawOptions as $optionName => $parsedOption) {
+            $option = $this->definition->getOption($optionName);
+
+            $unparsedOptions[] = match (true) {
+                $option->isNegatable() => [\sprintf('--%s%s', $parsedOption ? '' : 'no-', $optionName)],
+                !$option->acceptValue() => [\sprintf('--%s', $optionName)],
+                $option->isArray() => array_map(static fn ($item) => \sprintf('--%s=%s', $optionName, $item), $parsedOption),
+                default => [\sprintf('--%s=%s', $optionName, $parsedOption)],
+            };
+        }
+
+        return array_merge(...$unparsedOptions);
     }
 }

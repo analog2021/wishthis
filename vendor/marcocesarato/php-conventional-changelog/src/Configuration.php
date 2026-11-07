@@ -139,6 +139,20 @@ class Configuration
     protected $skipVerify = false;
 
     /**
+     * Annotate tag.
+     *
+     * @var bool
+     */
+    protected $annotateTag = false;
+
+    /**
+     * Sign tag.
+     *
+     * @var bool
+     */
+    protected $signTag = false;
+
+    /**
      * Render text instead of links.
      *
      * @var bool
@@ -165,6 +179,13 @@ class Configuration
      * @var bool
      */
     protected $hiddenHash = false;
+
+    /**
+     * Hidden author.
+     *
+     * @var bool
+     */
+    protected $hiddenAuthor = true;
 
     /**
      * Tag suffix.
@@ -313,8 +334,11 @@ class Configuration
             'skipBump' => $this->skipBump(),
             'skipTag' => $this->skipTag(),
             'skipVerify' => $this->skipVerify(),
+            'annotateTag' => $this->isAnnotateTag(),
+            'signTag' => $this->isSignTag(),
             'disableLinks' => $this->isDisableLinks(),
             'hiddenHash' => $this->isHiddenHash(),
+            'hiddenAuthor' => $this->isHiddenAuthor(),
             'hiddenMentions' => $this->isHiddenMentions(),
             'hiddenReferences' => $this->isHiddenReferences(),
             'prettyScope' => $this->isPrettyScope(),
@@ -378,10 +402,13 @@ class Configuration
             ->setSkipBump($params['skipBump'])
             ->setSkipTag($params['skipTag'])
             ->setSkipVerify($params['skipVerify'])
+            ->setAnnotateTag($params['annotateTag'])
+            ->setSignTag($params['signTag'])
             // Links
             ->setDisableLinks($params['disableLinks'])
             // Hidden
             ->setHiddenHash($params['hiddenHash'])
+            ->setHiddenAuthor($params['hiddenAuthor'])
             ->setHiddenMentions($params['hiddenMentions'])
             ->setHiddenReferences($params['hiddenReferences'])
             ->setHiddenVersionSeparator($params['hiddenVersionSeparator'])
@@ -615,6 +642,30 @@ class Configuration
         return $this;
     }
 
+    public function isAnnotateTag(): bool
+    {
+        return $this->annotateTag;
+    }
+
+    public function setAnnotateTag(bool $annotateTag): self
+    {
+        $this->annotateTag = $annotateTag;
+
+        return $this;
+    }
+
+    public function isSignTag(): bool
+    {
+        return $this->signTag;
+    }
+
+    public function setSignTag(bool $signTag): self
+    {
+        $this->signTag = $signTag;
+
+        return $this;
+    }
+
     /**
      * @return \string[][]
      */
@@ -763,6 +814,18 @@ class Configuration
     public function setHiddenHash(bool $hiddenHash): self
     {
         $this->hiddenHash = $hiddenHash;
+
+        return $this;
+    }
+
+    public function isHiddenAuthor(): bool
+    {
+        return $this->hiddenAuthor;
+    }
+
+    public function setHiddenAuthor(bool $hiddenAuthor): self
+    {
+        $this->hiddenAuthor = $hiddenAuthor;
 
         return $this;
     }
