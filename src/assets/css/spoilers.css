@@ -27,3 +27,15 @@
     opacity: 0.5;
     cursor: default;
 }
+
+/**
+ * Received
+ *
+ * Wishes which left the list two weeks after the owners birthday.
+ */
+.spoilers .received {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5em;
+}

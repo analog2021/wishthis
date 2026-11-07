@@ -42,7 +42,15 @@ if ('POST' === $_SERVER['REQUEST_METHOD']) {
             $sql = \file_get_contents($version['filepath']);
 
             if ($sql) {
-                $database->query($sql);
+                /**
+                 * A prepared statement only runs the first statement of a
+                 * file on SQLite, so run the whole file directly there.
+                 */
+                if ('sqlite' === $database->engine) {
+                    $database->pdo->exec($sql);
+                } else {
+                    $database->query($sql);
+                }
             }
         }
     }

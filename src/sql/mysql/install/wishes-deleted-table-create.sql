@@ -10,6 +10,7 @@ CREATE TABLE `wishes_deleted` (
     `is_purchasable` BOOLEAN      NOT NULL DEFAULT FALSE,
     `price`          FLOAT        NULL     DEFAULT NULL,
     `deleted`        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `received`       TIMESTAMP    NULL     DEFAULT NULL,
 
     CONSTRAINT `FK_wishes_deleted_wishlists` FOREIGN KEY (`wishlist`) REFERENCES `wishlists` (`id`) ON DELETE CASCADE
 );

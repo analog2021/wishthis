@@ -349,6 +349,43 @@ $page->navigation();
 
                     <div class="ui segment">
                         <form class="ui form" method="POST">
+                            <input type="hidden" name="section" value="received" />
+
+                            <div class="field">
+                                <label><?= __('Received wishes') ?></label>
+
+                                <?php $hasBirthdate = '' !== $user->getBirthdate(); ?>
+                                <div class="ui toggle checkbox remove-received-wishes <?= $hasBirthdate ? '' : 'disabled' ?>">
+                                    <input type="checkbox"
+                                           name="remove-received-wishes"
+                                           <?= $user->getRemoveReceivedWishes() ? 'checked="checked"' : '' ?>
+                                           <?= $hasBirthdate ? '' : 'disabled="disabled"' ?>
+                                    />
+
+                                    <label><?= __('Tidy up after my birthday') ?></label>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <p><?= __('Two weeks after your birthday, wishes that have been fulfilled leave your lists. You can still see them under Spoilers, so you know what you were given.') ?></p>
+
+                                <?php if (!$hasBirthdate) { ?>
+                                    <p><em><?= __('Add your birthday under Personal to use this.') ?></em></p>
+                                <?php } ?>
+                            </div>
+
+                            <?php if ($hasBirthdate) { ?>
+                                <input class="ui primary button"
+                                    type="submit"
+                                    value="<?= __('Save') ?>"
+                                    title="<?= __('Save') ?>"
+                                />
+                            <?php } ?>
+                        </form>
+                    </div>
+
+                    <div class="ui segment">
+                        <form class="ui form" method="POST">
                             <input type="hidden" name="section" value="preferences" />
 
                             <div class="field">

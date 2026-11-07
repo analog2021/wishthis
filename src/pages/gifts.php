@@ -27,11 +27,7 @@ $escape = function (?string $value): string {
     return \htmlspecialchars(\html_entity_decode($value ?? '', \ENT_QUOTES | \ENT_HTML5, 'UTF-8'), \ENT_QUOTES);
 };
 
-$dateFormatter = new \IntlDateFormatter(
-    $user->getLocale(),
-    \IntlDateFormatter::MEDIUM,
-    \IntlDateFormatter::SHORT
-);
+$dateFormatter = \getShortDateFormatter($user->getLocale());
 
 $page->header();
 $page->bodyStart();
@@ -91,7 +87,7 @@ $page->navigation();
                         <th><?= __('Gift') ?></th>
                         <th><?= __('For') ?></th>
                         <th><?= __('Price') ?></th>
-                        <th><?= __('When') ?></th>
+                        <th><?= __('Purchased') ?></th>
                         <th></th>
                     </tr>
                 </thead>
@@ -133,10 +129,11 @@ $page->navigation();
                             </td>
                             <td><?= $gift_price ?></td>
                             <td>
-                                <?php if ($gift['minutes_ago'] < 60) { ?>
-                                    <span class="minutes-ago" data-minutes-ago="<?= $gift['minutes_ago'] ?>"></span>
-                                <?php } else { ?>
-                                    <?= $dateFormatter->format($created) ?>
+                                <?= $dateFormatter->format($created) ?>
+
+                                <?php if ($gift['minutes_ago'] < Wish::UNDO_MINUTES) { ?>
+                                    <br />
+                                    <small class="ui grey text minutes-ago" data-minutes-ago="<?= $gift['minutes_ago'] ?>"></small>
                                 <?php } ?>
                             </td>
                             <td>

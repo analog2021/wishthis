@@ -147,6 +147,9 @@ if (isset($_POST['user-birthdate'])) {
             );
 
             $user->setBirthdate($birthdate);
+
+            /** Check for received wishes again on the next page. */
+            unset($_SESSION['received_checked']);
         }
     }
 }

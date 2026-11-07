@@ -50,6 +50,7 @@ class Wish
         'priority',
         'status',
         'is_purchasable',
+        'received',
     ];
 
     public static array $priorities;
@@ -506,6 +507,14 @@ class Wish
      */
     private ?int $edited;
 
+    /**
+     * A unix timestamp of when this fulfilled wish left the owners lists, two
+     * weeks after their birthday.
+     *
+     * @var int|null
+     */
+    private ?int $received = null;
+
     public string $style = 'grid';
 
     /** Product */
@@ -529,6 +538,7 @@ class Wish
         $this->is_purchasable = $wishData['is_purchasable'];
         $this->edited         = $wishData['edited'] ? \strtotime($wishData['edited']) : null;
         $this->price          = $wishData['price'] ?? null;
+        $this->received       = !empty($wishData['received']) ? \strtotime($wishData['received']) : null;
     }
 
     public function getCard(int $ofUser): string
@@ -753,6 +763,15 @@ class Wish
     public function getStatus(): ?string
     {
         return $this->status;
+    }
+
+    /**
+     * Returns when this wish was received, as a unix timestamp, or `null` if
+     * it is still on the owners lists.
+     */
+    public function getReceived(): ?int
+    {
+        return $this->received;
     }
 
     /**

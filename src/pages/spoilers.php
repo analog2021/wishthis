@@ -33,6 +33,8 @@ $escape = function (string $value): string {
     return \htmlspecialchars(\html_entity_decode($value, \ENT_QUOTES | \ENT_HTML5, 'UTF-8'), \ENT_QUOTES);
 };
 
+$dateFormatter = \getShortDateFormatter($user->getLocale());
+
 $statuses = [
     Wish::STATUS_FULFILLED   => [
         'name'        => __('Fulfilled'),
@@ -181,11 +183,38 @@ $page->navigation();
                 <?= __('Back to my lists') ?>
             </a>
         <?php } else { ?>
-            <?php $wishes = $wishlist->getSpoilers(); ?>
+            <?php
+            $wishes      = $wishlist->getSpoilers();
+            $hasReceived = !empty(
+                \array_filter(
+                    $wishes,
+                    function (Wish $wish) {
+                        return null !== $wish->getReceived();
+                    }
+                )
+            );
+            ?>
 
             <div class="spoilers-empty" <?= empty($wishes) ? '' : 'hidden' ?>>
                 <?= Page::info(__('No wishes on this list have been fulfilled or claimed yet.'), __('Nothing to spoil')) ?>
             </div>
+
+            <?php if ($hasReceived) { ?>
+                <div class="ui icon info message spoilers-received">
+                    <i class="gift icon"></i>
+                    <div class="content">
+                        <div class="header">
+                            <?= __('Received wishes') ?>
+                        </div>
+                        <p><?= __('Two weeks after your birthday, fulfilled wishes leave your list. They are kept here, so you can look up what you were given.') ?></p>
+                        <p><?= __('Prefer a tidy list? Delete them. The people who gave them to you keep them in their gifts.') ?></p>
+                        <button class="ui labeled icon button delete-received-all" type="button">
+                            <i class="trash icon"></i>
+                            <?= __('Delete all received') ?>
+                        </button>
+                    </div>
+                </div>
+            <?php } ?>
 
             <?php if (!empty($wishes)) { ?>
                 <table class="ui celled table spoilers">
@@ -236,6 +265,23 @@ $page->navigation();
                                         </div>
                                     <?php } ?>
                                     <p><?= $wish_status['description'] ?></p>
+
+                                    <?php if (null !== $wish->getReceived()) { ?>
+                                        <div class="received">
+                                            <div class="ui blue label">
+                                                <i class="birthday cake icon"></i>
+                                                <?= __('Received') ?>
+                                                <div class="detail"><?= $dateFormatter->format($wish->getReceived()) ?></div>
+                                            </div>
+                                            <button class="ui mini labeled icon button delete-received"
+                                                    type="button"
+                                                    data-wish-id="<?= $wish->getId() ?>"
+                                            >
+                                                <i class="trash icon"></i>
+                                                <?= __('Delete') ?>
+                                            </button>
+                                        </div>
+                                    <?php } ?>
                                 </td>
                             </tr>
                         <?php } ?>

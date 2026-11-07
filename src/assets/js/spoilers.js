@@ -84,6 +84,104 @@ $(function () {
     });
 
     /**
+     * Delete received
+     *
+     * Deletes wishes which left the list after the owners birthday. They can
+     * be restored for an hour, the givers keep them in their gifts.
+     */
+    function deleteWish(wishId) {
+        return fetch('/index.php?page=api&module=wishes', {
+            'method'      : 'DELETE',
+            'credentials' : 'include',
+            'body'        : new URLSearchParams({
+                'wish_id' : wishId,
+            }),
+        })
+        .then(handleFetchError)
+        .then(handleFetchResponse);
+    }
+
+    function confirmDelete(content, onApprove) {
+        $('body')
+        .modal({
+            'title'     : wishthis.strings.modal.wish.delete.title,
+            'content'   : content,
+            'class'     : 'tiny',
+            'actions'   : [
+                {
+                    'text'  : wishthis.strings.modal.wish.delete.approve,
+                    'class' : 'approve primary'
+                },
+                {
+                    'text' : wishthis.strings.modal.wish.delete.deny
+                }
+            ],
+            'onApprove' : function (buttonApprove) {
+                var modal = buttonApprove.closest('.ui.modal');
+
+                buttonApprove.addClass('loading');
+
+                onApprove()
+                .catch(handleFetchCatch)
+                .finally(function () {
+                    modal.modal('hide');
+                });
+
+                return false;
+            }
+        })
+        .modal('show');
+    }
+
+    function hideReceivedMessage() {
+        if (0 === $('.delete-received').length) {
+            $('.spoilers-received').fadeOut(400);
+        }
+    }
+
+    $(document).on('click', '.delete-received', function () {
+        var button = $(this);
+        var row    = button.closest('tr');
+        var wishId = button.attr('data-wish-id');
+
+        confirmDelete(wishthis.strings.modal.wish.delete.content, function () {
+            return deleteWish(wishId)
+            .then(function () {
+                $('body').toast({ message: wishthis.strings.toast.wish.delete });
+
+                button.remove();
+                removeRow(row);
+                hideReceivedMessage();
+            });
+        });
+    });
+
+    $(document).on('click', '.delete-received-all', function () {
+        confirmDelete(wishthis.strings.modal.wish.delete_received.content, function () {
+            var buttons = $('.delete-received').toArray();
+
+            /** One after the other, so a failure stops the rest. */
+            return buttons.reduce(function (previous, element) {
+                var button = $(element);
+
+                return previous.then(function () {
+                    return deleteWish(button.attr('data-wish-id'))
+                    .then(function () {
+                        var row = button.closest('tr');
+
+                        button.remove();
+                        removeRow(row);
+                    });
+                });
+            }, Promise.resolve())
+            .then(function () {
+                $('body').toast({ message: wishthis.strings.toast.wish.delete_received });
+            })
+            .finally(hideReceivedMessage);
+        });
+    });
+
+    /**
      * When
      *
      * Shows how long ago a change was made, e.g. "12 minutes ago".

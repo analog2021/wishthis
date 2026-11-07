@@ -10,6 +10,11 @@ namespace wishthis;
 
 class User
 {
+    /**
+     * How many days after a birthday fulfilled wishes leave the lists.
+     */
+    public const RECEIVED_DAYS_AFTER_BIRTHDAY = 14;
+
     public static function getFromID(int $user_id): self
     {
         global $database;
@@ -164,6 +169,14 @@ class User
     private bool $advertisements = false;
 
     /**
+     * Whether fulfilled wishes should leave the users lists two weeks after
+     * their birthday. They are kept under Spoilers as received.
+     *
+     * @var bool
+     */
+    private bool $removeReceivedWishes = true;
+
+    /**
      * Whether the user wants to stay logged in.
      *
      * @var bool
@@ -193,6 +206,7 @@ class User
             $this->name_nick                  = $fields['name_nick'] ?? '';
             $this->channel                    = $fields['channel'] ?? '';
             $this->advertisements             = $fields['advertisements'];
+            $this->removeReceivedWishes       = (bool) ($fields['remove_received_wishes'] ?? true);
         }
 
         /** Set Language */
@@ -613,6 +627,108 @@ class User
     public function setAdvertisements(bool $advertisements): void
     {
         $this->advertisements = $advertisements;
+    }
+
+    public function getRemoveReceivedWishes(): bool
+    {
+        return $this->removeReceivedWishes;
+    }
+
+    public function setRemoveReceivedWishes(bool $removeReceivedWishes): void
+    {
+        $this->removeReceivedWishes = $removeReceivedWishes;
+    }
+
+    /**
+     * Returns the most recent day on which fulfilled wishes leave the lists:
+     * two weeks after the last birthday, counted from `$today`.
+     *
+     * A birthday on the 29th of February falls on the 1st of March in other
+     * years.
+     *
+     * @param string             $birthdate Formatted as `YYYY-MM-DD`.
+     * @param \DateTimeImmutable $today
+     *
+     * @return \DateTimeImmutable|null The day (at midnight), or `null` if
+     *                                 `$birthdate` is not a valid date.
+     */
+    public static function getReceivedCutoff(string $birthdate, \DateTimeImmutable $today): ?\DateTimeImmutable
+    {
+        if (1 !== \preg_match('/^\d{4}-(\d{2})-(\d{2})$/', $birthdate, $matches)) {
+            return null;
+        }
+
+        $month = (int) $matches[1];
+        $day   = (int) $matches[2];
+
+        if (!\checkdate($month, $day, 2000)) {
+            return null;
+        }
+
+        $today = $today->setTime(0, 0);
+        $year  = (int) $today->format('Y');
+
+        /**
+         * Go back a year until the cutoff is not in the future. A birthday at
+         * the end of December has its cutoff in the next year, so early in
+         * January that can be two years back.
+         */
+        do {
+            $cutoff = $today
+            ->setDate($year, $month, $day)
+            ->modify('+' . self::RECEIVED_DAYS_AFTER_BIRTHDAY . ' days');
+
+            $year--;
+        } while ($cutoff > $today);
+
+        return $cutoff;
+    }
+
+    /**
+     * Takes the wishes which were fulfilled up to two weeks after the users
+     * last birthday off their lists, by marking them as received. They are
+     * still shown under Spoilers.
+     *
+     * Does nothing if the user turned this off or has no birthday set. The
+     * caller checks that the user is logged in.
+     */
+    public function markReceivedWishes(): void
+    {
+        global $database;
+
+        if (!isset($this->id) || !$this->removeReceivedWishes || '' === $this->birthdate) {
+            return;
+        }
+
+        $cutoff = self::getReceivedCutoff($this->birthdate, new \DateTimeImmutable());
+
+        if (null === $cutoff) {
+            return;
+        }
+
+        /**
+         * `edited` is set to itself, so MySQL does not update it. Otherwise
+         * these wishes would show up as recent changes to undo.
+         */
+        $database->query(
+            'UPDATE `wishes`
+                SET `received` = ' . $database->getDateNow() . ',
+                    `edited`   = `edited`
+              WHERE `received` IS NULL
+                AND `status` IN (:status_fulfilled, :status_unavailable)
+                AND DATE(`edited`) <= :cutoff
+                AND `wishlist` IN (
+                    SELECT `id`
+                      FROM `wishlists`
+                     WHERE `user` = :user_id
+                )',
+            [
+                'status_fulfilled'   => Wish::STATUS_FULFILLED,
+                'status_unavailable' => Wish::STATUS_UNAVAILABLE,
+                'cutoff'             => $cutoff->format('Y-m-d'),
+                'user_id'            => $this->id,
+            ]
+        );
     }
 
     public function getPasswordResetValidUntil(): int

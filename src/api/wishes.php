@@ -389,14 +389,20 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $wish_status = null;
             }
 
+            /**
+             * A wish which is available again goes back on the owners list,
+             * even if it had been received.
+             */
             $database->query(
                 'UPDATE `wishes`
-                    SET `status` = :wish_status,
-                        `edited` = ' . $database->getDateNow() . '
-                  WHERE `id`     = :wish_id',
+                    SET `status`   = :wish_status,
+                        `received` = CASE WHEN :wish_status_received IS NULL THEN NULL ELSE `received` END,
+                        `edited`   = ' . $database->getDateNow() . '
+                  WHERE `id`       = :wish_id',
                 [
-                    'wish_status' => $wish_status,
-                    'wish_id'     => $wish_id,
+                    'wish_status'          => $wish_status,
+                    'wish_status_received' => $wish_status,
+                    'wish_id'              => $wish_id,
                 ]
             );
 
