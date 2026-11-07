@@ -137,19 +137,23 @@ if ($options && $options->getOption('isInstalled')) {
  * Received wishes
  *
  * Fulfilled wishes leave the users lists two weeks after their birthday.
- * Checked once a day per session, and only once the database has the columns
- * for it.
+ * Checked once a day per user and session (an admin may log in as someone
+ * else in the same session), and only once the database has the columns for
+ * it.
  */
 if (
        $options
     && $options->getOption('isInstalled')
     && -1 !== \version_compare($options->version, '1.5.0')
-    && ($_SESSION['received_checked'] ?? '') !== \date('Y-m-d')
     && $user->isLoggedIn()
 ) {
-    $user->markReceivedWishes();
+    $receivedChecked = \date('Y-m-d') . '/' . $user->getId();
 
-    $_SESSION['received_checked'] = \date('Y-m-d');
+    if (($_SESSION['received_checked'] ?? '') !== $receivedChecked) {
+        $user->markReceivedWishes();
+
+        $_SESSION['received_checked'] = $receivedChecked;
+    }
 }
 
 /**
