@@ -23,6 +23,7 @@ if (false === $wishlist || $user->getId() !== $wishlist->getUserId()) {
 
 $page->title = \sprintf(__('Spoilers for %s'), $wishlist->getTitle());
 $reveal      = 'POST' === $_SERVER['REQUEST_METHOD'] && isset($_POST['reveal']);
+$recentOnly  = $reveal && 'recent' === $_POST['reveal'];
 
 /**
  * Wish values may already be stored as HTML entities, so decode them before
@@ -66,16 +67,20 @@ $page->navigation();
                         <?= __('Are you sure?') ?>
                     </div>
                     <p><?= __('This will show you which wishes on this list have been fulfilled or claimed by someone else. Don\'t you want to be surprised?') ?></p>
+                    <p><?= __('Just fixing a slip? Undo a mistake shows only what you changed in the last hour.') ?></p>
                 </div>
             </div>
 
             <form class="ui form" method="POST">
-                <input type="hidden" name="reveal" value="1" />
-
                 <div class="flex buttons">
-                    <button class="ui labeled icon primary button" type="submit">
+                    <button class="ui labeled icon primary button" type="submit" name="reveal" value="all">
                         <i class="eye icon"></i>
                         <?= __('Yes, show me') ?>
+                    </button>
+
+                    <button class="ui labeled icon button" type="submit" name="reveal" value="recent">
+                        <i class="undo icon"></i>
+                        <?= __('Undo a mistake') ?>
                     </button>
 
                     <a class="ui labeled icon button" href="<?= Page::PAGE_WISHLISTS . '&id=' . $wishlist->getId() ?>">
@@ -84,6 +89,97 @@ $page->navigation();
                     </a>
                 </div>
             </form>
+        <?php } elseif ($recentOnly) { ?>
+            <?php
+            Wish::purgeDeleted();
+
+            $changes = $wishlist->getRecentChanges();
+            ?>
+
+            <div class="spoilers-empty" <?= empty($changes) ? '' : 'hidden' ?>>
+                <?= Page::info(__('You haven\'t fulfilled or deleted any wishes on this list in the last hour.'), __('Nothing to undo')) ?>
+            </div>
+
+            <?php if (!empty($changes)) { ?>
+                <table class="ui celled table spoilers">
+                    <thead>
+                        <tr>
+                            <th><?= __('Wish') ?></th>
+                            <th><?= __('Description') ?></th>
+                            <th><?= __('When') ?></th>
+                            <th><?= __('Status') ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($changes as $change) { ?>
+                            <?php
+                            if ('fulfilled' === $change['type']) {
+                                $wish_id   = $change['wish']->getId();
+                                $wish_data = $change['wish']->serialise();
+                            } else {
+                                $wish_id   = (int) $change['deleted']['id'];
+                                $wish_data = $change['deleted'];
+                            }
+
+                            $wish_title       = $escape(($wish_data['title'] ?? '') ?: (($wish_data['url'] ?? '') ?: '#' . $wish_id));
+                            $wish_url         = $escape($wish_data['url'] ?? '');
+                            $wish_description = $escape($wish_data['description'] ?? '');
+                            ?>
+                            <tr>
+                                <td>
+                                    <?php if (\preg_match('/^https?:\/\//i', $wish_url)) { ?>
+                                        <a href="<?= $wish_url ?>" target="_blank" rel="noopener"><?= $wish_title ?></a>
+                                    <?php } else { ?>
+                                        <?= $wish_title ?>
+                                    <?php } ?>
+                                </td>
+                                <td><?= \nl2br($wish_description) ?></td>
+                                <td>
+                                    <span class="minutes-ago" data-minutes-ago="<?= $change['minutes'] ?>"></span>
+                                </td>
+                                <td>
+                                    <?php if ('fulfilled' === $change['type']) { ?>
+                                        <?php $wish_status = $statuses[Wish::STATUS_FULFILLED]; ?>
+                                        <button class="ui <?= $wish_status['color'] ?> label still-need-it"
+                                                type="button"
+                                                data-wish-id="<?= $wish_id ?>"
+                                                title="<?= __('Still need it') ?>"
+                                        >
+                                            <span class="default">
+                                                <i class="<?= $wish_status['icon'] ?> icon"></i>
+                                                <?= $wish_status['name'] ?>
+                                            </span>
+                                            <span class="hover">
+                                                <i class="undo icon"></i>
+                                                <?= __('Still need it') ?>
+                                            </span>
+                                        </button>
+                                        <p><?= $wish_status['description'] ?></p>
+                                    <?php } else { ?>
+                                        <div class="ui grey label">
+                                            <i class="trash icon"></i>
+                                            <?= __('Deleted') ?>
+                                        </div>
+                                        <button class="ui mini labeled icon button restore-wish"
+                                                type="button"
+                                                data-wish-id="<?= $wish_id ?>"
+                                        >
+                                            <i class="undo icon"></i>
+                                            <?= __('Restore') ?>
+                                        </button>
+                                        <p><?= __('You deleted this wish.') ?></p>
+                                    <?php } ?>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            <?php } ?>
+
+            <a class="ui labeled icon button" href="<?= Page::PAGE_WISHLISTS . '&id=' . $wishlist->getId() ?>">
+                <i class="arrow left icon"></i>
+                <?= __('Back to my lists') ?>
+            </a>
         <?php } else { ?>
             <?php $wishes = $wishlist->getSpoilers(); ?>
 

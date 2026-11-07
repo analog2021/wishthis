@@ -116,6 +116,8 @@ global $options;
                 'update'    : '<?= __('Wish information updated.') ?>',
                 'delete'    : '<?= __('Wish successfully deleted.') ?>',
                 'available' : '<?= __('The wish is available again.') ?>',
+                'undo'      : '<?= __('Undo') ?>',
+                'restore'   : '<?= __('The wish has been restored.') ?>',
                 'blocked'   : {
                     'title'   : '<?= __('Details not filled in') ?>',
                     'content' : '<?= __('This shop did not let wishthis read the page. Please add the title and image yourself. Tip: right-click the product image and copy its address.') ?>',

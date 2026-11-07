@@ -27,6 +27,26 @@ class Wish
     public const STATUS_UNAVAILABLE       = 'unavailable';
     public const STATUS_FULFILLED         = 'fulfilled';
 
+    /**
+     * How long a wish owner can undo a change (deleting or fulfilling a wish).
+     */
+    public const UNDO_MINUTES = 60;
+
+    /**
+     * The columns copied into `wishes_deleted` and back again on restore.
+     */
+    private const ARCHIVE_COLUMNS = [
+        'id',
+        'wishlist',
+        'title',
+        'description',
+        'image',
+        'url',
+        'priority',
+        'status',
+        'is_purchasable',
+    ];
+
     public static array $priorities;
     public static array $affiliates = [
         'amazon.de' => 'grandel0b-21',
@@ -221,6 +241,131 @@ class Wish
         }
 
         return false;
+    }
+
+    /**
+     * Keeps a copy of a wish (and its price) which is about to be deleted, so
+     * it can be restored for a while.
+     */
+    public static function archive(int $wishId): void
+    {
+        global $database;
+
+        $columns = \implode(
+            ', ',
+            \array_map(
+                function (string $column) {
+                    return '`' . $column . '`';
+                },
+                self::ARCHIVE_COLUMNS
+            )
+        );
+        $select  = \implode(
+            ', ',
+            \array_map(
+                function (string $column) {
+                    return '`wishes`.`' . $column . '`';
+                },
+                self::ARCHIVE_COLUMNS
+            )
+        );
+
+        $database->query(
+            'DELETE FROM `wishes_deleted`
+                   WHERE `id` = :wish_id',
+            [
+                'wish_id' => $wishId,
+            ]
+        );
+        $database->query(
+            '   INSERT INTO `wishes_deleted` (' . $columns . ', `price`)
+                     SELECT ' . $select . ', `products`.`price`
+                       FROM `wishes`
+                  LEFT JOIN `products` ON `wishes`.`id` = `products`.`wish`
+                      WHERE `wishes`.`id` = :wish_id',
+            [
+                'wish_id' => $wishId,
+            ]
+        );
+    }
+
+    /**
+     * Puts a recently deleted wish back on its wishlist.
+     *
+     * @return bool Whether the wish was restored. False if it is unknown, too
+     *              old or does not belong to the user.
+     */
+    public static function restore(int $wishId, int $userId): bool
+    {
+        global $database;
+
+        $deletedQuery = $database->query(
+            '    SELECT `wishes_deleted`.*
+                   FROM `wishes_deleted`
+             INNER JOIN `wishlists` ON `wishes_deleted`.`wishlist` = `wishlists`.`id`
+                  WHERE `wishes_deleted`.`id`      = :wish_id
+                    AND `wishlists`.`user`         = :user_id
+                    AND `wishes_deleted`.`deleted` >= ' . $database->getDateMinutesAgo(self::UNDO_MINUTES),
+            [
+                'wish_id' => $wishId,
+                'user_id' => $userId,
+            ]
+        );
+        $deleted      = $deletedQuery ? $deletedQuery->fetch(\PDO::FETCH_ASSOC) : false;
+
+        if (false === $deleted || false !== self::getFromId($wishId)) {
+            return false;
+        }
+
+        $columns      = [];
+        $placeholders = [];
+        $values       = [];
+
+        foreach (self::ARCHIVE_COLUMNS as $column) {
+            $columns[]       = '`' . $column . '`';
+            $placeholders[]  = ':' . $column;
+            $values[$column] = $deleted[$column];
+        }
+
+        $database->query(
+            'INSERT INTO `wishes` (' . \implode(', ', $columns) . ', `edited`)
+                  VALUES (' . \implode(', ', $placeholders) . ', ' . $database->getDateNow() . ')',
+            $values
+        );
+
+        if (null !== $deleted['price']) {
+            $database->query(
+                'INSERT INTO `products` (`wish`, `price`)
+                      VALUES (:wish_id, :price)',
+                [
+                    'wish_id' => $wishId,
+                    'price'   => $deleted['price'],
+                ]
+            );
+        }
+
+        $database->query(
+            'DELETE FROM `wishes_deleted`
+                   WHERE `id` = :wish_id',
+            [
+                'wish_id' => $wishId,
+            ]
+        );
+
+        return true;
+    }
+
+    /**
+     * Forgets deleted wishes which can no longer be restored.
+     */
+    public static function purgeDeleted(): void
+    {
+        global $database;
+
+        $database->query(
+            'DELETE FROM `wishes_deleted`
+                   WHERE `deleted` < ' . $database->getDateMinutesAgo(self::UNDO_MINUTES)
+        );
     }
 
     /**
