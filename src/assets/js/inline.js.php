@@ -187,6 +187,9 @@ global $options;
             },
         },
 
+        /** The wish title field is full */
+        'title_limit' : '<?= __('The title is at its maximum length. Shorten it to type more.') ?>',
+
         'calendar' : {
             'today'   : '<?= _x('Today', 'Calendar') ?>',
             'now'     : '<?= _x('Now', 'Calendar') ?>',

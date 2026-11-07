@@ -1521,6 +1521,10 @@ msgstr ""
 msgid "Please type a title yourself."
 msgstr ""
 
+#: assets/js/inline.js.php:191
+msgid "The title is at its maximum length. Shorten it to type more."
+msgstr ""
+
 #: assets/js/inline.js.php:170
 msgid "Please add a picture yourself."
 msgstr ""

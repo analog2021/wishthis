@@ -37,6 +37,32 @@ function resetWishLookup(form) {
     form.find('.field.warning').removeClass('warning');
     form.find('.message.wish-lookup').hide().empty();
     form.find('.wish-image-preview').hide().removeAttr('src');
+
+    updateWishTitleLength(form);
+}
+
+/**
+ * Shows how long the title is once it gets near the limit, and says so when
+ * it is full: the browser silently ignores typing in a full field.
+ */
+function updateWishTitleLength(form) {
+    var input  = form.find('[name="wish_title"]');
+    var hint   = form.find('.wish-title-length');
+    var max    = parseInt(input.attr('maxlength'), 10);
+    var length = input.val().length;
+
+    if (!max || length < max - 28) {
+        hint.hide().removeClass('at-limit').empty();
+
+        return;
+    }
+
+    var isFull = length >= max;
+
+    hint
+    .toggleClass('at-limit', isFull)
+    .text(length + ' / ' + max + (isFull ? ' – ' + wishthis.strings.title_limit : ''))
+    .show();
 }
 
 /**
@@ -144,6 +170,8 @@ function fillWishForm(form, details) {
             input.val(details[field]);
         }
     });
+
+    updateWishTitleLength(form);
 
     var inputImage = form.find('[name="wish_image"]');
 
@@ -372,6 +400,8 @@ $(function() {
     /** Clear the highlight once a missing field has been filled in */
     $(document).on('input', getWishLookupField('wish_title'), function() {
         var form = $(this).closest('.ui.form');
+
+        updateWishTitleLength(form);
 
         if (form.data('wishLookupResult')) {
             showWishLookupResult(form);

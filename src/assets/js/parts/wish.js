@@ -311,6 +311,7 @@ $(function () {
         /** Only look up the URL once it is changed */
         rememberWishURL(wish_edit.find('.ui.form.wishlist-wish-edit'));
         showWishImagePreview(wish_edit.find('.ui.form.wishlist-wish-edit'));
+        updateWishTitleLength(wish_edit.find('.ui.form.wishlist-wish-edit'));
 
         /** URL */
         $('[name="wish_url"]').on('blur', function(event) {
