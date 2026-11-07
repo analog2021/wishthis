@@ -21,7 +21,7 @@
 
 ### Removed
 
--   Nothing
+-   The "URL mismatch" dialog when adding a wish. The link is kept exactly as pasted, so options like size or colour are never replaced by the address the shop redirected wishthis's server to. This also removes the API request which changed the link of all wishes with the same URL
 
 ### Fixed
 
@@ -34,6 +34,7 @@
 -   Error pages (e.g. "Page not found") being used as wish details
 -   The "Details not filled in" warning showing although the title and image were already added
 -   Editing a wish's URL and clicking Save right away removing the URL
+-   Wish links with several parameters (e.g. `?th=1&psc=1`) breaking: the Visit button pointed to `&amp;psc=1`, and every save in the edit dialog encoded the `&` again, so options like size or colour got lost
 -   Pictures being left out because the image server refuses requests from servers (e.g. 429), although browsers can show them
 -   The "Insufficient power" page not showing the required power
 -   An endless redirect loop for URLs containing encoded characters (such as `%3C`)

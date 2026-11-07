@@ -274,8 +274,6 @@ $(function () {
      * Add wish
      */
     $(document).on('click', '.button.wishlist-wish-add', function () {
-        validateURL = true;
-
         /** Form */
         var formAdd = $('.form.wishlist-wish-add');
         formAdd.trigger('reset');
@@ -376,8 +374,6 @@ $(function () {
         });
     });
 
-    var validateURL = true;
-
     function validateWishURL(formAddOrEdit, buttonAddOrSave, modalAddOrEdit) {
         /**
          * Validate Form
@@ -395,10 +391,9 @@ $(function () {
         }
 
         /**
-         * Validate URL
+         * Look up the URL
          */
-        var inputURL       = modalAddOrEdit.find('[name="wish_url"]');
-        var wishURLCurrent = inputURL.val();
+        var wishURLCurrent = modalAddOrEdit.find('[name="wish_url"]').val();
 
         formAddOrEdit.addClass('loading');
         buttonAddOrSave.addClass('disabled');
@@ -408,7 +403,7 @@ $(function () {
 
             /** Waits for the lookup, if it is still running */
             lookUpWishURL(formAddOrEdit)
-            .then(function(response) {
+            .then(function() {
                 buttonAddOrSave.removeClass('loading');
 
                 /**
@@ -430,66 +425,8 @@ $(function () {
                     return;
                 }
 
-                if (!response || !response.info) {
-                    insertWish(formAddOrEdit, modalAddOrEdit, buttonAddOrSave);
-
-                    return;
-                }
-
-                var wishInfoProposed = response.info;
-
-                var modalValidate = $('.modal.validate');
-
-                /** Prodiver name */
-                if (wishInfoProposed.providerName) {
-                    modalValidate.find('.providerName').text(wishInfoProposed.providerName);
-                } else {
-                    modalValidate.find('.provider').remove();
-                }
-
-                /** URL */
-                if (wishURLCurrent && wishInfoProposed.url && wishURLCurrent !== wishInfoProposed.url && validateURL) {
-                    modalValidate.find('input.current').val(wishURLCurrent);
-                    modalValidate.find('input.proposed').val(wishInfoProposed.url);
-                    modalValidate
-                    .modal({
-                        autoShow      : true,
-                        allowMultiple : true,
-                        onApprove     : function (buttonUpdate) {
-                            inputURL.val(modalValidate.find('input.proposed').val());
-
-                            buttonUpdate.addClass('loading');
-
-                            const formData = new URLSearchParams(
-                                {
-                                    'wish_url_current'  : modalValidate.find('input.current').val(),
-                                    'wish_url_proposed' : modalValidate.find('input.proposed').val(),
-                                }
-                            );
-
-                            fetch('/index.php?page=api&module=wishes', {
-                                method      : 'PUT',
-                                credentials : 'include',
-                                body        : formData
-                            })
-                            .then(handleFetchError)
-                            .then(handleFetchResponse)
-                            .then(function(response) {
-                                buttonUpdate.removeClass('loading');
-                                modalValidate.modal('hide');
-                            });
-                        },
-                        onDeny        : function() {
-                            validateURL = false;
-                        },
-                        onHide        : function() {
-                            formAddOrEdit.removeClass('loading');
-                            buttonAddOrSave.removeClass('disabled');
-                        }
-                    });
-                } else {
-                    insertWish(formAddOrEdit, modalAddOrEdit, buttonAddOrSave);
-                }
+                /** The URL is kept exactly as entered */
+                insertWish(formAddOrEdit, modalAddOrEdit, buttonAddOrSave);
             })
             .catch(handleFetchCatch);
         } else {

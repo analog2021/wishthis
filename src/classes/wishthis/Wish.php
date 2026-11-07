@@ -266,7 +266,8 @@ class Wish
     private string $image;
 
     /**
-     * The wish (product) url.
+     * The wish (product) url. Not HTML encoded, so it stays intact when used
+     * in JSON or form fields. Encode it when printing it into HTML.
      *
      * @var string|null
      */
@@ -317,7 +318,7 @@ class Wish
         $this->title          = \stripslashes($wishData['title']       ?? '');
         $this->description    = \stripslashes($wishData['description'] ?? '');
         $this->image          = $wishData['image'] ?? '';
-        $this->url            = \htmlspecialchars($wishData['url'] ?? '', ENT_QUOTES);
+        $this->url            = $wishData['url'] ?? '';
         $this->priority       = $wishData['priority'];
         $this->status         = $wishData['status'];
         $this->is_purchasable = $wishData['is_purchasable'];
@@ -471,7 +472,7 @@ class Wish
             <?= $this->getCardPriority() ?>
 
             <?php if ($this->url) { ?>
-                <a href="<?= $this->url ?>" target="_blank"><?= $this->title ?></a>
+                <a href="<?= \htmlspecialchars($this->url, ENT_QUOTES) ?>" target="_blank"><?= $this->title ?></a>
             <?php } else { ?>
                 <?= $this->title ?>
             <?php } ?>
@@ -505,7 +506,7 @@ class Wish
             </div>
         <?php } elseif ($this->url && !$this->title) { ?>
             <div class="description">
-                <p><a href="<?= $this->url ?>" target="_blank"><?= $this->url ?></a></p>
+                <p><a href="<?= \htmlspecialchars($this->url, ENT_QUOTES) ?>" target="_blank"><?= \htmlspecialchars($this->url, ENT_QUOTES) ?></a></p>
             </div>
         <?php } ?>
         <?php
