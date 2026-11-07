@@ -47,7 +47,7 @@
 -   An endless redirect loop for URLs containing encoded characters (such as `%3C`)
 -   The wishlist selection on "My lists" closing immediately when clicking the wishlist name
 -   The installer writing the sample database credentials to `config.php` when a crawler or browser preview visited during installation
--   The installer corrupting `config.php` when a database value starts with a digit (e.g. a password like `2166...`)
+-   The installer corrupting `config.php` when a database value starts with a digit (e.g. a password like `1abc...`)
 -   An SQL error on the profile page with MySQL/MariaDB
 -   An auto-filled picture being wrapped in quotes when editing a wish
 -   Long titles being cut in the middle of a character or HTML entity (e.g. ending in `&com`)
