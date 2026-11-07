@@ -105,6 +105,9 @@ $(function() {
     /** Advertisements */
     $('.ui.checkbox.advertisements').checkbox();
 
+    /** Received wishes */
+    $('.ui.checkbox.remove-received-wishes').checkbox();
+
     /**
      * Account
      */
