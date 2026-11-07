@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS gifts (
     title          TEXT               DEFAULT NULL,
     url            TEXT               DEFAULT NULL,
     price          REAL               DEFAULT NULL,
+    currency       TEXT               DEFAULT NULL,
     created        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user)      REFERENCES users(id)     ON DELETE CASCADE,
     FOREIGN KEY (wishlist)  REFERENCES wishlists(id) ON DELETE SET NULL,

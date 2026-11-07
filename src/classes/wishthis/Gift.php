@@ -52,10 +52,10 @@ class Gift
         $database->query(
             'INSERT INTO `gifts` (
                 `user`, `wish`, `wishlist`, `recipient`,
-                `recipient_name`, `wishlist_name`, `title`, `url`, `price`
+                `recipient_name`, `wishlist_name`, `title`, `url`, `price`, `currency`
             ) VALUES (
                 :user, :wish, :wishlist, :recipient,
-                :recipient_name, :wishlist_name, :title, :url, :price
+                :recipient_name, :wishlist_name, :title, :url, :price, :currency
             )',
             [
                 'user'           => $giver->isLoggedIn() ? $giver->getId() : null,
@@ -67,6 +67,7 @@ class Gift
                 'title'          => $title ? Wish::truncateTitle($title) : null,
                 'url'            => $wishData['url'] ?: null,
                 'price'          => $wishData['price'],
+                'currency'       => $recipient && null !== $wishData['price'] ? $recipient->getCurrency() : null,
             ]
         );
 

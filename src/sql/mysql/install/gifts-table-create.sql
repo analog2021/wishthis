@@ -9,6 +9,7 @@ CREATE TABLE `gifts` (
     `title`          VARCHAR(128) NULL     DEFAULT NULL,
     `url`            VARCHAR(255) NULL     DEFAULT NULL,
     `price`          FLOAT        NULL     DEFAULT NULL,
+    `currency`       VARCHAR(3)   NULL     DEFAULT NULL,
     `created`        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     INDEX `idx_gifts_wish` (`wish`),
