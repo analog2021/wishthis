@@ -28,7 +28,8 @@ class Wish
     public const STATUS_FULFILLED         = 'fulfilled';
 
     /**
-     * How long a wish owner can undo a change (deleting or fulfilling a wish).
+     * How long a wish owner can undo a change (deleting or fulfilling a wish),
+     * and how long a guest can undo fulfilling a wish (see `Gift`).
      */
     public const UNDO_MINUTES = 60;
 

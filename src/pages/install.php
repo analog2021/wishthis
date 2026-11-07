@@ -436,6 +436,19 @@ switch ($step) {
         $database->query($wishesDeletedTableCreateSql);
 
         /**
+         * Gifts
+         */
+        $giftsTableCreatePath = \sprintf(
+            '%1$s/src/sql/%2$s/install/gifts-table-create.sql',
+            ROOT,
+            $database->engine
+        );
+        $giftsTableCreateSql  = \file_get_contents($giftsTableCreatePath);
+
+        $database->query('DROP TABLE IF EXISTS `gifts`;');
+        $database->query($giftsTableCreateSql);
+
+        /**
          * Options
          */
         $optionsTableCreatePath = \sprintf(

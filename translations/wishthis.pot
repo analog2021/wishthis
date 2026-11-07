@@ -1771,3 +1771,77 @@ msgstr ""
 #: pages/wishlists.php:74
 msgid "Copy"
 msgstr ""
+
+#: api/wishes.php:431
+msgid "This gift can no longer be undone."
+msgstr ""
+
+#: assets/js/inline.js.php:129
+msgid "Thank you!"
+msgstr ""
+
+#: assets/js/inline.js.php:130
+msgid "The wish is now unavailable for everybody else. You can find it in My gifts."
+msgstr ""
+
+#: assets/js/inline.js.php:131
+msgid "The wish is now unavailable for everybody else. Log in to keep track of it in My gifts."
+msgstr ""
+
+#: assets/js/inline.js.php:132 classes/wishthis/Page.php:504 pages/gifts.php:9 pages/wishlist.php:104
+msgid "My gifts"
+msgstr ""
+
+#: assets/js/inline.js.php:133
+msgid "The owner removed this wish, so it was taken off your gifts."
+msgstr ""
+
+#. TRANSLATORS: %d: Amount of minutes
+#: pages/gifts.php:50
+#, php-format
+msgid "The wishes you fulfilled for others. Did you fulfil one by mistake? You can undo it for %d minutes."
+msgstr ""
+
+#: pages/gifts.php:60
+msgid "Log in to keep track of your gifts"
+msgstr ""
+
+#. TRANSLATORS: %d: Amount of hours
+#: pages/gifts.php:65
+#, php-format
+msgid "You are not logged in, so your gifts are only remembered in this browser for %d hours. Log in and they will be kept in your account."
+msgstr ""
+
+#: pages/gifts.php:84
+msgid "When you fulfil a wish on someone's list, it will show up here."
+msgstr ""
+
+#: pages/gifts.php:84
+msgid "No gifts yet"
+msgstr ""
+
+#: pages/gifts.php:91
+msgid "Gift"
+msgstr ""
+
+#: pages/gifts.php:92
+msgid "For"
+msgstr ""
+
+#. TRANSLATORS: %d: Amount of wishes
+#: pages/wishlist.php:83
+#, php-format
+msgid "You fulfilled %d wish on this list."
+msgid_plural "You fulfilled %d wishes on this list."
+msgstr[0] ""
+msgstr[1] ""
+
+#: pages/wishlist.php:86
+msgid "View my gifts"
+msgstr ""
+
+#. TRANSLATORS: %1$d: Amount of minutes, %2$s: Link to "My gifts"
+#: pages/wishlist.php:102
+#, php-format
+msgid "Fulfilled one by mistake? You can undo it for %1$d minutes in %2$s."
+msgstr ""

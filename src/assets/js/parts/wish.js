@@ -231,6 +231,10 @@ $(function () {
             modal_wish_details.modal('hide');
 
             $('.ui.dropdown.filter.priority').api('query');
+
+            showToastGift(response.gift, function () {
+                $('.ui.dropdown.filter.priority').api('query');
+            });
         })
         .catch(handleFetchCatch)
         .finally(function() {

@@ -11,6 +11,9 @@
 -   A "Sharing lists & fulfilling wishes" section on the home page, explaining how to remember a shared wishlist and where to find it
 -   Amazon product details when adding a wish: title, description, picture and price are read from the product page
 -   Amazon pictures are saved in full size (1500 pixels), even when the address of the small picture was pasted
+-   A "My gifts" page (in the Wishlists menu) listing the wishes you fulfilled for others: what, for whom, which list, the price and when. It keeps them even after the wish or list is deleted
+-   Fulfilled a wish by mistake? Undo it for an hour, from the message shown right after fulfilling or from "My gifts". Without logging in, gifts are remembered in the browser for 24 hours and move into your account when you log in
+-   A shared wishlist reminds you how many of its wishes you already fulfilled
 
 ### Changed
 

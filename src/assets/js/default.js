@@ -344,3 +344,71 @@ function wishRestore(wishId) {
         return response;
     });
 }
+
+/**
+ * Makes a wish the user fulfilled recently available again.
+ *
+ * @returns {Promise} Resolves once the gift is undone and the user was told.
+ */
+function giftUndo(giftId) {
+    return fetch('/index.php?page=api&module=wishes', {
+        'method'      : 'PUT',
+        'credentials' : 'include',
+        'body'        : new URLSearchParams({
+            'gift_undo' : giftId,
+        }),
+    })
+    .then(handleFetchError)
+    .then(handleFetchResponse)
+    .then(function (response) {
+        var message = 'wish-gone' === response.undone
+                    ? wishthis.strings.toast.gift.gone
+                    : wishthis.strings.toast.wish.available;
+
+        $('body').toast({ message: message });
+
+        return response;
+    });
+}
+
+/**
+ * Thanks the user for fulfilling a wish and lets them undo it.
+ *
+ * @param {Object}   gift     The `gift` of the API response.
+ * @param {Function} onUndone Called once the gift is undone.
+ */
+function showToastGift(gift, onUndone) {
+    if (!gift) {
+        return;
+    }
+
+    $('body').toast({
+        'class'       : 'success',
+        'showIcon'    : 'gift',
+        'title'       : wishthis.strings.toast.gift.title,
+        'message'     : gift.logged_in
+                      ? wishthis.strings.toast.gift.content
+                      : wishthis.strings.toast.gift.content_login,
+        'displayTime' : 10000,
+        'actions'     : [
+            {
+                'text'  : wishthis.strings.toast.wish.undo,
+                'icon'  : 'undo',
+                'class' : 'basic',
+                'click' : function () {
+                    giftUndo(gift.id)
+                    .then(onUndone)
+                    .catch(handleFetchCatch);
+                },
+            },
+            {
+                'text'  : wishthis.strings.toast.gift.view,
+                'icon'  : 'gift',
+                'class' : 'basic',
+                'click' : function () {
+                    window.location.href = '/index.php?page=gifts';
+                },
+            },
+        ],
+    });
+}

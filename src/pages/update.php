@@ -22,10 +22,17 @@ if ('POST' === $_SERVER['REQUEST_METHOD']) {
         $filepath = $versions_directory . '/' . $filename;
         $pathinfo = \pathinfo($filepath);
 
-        if ('sql' === $pathinfo['extension']) {
+        if (\is_file($filepath) && 'sql' === ($pathinfo['extension'] ?? '')) {
+            /**
+             * A file of the same name in a directory named after the database
+             * engine (e. g. `sqlite/1-4-0.sql`) replaces the shared one, for
+             * changes which can't be written for both engines.
+             */
+            $filepathEngine = $versions_directory . '/' . $database->engine . '/' . $filename;
+
             $versions[] = [
                 'version'  => \str_replace('-', '.', $pathinfo['filename']),
-                'filepath' => $filepath,
+                'filepath' => \is_file($filepathEngine) ? $filepathEngine : $filepath,
             ];
         }
     }
