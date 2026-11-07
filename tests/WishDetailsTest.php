@@ -8,18 +8,21 @@ use PHPUnit\Framework\TestCase;
 use wishthis\Cache\Embed;
 use wishthis\Wish;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
-if (!\defined('ROOT')) {
-    \define('ROOT', \dirname(__DIR__));
-}
-
-require_once ROOT . '/src/classes/wishthis/Cache/Cache.php';
-require_once ROOT . '/src/classes/wishthis/Cache/Embed.php';
-require_once ROOT . '/src/classes/wishthis/Wish.php';
-
 final class WishDetailsTest extends TestCase
 {
+    public static function setUpBeforeClass(): void
+    {
+        require_once __DIR__ . '/../vendor/autoload.php';
+
+        if (!\defined('ROOT')) {
+            \define('ROOT', \dirname(__DIR__));
+        }
+
+        require_once ROOT . '/src/classes/wishthis/Cache/Cache.php';
+        require_once ROOT . '/src/classes/wishthis/Cache/Embed.php';
+        require_once ROOT . '/src/classes/wishthis/Wish.php';
+    }
+
     private static function info(array $fields): \stdClass
     {
         return (object) ($fields + ['url' => 'https://shop.example/product']);
