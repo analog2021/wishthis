@@ -22,6 +22,12 @@ class Wish
 
     public const TITLE_MAX_LENGTH = 128;
 
+    /**
+     * Titles found by looking up a URL are shortened to this length, so the
+     * user still has room to type in the title field.
+     */
+    public const TITLE_LOOKUP_LENGTH = 100;
+
     public const STATUS_UNAVAILABLE = 'unavailable';
     public const STATUS_FULFILLED   = 'fulfilled';
 
@@ -160,6 +166,33 @@ class Wish
     }
 
     /**
+     * Shortens a title found by looking up a URL, at a word break if there is
+     * one, so the title field isn't full and the user can still type in it.
+     *
+     * @param string $title Plain text, not HTML encoded.
+     *
+     * @return string
+     */
+    public static function shortenLookupTitle(string $title): string
+    {
+        if (\mb_strlen($title) <= self::TITLE_LOOKUP_LENGTH) {
+            return $title;
+        }
+
+        /** One character more, to tell whether the cut is at a word break */
+        $title     = \mb_substr($title, 0, self::TITLE_LOOKUP_LENGTH + 1);
+        $lastSpace = \mb_strrpos($title, ' ');
+
+        if (false !== $lastSpace && $lastSpace >= self::TITLE_LOOKUP_LENGTH / 2) {
+            $title = \mb_substr($title, 0, $lastSpace);
+        } else {
+            $title = \mb_substr($title, 0, self::TITLE_LOOKUP_LENGTH);
+        }
+
+        return \preg_replace('/[\s,;:|\/\-–—]+$/u', '', $title);
+    }
+
+    /**
      * Returns the details found for a wish URL, ready to fill in the wish
      * form, and which of them are missing.
      *
@@ -181,7 +214,7 @@ class Wish
         $getImageResponse ??= fn (string $url): int => URL::getResponseCode($url);
 
         $details = [
-            'title'         => self::truncateTitle(\trim((string) ($info->title ?? ''))),
+            'title'         => self::shortenLookupTitle(\trim((string) ($info->title ?? ''))),
             'description'   => \trim((string) ($info->description ?? '')),
             'image'         => '',
             'price'         => null,

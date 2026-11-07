@@ -39,9 +39,11 @@ namespace wishthis;
                     <div class="ui input">
                         <input type     ="text"
                                name     ="wish_title"
-                               maxlength="128"
+                               maxlength="<?= Wish::TITLE_MAX_LENGTH ?>"
                         />
                     </div>
+
+                    <div class="wish-title-length" style="display: none"></div>
                 </div>
 
                 <div class="field">
