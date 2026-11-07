@@ -1525,6 +1525,10 @@ msgstr ""
 msgid "The title is at its maximum length. Shorten it to type more."
 msgstr ""
 
+#: assets/js/inline.js.php:192
+msgid "The title is {count} characters too long. Symbols such as & and quotation marks count as several characters."
+msgstr ""
+
 #: assets/js/inline.js.php:170
 msgid "Please add a picture yourself."
 msgstr ""
