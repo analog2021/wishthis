@@ -174,7 +174,7 @@ class User
      *
      * @var bool
      */
-    private bool $removeReceivedWishes = true;
+    private bool $removeReceivedWishes = false;
 
     /**
      * Whether the user wants to stay logged in.
@@ -206,7 +206,7 @@ class User
             $this->name_nick                  = $fields['name_nick'] ?? '';
             $this->channel                    = $fields['channel'] ?? '';
             $this->advertisements             = $fields['advertisements'];
-            $this->removeReceivedWishes       = (bool) ($fields['remove_received_wishes'] ?? true);
+            $this->removeReceivedWishes       = (bool) ($fields['remove_received_wishes'] ?? false);
         }
 
         /** Set Language */

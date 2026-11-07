@@ -14,7 +14,7 @@ CREATE TABLE `users` (
     `name_nick`                  VARCHAR(32)  NULL     DEFAULT NULL,
     `channel`                    VARCHAR(24)  NULL     DEFAULT NULL,
     `advertisements`             TINYINT(1)   NOT NULL DEFAULT 0,
-    `remove_received_wishes`     TINYINT(1)   NOT NULL DEFAULT 1,
+    `remove_received_wishes`     TINYINT(1)   NOT NULL DEFAULT 0,
 
     INDEX `idx_password` (`password`)
 );
