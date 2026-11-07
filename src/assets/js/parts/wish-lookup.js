@@ -64,63 +64,89 @@ function getWishTitleStoredLength(title) {
 }
 
 /**
- * Shows how long the title is (as stored) once it gets near the limit, says
- * so when it is full (the browser silently ignores typing in a full field)
- * and when symbols have made it too long.
+ * Keeps the title within the limit as stored (see
+ * `getWishTitleStoredLength()`). The browser's `maxlength` can't do this, as
+ * it counts symbols such as `&` as one character. Of what was just typed or
+ * pasted, only as much is kept as fits.
  *
- * @returns {boolean} Whether the title is too long to be saved.
+ * @returns {boolean} Whether some of the input was left out.
  */
-function updateWishTitleLength(form) {
-    var input  = form.find('[name="wish_title"]');
-    var field  = input.closest('.field');
-    var hint   = form.find('.wish-title-length');
-    var max    = parseInt(input.attr('maxlength'), 10);
-    var length = getWishTitleStoredLength(input.val());
+function limitWishTitle(input) {
+    var max   = parseInt(input.attr('data-max-length'), 10);
+    var value = input.val();
 
-    if (!max || length < max - 28) {
-        hint.hide().removeClass('at-limit too-long').empty();
-        field.removeClass('error');
-
+    if (!max || getWishTitleStoredLength(value) <= max) {
         return false;
     }
 
-    var isFull    = length === max;
-    var isTooLong = length > max;
-    var message   = '';
+    /** Find what was inserted by comparing with the value before */
+    var before   = Array.from(input.data('wishTitleBefore') || '');
+    var after    = Array.from(value);
+    var prefix   = 0;
+    var suffix   = 0;
 
-    if (isFull) {
-        message = ' – ' + wishthis.strings.title_limit;
-    } else if (isTooLong) {
-        message = ' – ' + wishthis.strings.title_too_long.replace('{count}', length - max);
+    while (prefix < before.length && prefix < after.length && before[prefix] === after[prefix]) {
+        prefix++;
     }
 
-    /** The strings are HTML */
-    hint
-    .toggleClass('at-limit', isFull)
-    .toggleClass('too-long', isTooLong)
-    .html(length + ' / ' + max + message)
-    .show();
+    while (
+           suffix < before.length - prefix
+        && suffix < after.length - prefix
+        && before[before.length - 1 - suffix] === after[after.length - 1 - suffix]
+    ) {
+        suffix++;
+    }
 
-    field.toggleClass('error', isTooLong);
+    var start    = after.slice(0, prefix).join('');
+    var end      = after.slice(after.length - suffix).join('');
+    var inserted = after.slice(prefix, after.length - suffix);
 
-    return isTooLong;
+    while (inserted.length > 0 && getWishTitleStoredLength(start + inserted.join('') + end) > max) {
+        inserted.pop();
+    }
+
+    var limited = start + inserted.join('') + end;
+
+    /** Should the rest still not fit, shorten it from the end */
+    while (getWishTitleStoredLength(limited) > max) {
+        limited = Array.from(limited).slice(0, -1).join('');
+    }
+
+    var caret = Math.min((start + inserted.join('')).length, limited.length);
+
+    input.val(limited);
+    input[0].setSelectionRange(caret, caret);
+
+    return true;
 }
 
 /**
- * Keeps a title which is too long from being saved, as the end would be cut
- * off.
- *
- * @returns {boolean} Whether the title is too long.
+ * Shows how long the title is (as stored) once it gets near the limit, and
+ * says so when it is full or something didn't fit: otherwise typing would
+ * seem to do nothing.
  */
-function isWishTitleTooLong(form) {
-    if (!updateWishTitleLength(form)) {
-        return false;
+function updateWishTitleLength(form, wasLimited) {
+    var input  = form.find('[name="wish_title"]');
+    var hint   = form.find('.wish-title-length');
+    var max    = parseInt(input.attr('data-max-length'), 10);
+    var length = getWishTitleStoredLength(input.val());
+
+    /** For `limitWishTitle()`, also after the value was set by a script */
+    input.data('wishTitleBefore', input.val());
+
+    if (!max || length < max - 28) {
+        hint.hide().removeClass('at-limit').empty();
+
+        return;
     }
 
-    form.find('.item[data-tab="general"]').tab('change tab', 'general');
-    form.find('[name="wish_title"]').trigger('focus');
+    var isFull = length >= max || true === wasLimited;
 
-    return true;
+    /** The string is HTML */
+    hint
+    .toggleClass('at-limit', isFull)
+    .html(length + ' / ' + max + (isFull ? ' – ' + wishthis.strings.title_limit : ''))
+    .show();
 }
 
 /**
@@ -456,10 +482,16 @@ $(function() {
     }, true);
 
     /** Clear the highlight once a missing field has been filled in */
-    $(document).on('input', getWishLookupField('wish_title'), function() {
-        var form = $(this).closest('.ui.form');
+    $(document).on('input compositionend', getWishLookupField('wish_title'), function(event) {
+        var input = $(this);
+        var form  = input.closest('.ui.form');
 
-        updateWishTitleLength(form);
+        /** Changing the value would break off typing with an input method */
+        if (event.originalEvent && event.originalEvent.isComposing) {
+            return;
+        }
+
+        updateWishTitleLength(form, limitWishTitle(input));
 
         if (form.data('wishLookupResult')) {
             showWishLookupResult(form);

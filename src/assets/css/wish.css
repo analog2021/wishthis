@@ -111,18 +111,11 @@ i.affiliate.link {
     color: #b58105;
     font-weight: bold;
 }
-.ui.form .wish-title-length.too-long {
-    color: #db2828;
-    font-weight: bold;
-}
 @media (prefers-color-scheme: dark) {
     .ui.form .wish-title-length {
         color: rgba(255, 255, 255, 0.7);
     }
     .ui.form .wish-title-length.at-limit {
         color: #fbbd08;
-    }
-    .ui.form .wish-title-length.too-long {
-        color: #ff695e;
     }
 }

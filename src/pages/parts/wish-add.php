@@ -37,9 +37,9 @@ namespace wishthis;
                     <label><?= __('Title') ?></label>
 
                     <div class="ui input">
-                        <input type     ="text"
-                               name     ="wish_title"
-                               maxlength="<?= Wish::TITLE_MAX_LENGTH ?>"
+                        <input type           ="text"
+                               name           ="wish_title"
+                               data-max-length="<?= Wish::TITLE_MAX_LENGTH ?>"
                         />
                     </div>
 

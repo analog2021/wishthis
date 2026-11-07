@@ -355,10 +355,6 @@ $(function () {
         function wishSave() {
             const form_wish_edit = '.ui.form.wishlist-wish-edit';
 
-            if (isWishTitleTooLong(wish_edit.find(form_wish_edit))) {
-                return false;
-            }
-
             $(form_wish_edit).addClass('loading');
 
             var wish_data = new URLSearchParams(

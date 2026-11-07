@@ -386,7 +386,7 @@ $(function () {
         })
         .form('validate form');
 
-        if (!formAddOrEdit.form('is valid') || isWishTitleTooLong(formAddOrEdit)) {
+        if (!formAddOrEdit.form('is valid')) {
             return;
         }
 
