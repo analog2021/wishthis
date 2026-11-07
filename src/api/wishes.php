@@ -402,6 +402,36 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 ]
             );
 
+            /**
+             * Remember the gift, so the giver can see it later and undo it
+             * for a while.
+             */
+            if (!$userOwnsWish && Wish::STATUS_UNAVAILABLE === $wish_status) {
+                Gift::purgeAnonymous();
+
+                $response['gift'] = [
+                    'id'        => Gift::record($wish),
+                    'logged_in' => User::getCurrent()->isLoggedIn(),
+                ];
+            }
+
+            $response['success'] = true;
+        } elseif (isset($_PUT['gift_undo'])) {
+            /**
+             * Undo Gift
+             *
+             * Makes a wish the current user fulfilled recently available
+             * again.
+             */
+            $undone = Gift::undo((int) Sanitiser::getNumber($_PUT['gift_undo']));
+
+            if (Gift::UNDO_DENIED === $undone) {
+                \http_response_code(403);
+
+                die(__('This gift can no longer be undone.'));
+            }
+
+            $response['undone']  = $undone;
             $response['success'] = true;
         } elseif (isset($_PUT['wish_restore'])) {
             /**

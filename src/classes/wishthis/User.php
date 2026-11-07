@@ -480,6 +480,9 @@ class User
 
             $_SESSION['user'] = $this;
 
+            /** Keep the gifts made before logging in. */
+            Gift::claimSessionGifts($this->id);
+
             $login_was_successful = true;
         }
 
