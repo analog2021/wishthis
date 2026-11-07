@@ -9,6 +9,7 @@ CREATE TABLE wishes (
     status         TEXT               DEFAULT NULL,
     is_purchasable INTEGER   NOT NULL DEFAULT 0,
     edited         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    received       TEXT               DEFAULT NULL,
     FOREIGN KEY (wishlist) REFERENCES wishlists(id) ON DELETE CASCADE
 );
 

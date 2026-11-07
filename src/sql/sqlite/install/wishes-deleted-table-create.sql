@@ -10,5 +10,6 @@ CREATE TABLE wishes_deleted (
     is_purchasable INTEGER   NOT NULL DEFAULT 0,
     price          REAL               DEFAULT NULL,
     deleted        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    received       TEXT               DEFAULT NULL,
     FOREIGN KEY (wishlist) REFERENCES wishlists(id) ON DELETE CASCADE
 );

@@ -9,6 +9,7 @@ CREATE TABLE `wishes` (
     `status`         VARCHAR(32)  NULL     DEFAULT NULL,
     `is_purchasable` BOOLEAN      NOT NULL DEFAULT FALSE,
     `edited`         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `received`       TIMESTAMP    NULL     DEFAULT NULL,
 
     INDEX `idx_url` (`url`),
     CONSTRAINT `FK_wishes_wishlists` FOREIGN KEY (`wishlist`) REFERENCES `wishlists` (`id`) ON DELETE CASCADE
