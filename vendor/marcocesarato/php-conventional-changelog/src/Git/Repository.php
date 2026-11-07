@@ -57,8 +57,9 @@ class Repository
     public static function getLastTagRefname($prefix = '', $merged = false): string
     {
         $merged = $merged ? '--merged' : '';
+        $pattern = escapeshellarg("refs/tags/{$prefix}*");
 
-        return self::run('git for-each-ref ' /* 'refs/tags/" . $prefix . "*' */ . " --sort=-v:refname --format='%(refname:strip=2)' --count=1 {$merged}");
+        return self::run("git for-each-ref --sort=-v:refname --format='%(refname:strip=2)' --count=1 {$merged} {$pattern}");
     }
 
     /**
@@ -99,7 +100,7 @@ class Repository
             }
         }
 
-        if (SemanticVersion::compareBase($lastBaseTag, $lastTag) > 0) {
+        if (SemanticVersion::compareBase($lastBaseTag, $lastTag) >= 0) {
             return $lastBaseTag;
         }
 
@@ -132,7 +133,8 @@ class Repository
 
     private static function getTag(string $tag, string $match): ?string
     {
-        $find = self::run(sprintf('git describe --tags --match "*%s*-%s*" --abbrev=0', $tag, $match));
+        $pattern = escapeshellarg("*{$tag}*-{$match}*");
+        $find = self::run("git describe --tags --match {$pattern} --abbrev=0");
 
         return !empty($find) ? $find : null;
     }
@@ -144,7 +146,7 @@ class Repository
     {
         $lastTag = self::getLastTag($prefix);
 
-        return self::run("git rev-parse --verify {$lastTag}");
+        return self::run('git rev-parse --verify ' . escapeshellarg($lastTag));
     }
 
     /**
@@ -154,7 +156,7 @@ class Repository
     {
         $lastTag = self::getLastTagRefname($prefix);
 
-        return self::run("git rev-parse --verify {$lastTag}");
+        return self::run('git rev-parse --verify ' . escapeshellarg($lastTag));
     }
 
     /**
@@ -170,7 +172,7 @@ class Repository
      */
     public static function getCommitDate($hash): \DateTime
     {
-        $date = self::run("git log -1 --format=%aI {$hash}");
+        $date = self::run('git log -1 --format=%aI ' . escapeshellarg($hash));
 
         return new \DateTime($date);
     }
@@ -235,13 +237,24 @@ class Repository
     }
 
     /**
+     * Check whether a revision range contains commits.
+     */
+    public static function hasCommits(string $options = ''): bool
+    {
+        return (int)self::run("git rev-list --count {$options}") > 0;
+    }
+
+    /**
      * Get tags.
      */
     public static function getTags($prefix = ''): array
     {
-        $tags = self::run("git tag '" . $prefix . "*' --sort=-v:refname --list --format='%(refname:strip=2)" . self::$delimiter . "'") . "\n";
-        $tagsArray = explode(self::$delimiter . "\n", $tags);
-        array_pop($tagsArray);
+        $pattern = escapeshellarg($prefix . '*');
+        $tags = trim(self::run("git tag --sort=-v:refname --list {$pattern}"));
+        if ($tags === '') {
+            return [];
+        }
+        $tagsArray = preg_split('/\r?\n/', $tags);
 
         return array_reverse($tagsArray);
     }
@@ -249,17 +262,19 @@ class Repository
     /**
      * Add all.
      *
-     * @return string
+     * @return bool
      */
     public static function addAll()
     {
-        system('git add --all');
+        system('git add --all', $exitCode);
+
+        return $exitCode === 0;
     }
 
     /**
      * Add files.
      *
-     * @return string
+     * @return bool
      */
     public static function add($files)
     {
@@ -267,20 +282,26 @@ class Repository
             $files = [$files];
         }
         foreach ($files as $file) {
-            system("git add \"{$file}\"");
+            system('git add -- ' . escapeshellarg($file), $exitCode);
+            if ($exitCode !== 0) {
+                return false;
+            }
         }
+
+        return true;
     }
 
     /**
      * Commit.
      *
-     * @return string
+     * @return string|false
      */
     public static function commit(string $message, array $files = [], bool $amend = false, bool $verify = true, $noEdit = false)
     {
-        self::add($files);
-        $message = str_replace('"', "'", $message); // Escape
-        $command = "git commit -m \"{$message}\"";
+        if (!self::add($files)) {
+            return false;
+        }
+        $command = 'git commit -m ' . escapeshellarg($message);
         if ($amend) {
             $command .= ' --amend';
         }
@@ -291,30 +312,63 @@ class Repository
             $command .= ' --no-edit';
         }
 
-        return exec($command);
+        return self::execute($command);
     }
 
     /**
      * Tag.
      *
-     * @return string
+     * @param string $name Tag name
+     * @param bool|string $annotate Whether to create an annotated tag, or a custom annotation message
+     * @param bool $sign Whether to create a GPG-signed tag
+     *
+     * @return string|false
      */
-    public static function tag(string $name, $annotation = false)
+    public static function tag(string $name, $annotate = false, bool $sign = false)
     {
-        $message = $annotation ?: $name;
-        $flags = $annotation !== false ? "-a -m {$message}" : '';
+        $flags = '';
 
-        return exec("git tag {$flags} {$name}");
+        // Determine the message to use
+        $message = $name;
+        if (is_string($annotate) && !empty($annotate)) {
+            $message = $annotate;
+        }
+
+        // Build flags based on annotation and signing
+        if ($sign) {
+            // GPG-signed tags (-s) are always annotated
+            $flags = '-s -m ' . escapeshellarg($message);
+        } elseif ($annotate !== false) {
+            // Annotated tag without signing
+            $flags = '-a -m ' . escapeshellarg($message);
+        }
+        // Otherwise, create a lightweight tag (no flags)
+
+        $command = trim("git tag {$flags}") . ' -- ' . escapeshellarg($name);
+
+        return self::execute($command);
     }
 
     /**
      * Delete Tag.
      *
-     * @return string
+     * @return string|false
      */
     public static function deleteTag(string $name)
     {
-        return exec("git tag -d {$name}");
+        return self::execute('git tag -d -- ' . escapeshellarg($name));
+    }
+
+    /**
+     * Execute a Git command and return false when it fails.
+     *
+     * @return string|false
+     */
+    private static function execute(string $command)
+    {
+        $result = exec($command, $output, $exitCode);
+
+        return $exitCode === 0 ? $result : false;
     }
 
     /**
@@ -340,13 +394,19 @@ class Repository
 
     /**
      * Parse remote url.
-     *
-     * @return array
      */
-    public static function parseRemoteUrl()
+    public static function parseRemoteUrl(?string $url = null): array
     {
-        $url = self::getRemoteUrl();
+        if ($url === null) {
+            $url = self::getRemoteUrl();
+        } else {
+            $url = preg_replace('/\.git$/', '', $url);
+        }
         $patterns = [
+            // Azure DevOps HTTPS: https://dev.azure.com/{organization}/{project}/_git/{repository}
+            '#^(?P<protocol>https?)://(?P<host>dev\.azure\.com)/(?P<owner>[^/]+)/(?P<project>[^/]+)/_git/(?P<repository>[^/]+?)(?:\.git)?/?$#smi',
+            // Azure DevOps SSH: git@ssh.dev.azure.com:v3/{organization}/{project}/{repository}
+            '#^(?P<user>[^@]+)@(?P<host>ssh\.dev\.azure\.com):v3/(?P<owner>[^/]+)/(?P<project>[^/]+)/(?P<repository>[^/]+?)(?:\.git)?/?$#smi',
             '#^(?P<protocol>https?|git|ssh|rsync)\://(?:(?P<user>.+)@)*(?P<host>[a-z0-9_.-]*)[:/]*(?P<port>[\d]+){0,1}(?P<pathname>\/((?P<owner>.+)\/)?((?P<repository>.+?)(\.git|\/)?)?)$#smi',
             '#(git\+)?((?P<protocol>\w+)://)((?P<user>\w+)@)?((?P<host>[\w\.\-]+))(:(?P<port>\d+))?(?P<pathname>(\/(?P<owner>.+)/)?(\/?(?P<repository>.+)(\.git|\/)?)?)$#smi',
             '#^(?:(?P<user>.+)@)*(?P<host>[a-z0-9_.-]*)[:]*(?P<port>[\d]+){0,1}(?P<pathname>\/?(?P<owner>.+)/(?P<repository>.+).git)$#smi',

@@ -57,7 +57,7 @@ class DefaultCommand extends Command
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription("Generate changelogs and release notes from a project's commit messages" .
@@ -80,11 +80,13 @@ class DefaultCommand extends Command
                 new InputOption('beta', null, InputOption::VALUE_NONE, 'Beta release'),
                 new InputOption('alpha', null, InputOption::VALUE_NONE, 'Alpha release'),
                 new InputOption('ver', null, InputOption::VALUE_REQUIRED, 'Specify the next release version code (semver)'),
+                new InputOption('calver', null, InputOption::VALUE_OPTIONAL, 'Use calendar versioning [YYYY.MM.DD.PATCH]', false),
                 new InputOption('history', null, InputOption::VALUE_NONE, 'Generate the entire history of changes of all releases'),
                 new InputOption('no-verify', null, InputOption::VALUE_NONE, 'Bypasses the pre-commit and commit-msg hooks'),
                 new InputOption('no-tag', null, InputOption::VALUE_NONE, 'Disable release auto tagging'),
                 new InputOption('no-change-without-commits', null, InputOption::VALUE_NONE, 'Do not apply change if no commits'),
                 new InputOption('annotate-tag', null, InputOption::VALUE_OPTIONAL, 'Make an unsigned, annotated tag object once changelog is generated', false),
+                new InputOption('sign-tag', null, InputOption::VALUE_NONE, 'Make a GPG-signed tag object once changelog is generated'),
                 new InputOption('merged', null, InputOption::VALUE_NONE, 'Only include commits whose tips are reachable from HEAD'),
             ]);
     }

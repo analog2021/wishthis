@@ -113,10 +113,28 @@ final class Merger
             $disableCodeCoverageIgnore = $xmlConfiguration->codeCoverage()->disableCodeCoverageIgnore();
         }
 
+        if ($cliConfiguration->hasFailOnAllIssues()) {
+            $failOnAllIssues = $cliConfiguration->failOnAllIssues();
+        } else {
+            $failOnAllIssues = $xmlConfiguration->phpunit()->failOnAllIssues();
+        }
+
         if ($cliConfiguration->hasFailOnDeprecation()) {
             $failOnDeprecation = $cliConfiguration->failOnDeprecation();
         } else {
             $failOnDeprecation = $xmlConfiguration->phpunit()->failOnDeprecation();
+        }
+
+        if ($cliConfiguration->hasFailOnPhpunitDeprecation()) {
+            $failOnPhpunitDeprecation = $cliConfiguration->failOnPhpunitDeprecation();
+        } else {
+            $failOnPhpunitDeprecation = $xmlConfiguration->phpunit()->failOnPhpunitDeprecation();
+        }
+
+        if ($cliConfiguration->hasFailOnPhpunitWarning()) {
+            $failOnPhpunitWarning = $cliConfiguration->failOnPhpunitWarning();
+        } else {
+            $failOnPhpunitWarning = $xmlConfiguration->phpunit()->failOnPhpunitWarning();
         }
 
         if ($cliConfiguration->hasFailOnEmptyTestSuite()) {
@@ -153,6 +171,60 @@ final class Merger
             $failOnWarning = $cliConfiguration->failOnWarning();
         } else {
             $failOnWarning = $xmlConfiguration->phpunit()->failOnWarning();
+        }
+
+        $doNotFailOnDeprecation = false;
+
+        if ($cliConfiguration->hasDoNotFailOnDeprecation()) {
+            $doNotFailOnDeprecation = $cliConfiguration->doNotFailOnDeprecation();
+        }
+
+        $doNotFailOnPhpunitDeprecation = false;
+
+        if ($cliConfiguration->hasDoNotFailOnPhpunitDeprecation()) {
+            $doNotFailOnPhpunitDeprecation = $cliConfiguration->doNotFailOnPhpunitDeprecation();
+        }
+
+        $doNotFailOnPhpunitWarning = false;
+
+        if ($cliConfiguration->hasDoNotFailOnPhpunitWarning()) {
+            $doNotFailOnPhpunitWarning = $cliConfiguration->doNotFailOnPhpunitWarning();
+        }
+
+        $doNotFailOnEmptyTestSuite = false;
+
+        if ($cliConfiguration->hasDoNotFailOnEmptyTestSuite()) {
+            $doNotFailOnEmptyTestSuite = $cliConfiguration->doNotFailOnEmptyTestSuite();
+        }
+
+        $doNotFailOnIncomplete = false;
+
+        if ($cliConfiguration->hasDoNotFailOnIncomplete()) {
+            $doNotFailOnIncomplete = $cliConfiguration->doNotFailOnIncomplete();
+        }
+
+        $doNotFailOnNotice = false;
+
+        if ($cliConfiguration->hasDoNotFailOnNotice()) {
+            $doNotFailOnNotice = $cliConfiguration->doNotFailOnNotice();
+        }
+
+        $doNotFailOnRisky = false;
+
+        if ($cliConfiguration->hasDoNotFailOnRisky()) {
+            $doNotFailOnRisky = $cliConfiguration->doNotFailOnRisky();
+        }
+
+        $doNotFailOnSkipped = false;
+
+        if ($cliConfiguration->hasDoNotFailOnSkipped()) {
+            $doNotFailOnSkipped = $cliConfiguration->doNotFailOnSkipped();
+        }
+
+        $doNotFailOnWarning = false;
+
+        if ($cliConfiguration->hasDoNotFailOnWarning()) {
+            $doNotFailOnWarning = $cliConfiguration->doNotFailOnWarning();
         }
 
         if ($cliConfiguration->hasStopOnDefect()) {
@@ -228,7 +300,7 @@ final class Merger
         if ($columns < 16) {
             $columns = 16;
 
-            EventFacade::emitter()->testRunnerTriggeredWarning(
+            EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
                 'Less than 16 columns requested, number of columns set to 16',
             );
         }
@@ -399,7 +471,7 @@ final class Merger
         }
 
         if ($enforceTimeLimit && !(new Invoker)->canInvokeWithTimeout()) {
-            EventFacade::emitter()->testRunnerTriggeredWarning(
+            EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
                 'The pcntl extension is required for enforcing time limits',
             );
         }
@@ -432,6 +504,12 @@ final class Merger
             $disallowTestOutput = $xmlConfiguration->phpunit()->beStrictAboutOutputDuringTests();
         }
 
+        if ($cliConfiguration->hasDisplayDetailsOnAllIssues()) {
+            $displayDetailsOnAllIssues = $cliConfiguration->displayDetailsOnAllIssues();
+        } else {
+            $displayDetailsOnAllIssues = $xmlConfiguration->phpunit()->displayDetailsOnAllIssues();
+        }
+
         if ($cliConfiguration->hasDisplayDetailsOnIncompleteTests()) {
             $displayDetailsOnIncompleteTests = $cliConfiguration->displayDetailsOnIncompleteTests();
         } else {
@@ -448,6 +526,12 @@ final class Merger
             $displayDetailsOnTestsThatTriggerDeprecations = $cliConfiguration->displayDetailsOnTestsThatTriggerDeprecations();
         } else {
             $displayDetailsOnTestsThatTriggerDeprecations = $xmlConfiguration->phpunit()->displayDetailsOnTestsThatTriggerDeprecations();
+        }
+
+        if ($cliConfiguration->hasDisplayDetailsOnPhpunitDeprecations()) {
+            $displayDetailsOnPhpunitDeprecations = $cliConfiguration->displayDetailsOnPhpunitDeprecations();
+        } else {
+            $displayDetailsOnPhpunitDeprecations = $xmlConfiguration->phpunit()->displayDetailsOnPhpunitDeprecations();
         }
 
         if ($cliConfiguration->hasDisplayDetailsOnTestsThatTriggerErrors()) {
@@ -628,11 +712,11 @@ final class Merger
 
         if ($xmlConfiguration->wasLoadedFromFile() && $xmlConfiguration->hasValidationErrors()) {
             if ((new SchemaDetector)->detect($xmlConfiguration->filename())->detected()) {
-                EventFacade::emitter()->testRunnerTriggeredDeprecation(
+                EventFacade::emitter()->testRunnerTriggeredPhpunitDeprecation(
                     'Your XML configuration validates against a deprecated schema. Migrate your XML configuration using "--migrate-configuration"!',
                 );
             } else {
-                EventFacade::emitter()->testRunnerTriggeredWarning(
+                EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
                     "Test results may not be as expected because the XML configuration file did not pass validation:\n" .
                     $xmlConfiguration->validationErrors(),
                 );
@@ -774,13 +858,25 @@ final class Merger
             $pathCoverage,
             $xmlConfiguration->codeCoverage()->ignoreDeprecatedCodeUnits(),
             $disableCodeCoverageIgnore,
+            $failOnAllIssues,
             $failOnDeprecation,
+            $failOnPhpunitDeprecation,
+            $failOnPhpunitWarning,
             $failOnEmptyTestSuite,
             $failOnIncomplete,
             $failOnNotice,
             $failOnRisky,
             $failOnSkipped,
             $failOnWarning,
+            $doNotFailOnDeprecation,
+            $doNotFailOnPhpunitDeprecation,
+            $doNotFailOnPhpunitWarning,
+            $doNotFailOnEmptyTestSuite,
+            $doNotFailOnIncomplete,
+            $doNotFailOnNotice,
+            $doNotFailOnRisky,
+            $doNotFailOnSkipped,
+            $doNotFailOnWarning,
             $stopOnDefect,
             $stopOnDeprecation,
             $stopOnError,
@@ -808,9 +904,11 @@ final class Merger
             $reportUselessTests,
             $strictCoverage,
             $disallowTestOutput,
+            $displayDetailsOnAllIssues,
             $displayDetailsOnIncompleteTests,
             $displayDetailsOnSkippedTests,
             $displayDetailsOnTestsThatTriggerDeprecations,
+            $displayDetailsOnPhpunitDeprecations,
             $displayDetailsOnTestsThatTriggerErrors,
             $displayDetailsOnTestsThatTriggerNotices,
             $displayDetailsOnTestsThatTriggerWarnings,

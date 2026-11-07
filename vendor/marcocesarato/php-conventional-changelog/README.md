@@ -2,7 +2,7 @@
 
 <h1 align="center">PHP Conventional Changelog</h1>
 
-![Version](https://img.shields.io/badge/version-1.17.2-brightgreen?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.19.1-brightgreen?style=for-the-badge)
 ![Requirements](https://img.shields.io/badge/php-%3E%3D%207.1.3-4F5D95?style=for-the-badge)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow?style=for-the-badge)](https://conventionalcommits.org)
 ![License](https://img.shields.io/github/license/marcocesarato/php-conventional-changelog?style=for-the-badge)
@@ -18,16 +18,16 @@
 
 ## Description
 
-When a new release of a software project is announced, it is convenient to generate documents that let the project 
+When a new release of a software project is announced, it is convenient to generate documents that let the project
 users know what were the changes and other relevant notes about the new project release.
 
-This package can help to automatically generate changelog and release note files, so the developers of the project 
+This package can help to automatically generate changelog and release note files, so the developers of the project
 reduce the work that is necessary to finalize and check the new release of the project.
 
 This package can generate a changelog from a project's committing history messages and metadata using composer and automate versioning
 with [**semver**](https://semver.org) and [**conventional-commits**](https://conventionalcommits.org).
 
-It provides a command that can be run from the terminal, or using composer scripts, 
+It provides a command that can be run from the terminal, or using composer scripts,
 to generate a changelog file in **markdown** for the current project.
 
 The command may take parameters that define the releases of the project that will be considered to extract the changes
@@ -51,6 +51,89 @@ greatly appreciated! Every little bit helps.
 You can install it easily with composer
 
 `composer require --dev marcocesarato/php-conventional-changelog`
+
+### GitHub Action
+
+The GitHub Action runs the changelog generator in a checked-out repository. Fetch the complete history so the
+generator can read all commits and tags:
+
+```yaml
+name: Changelog
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: marcocesarato/php-conventional-changelog@v1
+        with:
+          arguments: |
+            --no-change-without-commits
+```
+
+Pass one command argument per line. Keep an option value on the same line as its option, for example
+`--ver=2.0.1` or `--annotate-tag=Release 2.0.1`. Use `working-directory` for a project in a subdirectory:
+
+```yaml
+      - uses: marcocesarato/php-conventional-changelog@v1
+        with:
+          working-directory: packages/application
+          arguments: |
+            --history
+```
+
+The Action configures PHP for the whole job. It uses PHP 8.4 by default; set `php-version` to another version
+supported by the lockfile (currently PHP 8.4.1 or newer) when later steps need the same runtime.
+
+To create and push a release commit and tag, grant write access, configure the Git author, and push the local changes
+created by the Action:
+
+```yaml
+permissions:
+  contents: write
+
+steps:
+  - uses: actions/checkout@v7
+    with:
+      fetch-depth: 0
+
+  - name: Configure Git author
+    run: |
+      git config user.name "github-actions[bot]"
+      git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+  - uses: marcocesarato/php-conventional-changelog@v1
+    with:
+      arguments: |
+        --commit
+        --no-change-without-commits
+
+  - name: Push release
+    run: git push --follow-tags
+```
+
+The Action executes the repository's `.changelog` PHP configuration and any configured hooks. Do not run a release
+job with write permissions or secrets against code from an untrusted pull request.
+
+#### Publish to GitHub Marketplace
+
+After this file and `action.yml` are on the public repository's default branch:
+
+1. Open `action.yml` on GitHub and select **Draft a release** in the Marketplace banner.
+2. Check **Publish this Action to the GitHub Marketplace**, choose a category, and accept the Marketplace Developer Agreement if GitHub asks.
+3. Create a semantic version tag such as `v1.18.0`, then publish the release.
+4. Create or update the moving `v1` tag so workflows using `@v1` receive compatible updates.
+
+GitHub publishes the Marketplace listing from the root `action.yml`; no separate upload is required.
 
 #### Scripts *(Optional)*
 
@@ -93,6 +176,29 @@ You can have more info about reading the [config documentation](./docs/config.md
 The changelog generator will generate a log of changes from the date of the last tag to the current date, and it will
 put all commit logs in the latest version just created.
 
+The examples below use Composer's executable proxy on Linux and macOS. On Windows, replace
+`vendor/bin/conventional-changelog` with `vendor\bin\conventional-changelog.bat`. You can also run the portable
+`php vendor/bin/conventional-changelog` form on every platform.
+
+When running from a source checkout, use `php bin/conventional-changelog` or `composer changelog`.
+The executable and its autoloader live in `bin/` following the PDS skeleton convention.
+Distribution archives include `bin/`, `src/`, Composer metadata, the license, README and changelog;
+development tooling, tests and the repository's own `.changelog` configuration are excluded.
+
+### Publishing this package
+
+Maintainers generate the release commit and tag with `composer release:patch` (or the minor/major script),
+then push the commit to `main` and push its `vMAJOR.MINOR.PATCH` tag. Add the GitHub Release workflow to
+`main` before tagging a release.
+
+The **GitHub Release** workflow checks that the tagged commit belongs to `main`, runs PHPUnit, and verifies
+that the Composer and CLI versions match the tag. It publishes the matching `CHANGELOG.md` section as release
+notes, with lean ZIP and tar.gz archives and a `SHA256SUMS` file. These archives contain the package files
+listed above; GitHub's default source downloads also follow `.gitattributes`.
+
+To retry publishing an existing stable tag, run **GitHub Release** from the Actions tab and enter the tag.
+A rerun updates that release's notes and replaces its generated assets. Prerelease tags are not supported.
+
 ![](docs/images/usage.gif)
 
 > **Notes:**<br>
@@ -112,7 +218,7 @@ put all commit logs in the latest version just created.
 To generate your changelog for the first version run:
 
 ```shell
-php vendor/bin/conventional-changelog --first-release
+vendor/bin/conventional-changelog --first-release
 ```
 
 #### New version
@@ -120,7 +226,7 @@ php vendor/bin/conventional-changelog --first-release
 To generate your changelog *(without committing files)*
 
 ```shell
-php vendor/bin/conventional-changelog
+vendor/bin/conventional-changelog
 ```
 
 #### New release (with commit and tag)
@@ -128,23 +234,55 @@ php vendor/bin/conventional-changelog
 To generate your changelog with auto commit and auto versioning tagging run:
 
 ```shell
-php vendor/bin/conventional-changelog --commit
+vendor/bin/conventional-changelog --commit
 ```
 
 or to amend at an existing commit you can run:
 
 ```shell
-php vendor/bin/conventional-changelog --amend
+vendor/bin/conventional-changelog --amend
 ```
+
+#### Annotated and Signed Tags
+
+By default, the tool creates lightweight tags. You can create annotated or GPG-signed tags:
+
+**Create an annotated tag:**
+```shell
+vendor/bin/conventional-changelog --commit --annotate-tag
+```
+
+**Create a GPG-signed tag** (requires GPG configuration):
+```shell
+vendor/bin/conventional-changelog --commit --sign-tag
+```
+
+**Create an annotated tag with a custom message:**
+```shell
+vendor/bin/conventional-changelog --commit --annotate-tag="Release version"
+```
+
+You can also configure this in your `.changelog` configuration file:
+```php
+return [
+    'annotateTag' => true,  // Create annotated tags by default
+    'signTag' => true,      // Create GPG-signed tags by default
+];
+```
+
+> **Note:** GPG-signed tags (`--sign-tag`) are automatically annotated, so you don't need to use both options together.
 
 #### History
 
 To generate your changelog with the entire history of changes of all releases
 
+Commits after the newest tag are included in the next release section. If the repository has no tags, the complete
+history through `HEAD` is included.
+
 > **Warn:** this operation will overwrite the `CHANGELOG.md` file if it already exists
 
 ```shell
-php vendor/bin/conventional-changelog --history
+vendor/bin/conventional-changelog --history
 ```
 
 #### Date range
@@ -152,7 +290,7 @@ php vendor/bin/conventional-changelog --history
 To generate your changelog from a specified date to another specified date
 
 ```shell
-php vendor/bin/conventional-changelog --from-date="2020-12-01" --to-date="2021-01-01"
+vendor/bin/conventional-changelog --from-date="2020-12-01" --to-date="2021-01-01"
 ```
 
 #### Tag range
@@ -160,7 +298,7 @@ php vendor/bin/conventional-changelog --from-date="2020-12-01" --to-date="2021-0
 To generate your changelog from a specified tag to another specified tag
 
 ```shell
-php vendor/bin/conventional-changelog --from-tag="v1.0.2" --to-tag="1.0.4"
+vendor/bin/conventional-changelog --from-tag="v1.0.2" --to-tag="1.0.4"
 ```
 
 #### Specific version
@@ -168,12 +306,27 @@ php vendor/bin/conventional-changelog --from-tag="v1.0.2" --to-tag="1.0.4"
 To generate your changelog with a specific version code
 
 ```shell
-php vendor/bin/conventional-changelog --ver="2.0.1"
+vendor/bin/conventional-changelog --ver="2.0.1"
+```
+
+#### Calendar versioning
+
+Use `--calver` to generate versions in `YYYY.MM.DD.PATCH` format. `PATCH` starts at `0` and increments when another
+release is created on the same day:
+
+```shell
+vendor/bin/conventional-changelog --calver --commit
+```
+
+Pass a custom format using the `YYYY`, `YY`, `MM`, `DD`, and `PATCH` tokens:
+
+```shell
+vendor/bin/conventional-changelog --calver="YY.MM.PATCH" --commit
 ```
 
 ### Commands List
 
-> **Info:** You can have more info about running  `php vendor/bin/conventional-changelog --help`
+> **Info:** You can have more info by running `vendor/bin/conventional-changelog --help`
 
 ```
 Description:
@@ -202,11 +355,13 @@ Options:
       --beta                         Beta release
       --alpha                        Alpha release
       --ver=VER                      Specify the next release version code (semver)
+      --calver[=CALVER]              Use calendar versioning [YYYY.MM.DD.PATCH] [default: false]
       --history                      Generate the entire history of changes of all releases
       --no-verify                    Bypasses the pre-commit and commit-msg hooks
       --no-tag                       Disable release auto tagging
       --no-change-without-commits    Do not apply change if no commits
       --annotate-tag[=ANNOTATE-TAG]  Make an unsigned, annotated tag object once changelog is generated [default: false]
+      --sign-tag                     Make a GPG-signed tag object once changelog is generated
       --merged                       Only include commits whose tips are reachable from HEAD
   -h, --help                         Display help for the given command. When no command is given display help for the changelog command
 ```

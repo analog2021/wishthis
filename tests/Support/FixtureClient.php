@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace wishthis\Tests\Support;
 
+use Embed\Http\UrlPolicy;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -20,6 +21,28 @@ final class FixtureClient implements ClientInterface
 
     public function __construct(private array $fixtures)
     {
+    }
+
+    /**
+     * Lets the embed crawler request the fixture hosts.
+     *
+     * Since embed/embed 4.6 the crawler resolves every host and refuses
+     * non-public addresses before calling the client, so the made-up fixture
+     * hosts (e.g. shop.example) would fail with "Could not resolve host".
+     * Resolve them all to a public address instead; no
+     * connection is made, the fixture client answers every request.
+     *
+     * @param \Embed\Embed $embed
+     *
+     * @return \Embed\Embed
+     */
+    public static function allowFixtureHosts(\Embed\Embed $embed): \Embed\Embed
+    {
+        $embed->getCrawler()->setUrlPolicy(
+            UrlPolicy::default()->withResolver(static fn (string $host): array => ['93.184.215.14'])
+        );
+
+        return $embed;
     }
 
     public function sendRequest(RequestInterface $request): ResponseInterface

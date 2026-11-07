@@ -14,6 +14,8 @@
 
 ### Changed
 
+-   PHP 8.4.1 or newer is required (the installer checks for it)
+-   Updated the PHP libraries wishthis uses (`composer update`), which removes most PHP 8.5 deprecation warnings
 -   Updated translations from transifex
 -   The "Insufficient power" page says "Admin permissions required - access denied." instead of showing power numbers
 -   The installer no longer runs while `src/config/config.php` exists, since installing overwrites it and deletes all data

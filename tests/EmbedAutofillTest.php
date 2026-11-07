@@ -74,7 +74,7 @@ final class EmbedAutofillTest extends TestCase
 
     private function extract(string $url): \Embed\Extractor
     {
-        return Embed::createEmbed($this->client)->get($url);
+        return FixtureClient::allowFixtureHosts(Embed::createEmbed($this->client))->get($url);
     }
 
     public function testAmazonProductPage(): void

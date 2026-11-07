@@ -17,7 +17,7 @@ final class FixtureEmbedCache extends Embed
 
     public static function createEmbed(?ClientInterface $client = null): \Embed\Embed
     {
-        return parent::createEmbed(self::$client);
+        return FixtureClient::allowFixtureHosts(parent::createEmbed(self::$client));
     }
 
     public function __construct(string $url, string $directory)
