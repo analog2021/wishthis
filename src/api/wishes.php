@@ -196,7 +196,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             `image`          = :wish_image,
                             `url`            = :wish_url,
                             `priority`       = :wish_priority,
-                            `is_purchasable` = :wish_is_purchasable
+                            `is_purchasable` = :wish_is_purchasable,
+                            `edited`         = ' . $database->getDateNow() . '
                       WHERE `id`             = :wish_id',
                     [
                         'wishlist_id'         => $wish->getWishlistId(),
@@ -392,7 +393,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
             $database->query(
                 'UPDATE `wishes`
-                    SET `status` = :wish_status
+                    SET `status` = :wish_status,
+                        `edited` = ' . $database->getDateNow() . '
                   WHERE `id`     = :wish_id',
                 [
                     'wish_status' => $wish_status,
