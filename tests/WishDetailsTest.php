@@ -136,6 +136,30 @@ final class WishDetailsTest extends TestCase
         $this->assertDoesNotMatchRegularExpression('/[\s,;:|\/\-–—]$/u', $details['title']);
     }
 
+    public function testStoredTitleLengthCountsEncodedSymbols(): void
+    {
+        $this->assertSame(3, Wish::getStoredTitleLength('abc'));
+        $this->assertSame(7, Wish::getStoredTitleLength('a&b'));
+        $this->assertSame(8, Wish::getStoredTitleLength("it's"));
+        $this->assertSame(11, Wish::getStoredTitleLength('<b>'));
+        $this->assertSame(16, Wish::getStoredTitleLength('say "hi"'));
+        $this->assertSame(11, Wish::getStoredTitleLength("tab\there"));
+        $this->assertSame(11, Wish::getStoredTitleLength('back\\slash'));
+        $this->assertSame(5, Wish::getStoredTitleLength('ünï €'));
+        $this->assertSame(1, Wish::getStoredTitleLength('😀'));
+    }
+
+    public function testLongTitleWithSymbolsFitsAsStored(): void
+    {
+        $title = \str_repeat('Salt & Pepper ', 10);
+        $short = Wish::shortenLookupTitle($title);
+
+        $this->assertLessThanOrEqual(Wish::TITLE_LOOKUP_LENGTH, Wish::getStoredTitleLength($short));
+        $this->assertGreaterThan(Wish::TITLE_LOOKUP_LENGTH / 2, Wish::getStoredTitleLength($short));
+        $this->assertStringStartsWith($short, $title);
+        $this->assertStringEndsWith('Salt', $short);
+    }
+
     public function testShortTitleIsKept(): void
     {
         $title = \str_repeat('ü', Wish::TITLE_LOOKUP_LENGTH);
