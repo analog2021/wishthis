@@ -122,6 +122,25 @@ final class WishDetailsTest extends TestCase
     {
         $details = Wish::getDetailsFromInfo(self::info(['title' => \str_repeat('a', 200)]), 'EUR', self::imageResponse(200));
 
-        $this->assertSame(Wish::TITLE_MAX_LENGTH, \mb_strlen($details['title']));
+        $this->assertSame(Wish::TITLE_LOOKUP_LENGTH, \mb_strlen($details['title']));
+    }
+
+    public function testLongTitleIsShortenedAtAWordBreak(): void
+    {
+        $title   = 'Ergonomic office chair with lumbar support, adjustable armrests, breathable mesh back - black | Brand Store';
+        $details = Wish::getDetailsFromInfo(self::info(['title' => $title]), 'EUR', self::imageResponse(200));
+
+        $this->assertLessThanOrEqual(Wish::TITLE_LOOKUP_LENGTH, \mb_strlen($details['title']));
+        $this->assertStringStartsWith($details['title'], $title);
+        $this->assertSame(' ', \mb_substr($title, \mb_strlen($details['title']), 1));
+        $this->assertDoesNotMatchRegularExpression('/[\s,;:|\/\-–—]$/u', $details['title']);
+    }
+
+    public function testShortTitleIsKept(): void
+    {
+        $title = \str_repeat('ü', Wish::TITLE_LOOKUP_LENGTH);
+
+        $this->assertSame($title, Wish::shortenLookupTitle($title));
+        $this->assertSame('Hoodie, black', Wish::shortenLookupTitle('Hoodie, black'));
     }
 }
