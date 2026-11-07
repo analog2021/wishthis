@@ -1829,3 +1829,55 @@ msgstr ""
 #, php-format
 msgid "Fulfilled one by mistake? You can undo it for %1$d minutes in %2$s."
 msgstr ""
+
+#: pages/spoilers.php:207 pages/profile/profile.php:355
+msgid "Received wishes"
+msgstr ""
+
+#: pages/spoilers.php:209
+msgid "Two weeks after your birthday, fulfilled wishes leave your list. They are kept here, so you can look up what you were given."
+msgstr ""
+
+#: pages/spoilers.php:210
+msgid "Prefer a tidy list? Delete them. The people who gave them to you keep them in their gifts."
+msgstr ""
+
+#: pages/spoilers.php:213
+msgid "Delete all received"
+msgstr ""
+
+#: pages/spoilers.php:273
+msgid "Received"
+msgstr ""
+
+#: pages/profile/profile.php:365
+msgid "Tidy up after my birthday"
+msgstr ""
+
+#: pages/profile/profile.php:370
+msgid "Two weeks after your birthday, wishes that have been fulfilled leave your lists. You can still see them under Spoilers, so you know what you were given."
+msgstr ""
+
+#: pages/profile/profile.php:373
+msgid "Add your birthday under Personal to use this."
+msgstr ""
+
+#: pages/profile/profile-handle-post-received.php:36
+msgid "Fulfilled wishes will leave your lists two weeks after your birthday."
+msgstr ""
+
+#: pages/profile/profile-handle-post-received.php:37
+msgid "Fulfilled wishes will stay on your lists."
+msgstr ""
+
+#: assets/js/inline.js.php:71
+msgid "Would you really like to delete all received wishes on this list? You can restore them for an hour with Undo a mistake. The people who gave them to you keep them in their gifts."
+msgstr ""
+
+#: assets/js/inline.js.php:120
+msgid "The received wishes have been deleted."
+msgstr ""
+
+#: pages/gifts.php:90
+msgid "Purchased"
+msgstr ""
