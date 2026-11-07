@@ -322,3 +322,25 @@ function showToastAutofillBlocked(response, form) {
         'displayTime' : 15000,
     });
 }
+
+/**
+ * Puts a recently deleted wish back on its wishlist.
+ *
+ * @returns {Promise} Resolves once the wish is restored and the user was told.
+ */
+function wishRestore(wishId) {
+    return fetch('/index.php?page=api&module=wishes', {
+        'method'      : 'PUT',
+        'credentials' : 'include',
+        'body'        : new URLSearchParams({
+            'wish_restore' : wishId,
+        }),
+    })
+    .then(handleFetchError)
+    .then(handleFetchResponse)
+    .then(function (response) {
+        $('body').toast({ message: wishthis.strings.toast.wish.restore });
+
+        return response;
+    });
+}

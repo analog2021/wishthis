@@ -403,6 +403,26 @@ switch ($_SERVER['REQUEST_METHOD']) {
             );
 
             $response['success'] = true;
+        } elseif (isset($_PUT['wish_restore'])) {
+            /**
+             * Restore Wish
+             *
+             * Puts a wish the owner deleted recently back on its wishlist.
+             */
+            Wish::purgeDeleted();
+
+            $restored = Wish::restore(
+                (int) Sanitiser::getNumber($_PUT['wish_restore']),
+                User::getCurrent()->getId()
+            );
+
+            if (!$restored) {
+                \http_response_code(404);
+
+                die(__('This wish can no longer be restored.'));
+            }
+
+            $response['success'] = true;
         }
         break;
 
@@ -445,6 +465,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
         }
 
         if (isset($_DELETE['wish_id'])) {
+            /** Keep a copy for a while, so the wish can be restored. */
+            Wish::purgeDeleted();
+            Wish::archive(Sanitiser::getNumber($_DELETE['wish_id']));
+
             $database->query(
                 'DELETE FROM `wishes`
                        WHERE `id` = :wish_id',

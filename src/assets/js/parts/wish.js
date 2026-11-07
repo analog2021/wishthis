@@ -396,7 +396,22 @@ $(function () {
                 .then(function(response) {
                     column.fadeOut(200);
 
-                    $('body').toast({ message: wishthis.strings.toast.wish.delete });
+                    $('body').toast({
+                        'message'     : wishthis.strings.toast.wish.delete,
+                        'displayTime' : 10000,
+                        'actions'     : [{
+                            'text'  : wishthis.strings.toast.wish.undo,
+                            'icon'  : 'undo',
+                            'class' : 'basic',
+                            'click' : function () {
+                                wishRestore(wish_local.id)
+                                .then(function () {
+                                    $('.ui.dropdown.filter.priority').api('query');
+                                })
+                                .catch(handleFetchCatch);
+                            },
+                        }],
+                    });
 
                     modal.modal('hide');
 
