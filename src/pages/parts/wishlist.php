@@ -142,7 +142,7 @@ $user = User::getCurrent();
     </div>
     <div class="content">
         <div class="description">
-            <p><?= __('Fill the title and/or description to add your new wish. If you just fill out the URL, wishthis will attempt to auto fill all other fields.') ?></p>
+            <p><?= __('Paste a link to the product and wishthis fills in the rest. You can change anything before adding it.') ?></p>
 
             <form class="ui form wishlist-wish-add" method="POST">
                 <?php include 'wish-add.php' ?>

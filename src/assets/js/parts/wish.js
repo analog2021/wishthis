@@ -271,11 +271,16 @@ $(function () {
         $('[name="wish_url"]').val(wish_local.url);
         $('.ui.selection.dropdown.priority').dropdown('set selected', wish_local.priority);
 
+        /** Only look up the URL once it is changed */
+        rememberWishURL(wish_edit.find('.ui.form.wishlist-wish-edit'));
+        showWishImagePreview(wish_edit.find('.ui.form.wishlist-wish-edit'));
+
         /** URL */
         $('[name="wish_url"]').on('blur', function(event) {
             var input = $(event.target);
 
-            input.attr('disabled', 'disabled');
+            /** Read-only rather than disabled, so saving meanwhile still sends the URL */
+            input.prop('readOnly', true);
 
             fetch('/index.php?page=api&module=wishes&wish_url=' + window.btoa(input.val()) + '&isAffiliate', {
                 'method'      : 'GET',
@@ -291,7 +296,7 @@ $(function () {
                 }
             })
             .finally(function() {
-                input.removeAttr('disabled');
+                input.prop('readOnly', false);
             });
         });
         $('[name="wish_url"]').trigger('blur');

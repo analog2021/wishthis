@@ -53,9 +53,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $url   = trim($_GET['wish_url']);
                 $cache = new Cache\Embed($url);
                 $info  = $cache->get($cache->generateCache());
+                $user  = User::getCurrent();
 
                 $response = [
-                    'info' => $info,
+                    'info'    => $info,
+                    'details' => Wish::getDetailsFromInfo($info, $user->isLoggedIn() ? $user->getCurrency() : ''),
                 ];
             }
         } elseif (isset($_GET['wishlist_id'], $_GET['wishlist_style'], $_GET['wish_priority'])) {
@@ -149,34 +151,28 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
                 /** Update wish information */
                 if (!empty($wish_url)) {
-                    $cache = new Cache\Embed($wish_url);
-                    $info  = $cache->get($cache->generateCache());
+                    $cache   = new Cache\Embed($wish_url);
+                    $info    = $cache->get($cache->generateCache());
+                    $details = Wish::getDetailsFromInfo($info, $user->getCurrency());
 
-                    if (empty($wish_title) && empty($wish->title) && isset($info->title)) {
-                        $wish_title = Sanitiser::getTitle($info->title);
+                    if (empty($wish_title) && empty($wish->title) && $details['title']) {
+                        $wish_title = Sanitiser::getTitle($details['title']);
                     }
 
-                    if (empty($wish_description) && empty($wish->description) && isset($info->description)) {
-                        $wish_description = Sanitiser::getText($info->description);
+                    if (empty($wish_description) && empty($wish->description) && $details['description']) {
+                        $wish_description = Sanitiser::getText($details['description']);
                     }
 
-                    /** Image */
                     if (empty($wish_image) && empty($wish->image)) {
-                        if (!empty($info->image)) {
-                            $codeImage = URL::getResponseCode($info->image);
-
-                            if ($codeImage >= 200 && $codeImage < 400) {
-                                $wish_image = $info->image;
-                            }
-                        }
+                        $wish_image = $details['image'];
                     }
 
                     /**
                      * Price, if the shop shows it in the user's currency. Only
                      * for wishes the user marked as purchasable.
                      */
-                    if ($wish_is_purchasable && empty($_POST['wish_price']) && !empty($info->price) && ($info->currency ?? null) === $user->getCurrency()) {
-                        $wish_price_found = $info->price;
+                    if ($wish_is_purchasable && empty($_POST['wish_price']) && $details['price']) {
+                        $wish_price_found = $details['price'];
                     }
 
                     $response = [
@@ -244,31 +240,25 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
                 /** Update wish information */
                 if (!empty($wish_url)) {
-                    $cache = new Cache\Embed($wish_url);
-                    $info  = $cache->get($cache->generateCache());
+                    $cache   = new Cache\Embed($wish_url);
+                    $info    = $cache->get($cache->generateCache());
+                    $details = Wish::getDetailsFromInfo($info, $user->getCurrency());
 
-                    if (empty($wish_title) && isset($info->title)) {
-                        $wish_title = Sanitiser::getTitle($info->title);
+                    if (empty($wish_title) && $details['title']) {
+                        $wish_title = Sanitiser::getTitle($details['title']);
                     }
 
-                    if (empty($wish_description) && isset($info->description)) {
-                        $wish_description = Sanitiser::getText($info->description);
+                    if (empty($wish_description) && $details['description']) {
+                        $wish_description = Sanitiser::getText($details['description']);
                     }
 
-                    /** Image */
-                    if (empty($wish_image) && empty($wish->image)) {
-                        if (!empty($info->image)) {
-                            $codeImage = URL::getResponseCode($info->image);
-
-                            if ($codeImage >= 200 && $codeImage < 400) {
-                                $wish_image = $info->image;
-                            }
-                        }
+                    if (empty($wish_image)) {
+                        $wish_image = $details['image'];
                     }
 
                     /** Price, if the shop shows it in the user's currency */
-                    if (empty($_POST['wish_price']) && !empty($info->price) && ($info->currency ?? null) === $user->getCurrency()) {
-                        $wish_price_found    = $info->price;
+                    if (empty($_POST['wish_price']) && $details['price']) {
+                        $wish_price_found    = $details['price'];
                         $wish_is_purchasable = true;
                     }
 

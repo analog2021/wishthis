@@ -14,6 +14,21 @@ namespace wishthis;
 </div>
 
 <div class="ui tab active" data-tab="general">
+    <div class="field">
+        <label>
+            <?= __('Link to the product') ?>
+            <i class="orange linkify icon link affiliate" data-content="<?= __('This is an affiliate link.') ?>"></i>
+        </label>
+
+        <input type       ="url"
+               name       ="wish_url"
+               maxlength  ="255"
+               placeholder="https://"
+        />
+    </div>
+
+    <div class="ui icon message wish-lookup" style="display: none"></div>
+
     <div class="ui two column grid">
         <div class="stackable row">
             <div class="column">
@@ -42,18 +57,6 @@ namespace wishthis;
             <div class="column">
 
                 <div class="field">
-                    <label>
-                        <?= __('URL') ?>
-                        <i class="orange linkify icon link affiliate" data-content="<?= __('This is an affiliate link.') ?>"></i>
-                    </label>
-
-                    <input type     ="url"
-                           name     ="wish_url"
-                           maxlength="255"
-                    />
-                </div>
-
-                <div class="field">
                     <label><?= __('Priority') ?></label>
 
                     <select class="ui selection clearable dropdown priority"
@@ -74,6 +77,8 @@ namespace wishthis;
                            name     ="wish_image"
                            maxlength="255"
                     />
+
+                    <img class="ui small rounded image wish-image-preview" alt="" style="display: none" />
                 </div>
 
                 <div class="grouped fields">

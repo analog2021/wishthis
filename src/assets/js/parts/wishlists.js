@@ -281,6 +281,7 @@ $(function () {
         formAdd.trigger('reset');
         formAdd.find('.dropdown').dropdown('restore defaults');
         formAdd.find('.item').tab('change tab', 'general');
+        resetWishLookup(formAdd);
 
         /** Checkbox */
         formAdd.find('.checkbox').checkbox({
@@ -296,6 +297,7 @@ $(function () {
         /** Modal */
         var modalWishlistWishAdd = $('.ui.modal.wishlist-wish-add');
         modalWishlistWishAdd.find('[name="wishlist_id"]').val($('.ui.dropdown.wishlists').dropdown('get value'));
+        resetWishAddButton(modalWishlistWishAdd);
         modalWishlistWishAdd
         .modal({
             autoShow  : true,
@@ -402,22 +404,38 @@ $(function () {
         buttonAddOrSave.addClass('disabled');
 
         if (wishURLCurrent) {
-            const params_url = new URLSearchParams(
-                {
-                    'module' : 'wishes',
-                    'page'   : 'api',
+            buttonAddOrSave.addClass('loading');
 
-                    'wish_url' : wishURLCurrent
-                }
-            );
-
-            fetch('/index.php?' + params_url, {
-                method      : 'GET',
-                credentials : 'include',
-            })
-            .then(handleFetchError)
-            .then(handleFetchResponse)
+            /** Waits for the lookup, if it is still running */
+            lookUpWishURL(formAddOrEdit)
             .then(function(response) {
+                buttonAddOrSave.removeClass('loading');
+
+                /**
+                 * Without a title or picture, the user gets the chance to add
+                 * them first. Clicking again adds the wish anyway.
+                 */
+                var missing = getMissingWishFields(formAddOrEdit);
+
+                if (isWishURL(wishURLCurrent.trim()) && missing.length > 0 && !formAddOrEdit.data('wishAddAnyway')) {
+                    formAddOrEdit.data('wishAddAnyway', true);
+                    formAddOrEdit.removeClass('loading');
+                    buttonAddOrSave
+                    .removeClass('disabled')
+                    .text(wishthis.strings.lookup.add_anyway);
+
+                    showWishLookupResult(formAddOrEdit);
+                    formAddOrEdit.find('[name="wish_' + missing[0] + '"]').trigger('focus');
+
+                    return;
+                }
+
+                if (!response || !response.info) {
+                    insertWish(formAddOrEdit, modalAddOrEdit, buttonAddOrSave);
+
+                    return;
+                }
+
                 var wishInfoProposed = response.info;
 
                 var modalValidate = $('.modal.validate');
@@ -483,7 +501,8 @@ $(function () {
      * Insert wish
      */
     function insertWish(formAddOrEdit, modalAddOrEdit, buttonAddOrSave) {
-        var formData = new URLSearchParams(new FormData(formAddOrEdit[0]));
+        var formData       = new URLSearchParams(new FormData(formAddOrEdit[0]));
+        var fieldsNotFound = getWishFieldsNotFound(formAddOrEdit);
         formData.append('wishlist_id', wishthis.$_GET.id);
 
         fetch('/index.php?page=api&module=wishes', {
@@ -498,9 +517,17 @@ $(function () {
                 return;
             }
 
-            $('body').toast({ message: wishthis.strings.toast.wish.update });
+            var message = wishthis.strings.toast.wish.create;
 
-            showToastAutofillBlocked(response, formAddOrEdit);
+            /** Mention what wasn't found, so it's no surprise on the wish */
+            if (fieldsNotFound.length > 0) {
+                message += ' ' + wishthis.strings.toast.wish.missing.replace(
+                    '{fields}',
+                    fieldsNotFound.map(field => wishthis.strings.lookup.fields[field]).join(', ')
+                );
+            }
+
+            $('body').toast({ message: message });
 
             $('.ui.dropdown.filter.priority').api('query');
 

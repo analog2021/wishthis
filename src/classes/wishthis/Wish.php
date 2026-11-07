@@ -140,6 +140,70 @@ class Wish
         return \preg_replace('/&[#a-zA-Z0-9]*$/', '', $title);
     }
 
+    /**
+     * Returns the details found for a wish URL, ready to fill in the wish
+     * form, and which of them are missing.
+     *
+     * @param \stdClass     $info              The info from `Cache\Embed::get()`.
+     * @param string        $currency          The user's currency. A price in
+     *                                         another currency is not used.
+     * @param callable|null $getImageResponse  Returns the HTTP status of the
+     *                                         image URL (for testing).
+     *
+     * @return array `title`, `description`, `image` and `price` (empty if
+     *               not found), `problem` (see `Cache\Embed::PROBLEM_*`),
+     *               `missing` (the names of the fields not found),
+     *               `imageError` (whether an image was found but can't be
+     *               loaded) and `priceCurrency` (the currency of a price
+     *               which was not used).
+     */
+    public static function getDetailsFromInfo(\stdClass $info, string $currency, ?callable $getImageResponse = null): array
+    {
+        $getImageResponse ??= fn (string $url): int => URL::getResponseCode($url);
+
+        $details = [
+            'title'         => self::truncateTitle(\trim((string) ($info->title ?? ''))),
+            'description'   => \trim((string) ($info->description ?? '')),
+            'image'         => '',
+            'price'         => null,
+            'problem'       => $info->problem ?? null,
+            'missing'       => [],
+            'imageError'    => false,
+            'priceCurrency' => null,
+        ];
+
+        /**
+         * Image servers often refuse or rate limit requests from servers
+         * (401, 403, 429) while showing the image to browsers just fine, so
+         * only images which are definitely gone are left out.
+         */
+        if (!empty($info->image)) {
+            $code = $getImageResponse($info->image);
+
+            if (($code >= 200 && $code < 400) || \in_array($code, [401, 403, 429], true)) {
+                $details['image'] = self::getFullSizeImage($info->image);
+            } else {
+                $details['imageError'] = true;
+            }
+        }
+
+        if (!empty($info->price)) {
+            if (($info->currency ?? null) === $currency) {
+                $details['price'] = $info->price;
+            } else {
+                $details['priceCurrency'] = $info->currency ?? null;
+            }
+        }
+
+        foreach (['title', 'image', 'description', 'price'] as $field) {
+            if (empty($details[$field])) {
+                $details['missing'][] = $field;
+            }
+        }
+
+        return $details;
+    }
+
     public static function hasAffiliateLink(string $url): bool
     {
         $urlParts = \parse_url($url);
