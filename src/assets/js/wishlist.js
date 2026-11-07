@@ -92,6 +92,10 @@ $(function() {
             on        : 'now',
             onSuccess : function(response, element, xhr) {
                 card.closest('.column').fadeOut(800);
+
+                showToastGift(response.gift, function () {
+                    $('.ui.dropdown.filter.priority').api('query');
+                });
             },
         });
     });

@@ -25,6 +25,7 @@ class Page
     public const PAGE_API             = '/index.php?page=api';
     public const PAGE_BLOG            = '/index.php?page=blog';
     public const PAGE_CHANGELOG       = '/index.php?page=changelog';
+    public const PAGE_GIFTS           = '/index.php?page=gifts';
     public const PAGE_HOME            = '/index.php?page=home';
     public const PAGE_INSTALL         = '/index.php?page=install';
     public const PAGE_LOGIN_AS        = '/index.php?page=login-as';
@@ -498,6 +499,11 @@ class Page
                         'text' => __('Remembered lists'),
                         'url'  => Page::PAGE_WISHLISTS_SAVED,
                         'icon' => 'heart',
+                    ],
+                    [
+                        'text' => __('My gifts'),
+                        'url'  => Page::PAGE_GIFTS,
+                        'icon' => 'gift',
                     ],
                 ],
             ];

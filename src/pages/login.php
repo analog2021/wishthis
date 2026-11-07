@@ -31,7 +31,12 @@ if (isset($_POST['login'], $_POST['email'], $_POST['password'])) {
 
 if ($user->isLoggedIn()) {
     if (isset($_SESSION['REDIRECT_URL'])) {
-        redirect($_SESSION['REDIRECT_URL']);
+        $redirectUrl = $_SESSION['REDIRECT_URL'];
+
+        /** Only once, so later logins go to the home page again. */
+        unset($_SESSION['REDIRECT_URL']);
+
+        redirect($redirectUrl);
     } else {
         redirect(Page::PAGE_HOME);
     }

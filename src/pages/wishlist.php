@@ -66,6 +66,29 @@ $user = User::getCurrent();
             </div>
         <?php } ?>
 
+        <?php
+        /**
+         * Remind the guest of the wishes they already fulfilled on this list.
+         */
+        $userIsOwner = $user->isLoggedIn() && $user->getId() === $wishlist->getUserId();
+        $giftCount   = $userIsOwner ? 0 : Gift::countForWishlist($wishlist->getId());
+
+        if ($giftCount > 0) { ?>
+            <div class="ui icon info message wishlist-gifts">
+                <i class="gift icon"></i>
+                <div class="content">
+                    <p>
+                        <?= \sprintf(
+                            /** TRANSLATORS: %d: Amount of wishes */
+                            _n('You fulfilled %d wish on this list.', 'You fulfilled %d wishes on this list.', $giftCount),
+                            $giftCount
+                        ) ?>
+                        <a href="<?= Page::PAGE_GIFTS ?>"><?= __('View my gifts') ?></a>
+                    </p>
+                </div>
+            </div>
+        <?php } ?>
+
         <div class="ui segments">
             <div class="ui segment">
                 <h2 class="ui header"><?= __('What to do?') ?></h2>
@@ -73,6 +96,12 @@ $user = User::getCurrent();
                     __('If you found a wish you would like to fulfil, open the wish %s and then click the %s button and it will be unavailable for everybody else.'),
                     '<span class="ui tiny horizontal label"><i class="stream icon"></i> ' . __('Details') . '</span>',
                     '<span class="ui primary tiny horizontal label"><i class="gift icon"></i> ' . __('Fulfil wish') . '</span>'
+                ) ?></p>
+                <p><?= \sprintf(
+                    /** TRANSLATORS: %1$d: Amount of minutes, %2$s: Link to "My gifts" */
+                    __('Fulfilled one by mistake? You can undo it for %1$d minutes in %2$s.'),
+                    Wish::UNDO_MINUTES,
+                    '<a href="' . Page::PAGE_GIFTS . '">' . __('My gifts') . '</a>'
                 ) ?></p>
             </div>
         </div>

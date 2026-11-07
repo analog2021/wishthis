@@ -125,6 +125,14 @@ global $options;
                 'missing'   : '<?= __('Not found automatically: {fields}.') ?>',
             },
 
+            'gift' : {
+                'title'         : '<?= __('Thank you!') ?>',
+                'content'       : '<?= __('The wish is now unavailable for everybody else. You can find it in My gifts.') ?>',
+                'content_login' : '<?= __('The wish is now unavailable for everybody else. Log in to keep track of it in My gifts.') ?>',
+                'view'          : '<?= __('My gifts') ?>',
+                'gone'          : '<?= __('The owner removed this wish, so it was taken off your gifts.') ?>',
+            },
+
             'clipboard' : {
                 'error' : {
                     'title'   : '<?= __('Error') ?>',
