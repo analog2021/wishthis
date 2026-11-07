@@ -401,37 +401,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
             );
 
             $response['success'] = true;
-        } elseif (isset($_PUT['wish_url_current'], $_PUT['wish_url_proposed'])) {
-            /**
-             * Update Wish URL
-             *
-             * Only affects wishes on the current user's own wishlists.
-             */
-            $user = User::getCurrent();
-
-            if (!$user->isLoggedIn()) {
-                \http_response_code(403);
-
-                die(__('You may only modify wishes you own.'));
-            }
-
-            $database->query(
-                'UPDATE `wishes`
-                    SET `url`      = :wish_url_proposed
-                  WHERE `url`      = :wish_url_current
-                    AND `wishlist` IN (
-                        SELECT `id`
-                          FROM `wishlists`
-                         WHERE `user` = :user_id
-                    )',
-                [
-                    'wish_url_proposed' => Sanitiser::getURL($_PUT['wish_url_proposed']),
-                    'wish_url_current'  => Sanitiser::getURL($_PUT['wish_url_current']),
-                    'user_id'           => $user->getId(),
-                ]
-            );
-
-            $response['success'] = true;
         }
         break;
 

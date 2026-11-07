@@ -185,18 +185,6 @@ class Embed extends Cache
                 if (!$info->title && !$info->description && !$info->image) {
                     $generateCache = false;
                 }
-
-                /**
-                 * The detected (canonical) URL may differ from the page which
-                 * was fetched. Only then does it need to be checked separately.
-                 */
-                if ($info->url && $info->url !== (string) $embedInfo->getUri()) {
-                    $codeURL = \wishthis\URL::getResponseCode($info->url);
-
-                    if ($codeURL < 200 || $codeURL >= 400) {
-                        $info->url = $this->url;
-                    }
-                }
             } catch (\Throwable $ex) {
                 \error_log('Unable to read ' . $this->url . ': ' . $ex->getMessage());
 
