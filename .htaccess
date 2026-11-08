@@ -13,7 +13,7 @@
   RedirectMatch 404 ^/src/(?!assets/)
   RedirectMatch 404 ^/src/assets/.*\.php$
   RedirectMatch 404 ^/(vendor|tests)/
-  RedirectMatch 404 ^/node_modules/(?!(jquery|html2canvas)/dist/|@fontsource/[a-z\-]+/files/)
+  RedirectMatch 404 ^/node_modules/(?!jquery/dist/|@fontsource/[a-z\-]+/files/)
   RedirectMatch 404 ^/(database\.sqlite|composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|semantic\.json|ruleset\.xml|transifex\.yml|CLAUDE\.md)$
 </IfModule>
 
