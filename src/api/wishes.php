@@ -445,10 +445,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
              */
             Wish::purgeDeleted();
 
-            $restored = Wish::restore(
-                (int) Sanitiser::getNumber($_PUT['wish_restore']),
-                User::getCurrent()->getId()
-            );
+            /** Only the owner can restore a wish, so a guest has nothing to restore. */
+            $restored = User::getCurrent()->isLoggedIn()
+                     && Wish::restore(
+                         (int) Sanitiser::getNumber($_PUT['wish_restore']),
+                         User::getCurrent()->getId()
+                     );
 
             if (!$restored) {
                 \http_response_code(404);
