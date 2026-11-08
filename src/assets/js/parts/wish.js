@@ -280,12 +280,16 @@ $(function () {
         .modal({
             'onApprove' : wishSave,
             'onHidden'  : function() {
+                stopModalScrollable($(this));
                 $(this).modal('destroy');
                 $(this).remove();
             }
         })
         .modal('show')
         .addClass(wish_edit_size);
+
+        /** The URL lookup can make it taller than the screen */
+        keepModalScrollable(wish_edit);
 
         /** Initialise Popups */
         $('[data-content]').popup();
