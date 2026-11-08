@@ -27,6 +27,7 @@ $(function () {
 
             /** Select a dropdown item */
             setDropdownWishlistsSelection();
+            syncNativeWishlists();
 
             /** Open add wish modal */
             if (wishthis.$_GET.wish_add) {
@@ -51,6 +52,8 @@ $(function () {
         'preserveHTML' : false,
         'onChange'     : function(wishlist_id, text, choice) {
             wishthis.$_GET.id = wishlist_id;
+
+            syncNativeWishlists();
 
             if (wishlist_id) {
                 /** Set currently selected wishlist */
@@ -493,6 +496,42 @@ $(function () {
         .then(function(response) {
             window.history.pushState(null, document.title, response.data.url_pretty);
         });
+    }
+
+    /**
+     * The device's own picker (shown on touch screens instead of the dropdown,
+     * see wishlists.css). The dropdown stays in charge: the picker shows its
+     * lists and selection, and choosing a list in the picker selects it in the
+     * dropdown.
+     */
+    $('select.wishlists-native').on('change', function() {
+        $('.ui.dropdown.wishlists').dropdown('set selected', $(this).val());
+    });
+
+    function syncNativeWishlists() {
+        var picker = $('select.wishlists-native');
+
+        if (0 === picker.length) {
+            return;
+        }
+
+        /** The dropdown's own value isn't kept (its menu is set up from the API), the selected list is */
+        var selected = String(wishthis.$_GET.id || '');
+
+        picker.empty();
+
+        if (0 === wishlistsItems.length) {
+            picker.append($('<option value="">').text($('.ui.dropdown.wishlists > .text').text()));
+        }
+
+        wishlistsItems.forEach(function(item) {
+            /** Names are HTML encoded; a textarea decodes them without running anything */
+            var name = $('<textarea>').html(item.name).text();
+
+            picker.append($('<option>').val(item.value).text(name));
+        });
+
+        picker.val(selected);
     }
 
     /**

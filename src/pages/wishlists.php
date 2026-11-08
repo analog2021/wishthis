@@ -39,6 +39,11 @@ $page->navigation();
                                     <option value=""><?= __('Loading your wishlists...') ?></option>
                                 </select>
 
+                                <?php /** The device's own picker, shown instead on touch screens */ ?>
+                                <select class="wishlists-native" aria-label="<?= __('Wishlist') ?>">
+                                    <option value=""><?= __('Loading your wishlists...') ?></option>
+                                </select>
+
                                 <div class="ui labeled icon top left pointing dropdown disabled button wishlist-options" title="<?= __('Options') ?>">
                                     <i class="cog icon"></i>
                                     <span class="text"><?= __('Options') ?></span>
