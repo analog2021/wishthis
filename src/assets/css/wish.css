@@ -55,6 +55,16 @@ i.affiliate.link {
     width: 100%;
 }
 
+/**
+ * Keep the line breaks of a description. They are stored as `&#10;`, which
+ * the browser turns back into line breaks, but would show them as spaces.
+ * Not while the placeholder is shown, as its markup has line breaks too.
+ */
+.ui.modal.wish-details .wish-description:not(:has(.placeholder)) {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
 .ui.modal.wish-details .wish-image + .description {
     padding-left: 2em;
 }
