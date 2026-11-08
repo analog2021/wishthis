@@ -206,7 +206,7 @@ $page->navigation();
                         <div class="header">
                             <?= __('Received wishes') ?>
                         </div>
-                        <p><?= __('Two weeks after your birthday, fulfilled wishes leave your list. They are kept here, so you can look up what you were given.') ?></p>
+                        <p><?= __('Fulfilled wishes leave your list once your birthday or Christmas is over. They are kept here, so you can look up what you were given.') ?></p>
                         <p><?= __('Prefer a tidy list? Delete them. The people who gave them to you keep them in their gifts.') ?></p>
                         <button class="ui labeled icon button delete-received-all" type="button">
                             <i class="trash icon"></i>

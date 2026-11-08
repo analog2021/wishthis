@@ -362,12 +362,12 @@ $page->navigation();
                                            <?= $hasBirthdate ? '' : 'disabled="disabled"' ?>
                                     />
 
-                                    <label><?= __('Tidy up after my birthday') ?></label>
+                                    <label><?= __('Tidy up after my birthday and Christmas') ?></label>
                                 </div>
                             </div>
 
                             <div class="field">
-                                <p><?= __('Two weeks after your birthday, wishes that have been fulfilled leave your lists. You can still see them under Spoilers, so you know what you were given.') ?></p>
+                                <p><?= __('Fulfilled wishes leave your lists once your birthday or Christmas is over: two weeks after your birthday, or at the end of January after Christmas. If the next one is less than two months away, they wait for that one too. You can still see them under Spoilers, so you know what you were given.') ?></p>
 
                                 <?php if (!$hasBirthdate) { ?>
                                     <p><em><?= __('Add your birthday under Personal to use this.') ?></em></p>
