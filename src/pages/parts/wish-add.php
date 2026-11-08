@@ -80,6 +80,8 @@ namespace wishthis;
                            maxlength="255"
                     />
 
+                    <div class="wish-image-note" style="display: none"></div>
+
                     <img class="ui small rounded image wish-image-preview" alt="" style="display: none" />
                 </div>
 

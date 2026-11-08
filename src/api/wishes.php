@@ -155,7 +155,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $info    = $cache->get($cache->generateCache());
                     $details = Wish::getDetailsFromInfo($info, $user->getCurrency());
 
-                    if (empty($wish_title) && empty($wish->title) && $details['title']) {
+                    if (empty($wish_title) && empty($wish->title) && $details['title'] && !$details['titleGuessed']) {
                         $wish_title = Sanitiser::getTitle($details['title']);
                     }
 
@@ -245,7 +245,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $info    = $cache->get($cache->generateCache());
                     $details = Wish::getDetailsFromInfo($info, $user->getCurrency());
 
-                    if (empty($wish_title) && $details['title']) {
+                    if (empty($wish_title) && $details['title'] && !$details['titleGuessed']) {
                         $wish_title = Sanitiser::getTitle($details['title']);
                     }
 

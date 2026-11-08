@@ -149,41 +149,41 @@ global $options;
 
         /** Looking up the details of a wish URL */
         'lookup' : {
-            'loading'     : '<?= __('Looking up the product…') ?>',
-            'found'       : {
+            'loading'       : '<?= __('Looking up the product…') ?>',
+            'found'         : {
                 'title' : '<?= __('Found it!') ?>',
                 'add'   : '<?= __('Check the details and press Add.') ?>',
                 'edit'  : '<?= __('Check the details and press Save.') ?>',
             },
-            'blocked'     : {
-                'title'   : '<?= __('Couldn\'t get the details automatically.') ?>',
-                'content' : '<?= __('This shop blocks automatic lookups (bot protection).') ?>',
+            /** Nothing could be read from the page */
+            'blocked'       : {
+                'title' : '<?= __('Fully blocked by the shop\'s site protection.') ?>',
+                'add'   : '<?= __('You\'ll need to copy and paste the details, or just type them, then press Add.') ?>',
+                'edit'  : '<?= __('You\'ll need to copy and paste the details, or just type them, then press Save.') ?>',
             },
-            'not_found'   : {
-                'title'   : '<?= __('This link doesn\'t lead to a product page.') ?>',
-                'content' : '<?= __('Please check the link.') ?>',
+            'nothing'       : '<?= __('Couldn\'t get any details from this page.') ?>',
+            'reason'        : {
+                'not_found'   : '<?= __('The link doesn\'t lead to a product page. Please check the link.') ?>',
+                'unreachable' : '<?= __('The shop\'s website didn\'t answer. Try again later, or fill in the details yourself.') ?>',
+                'error_page'  : '<?= __('The shop showed an error page instead of the product. Please fill in the details yourself.') ?>',
+                'error'       : '<?= __('Something went wrong while looking it up. Please fill in the details yourself.') ?>',
             },
-            'unreachable' : {
-                'title'   : '<?= __('The shop\'s website didn\'t answer.') ?>',
-                'content' : '<?= __('Try again later, or fill in the details yourself.') ?>',
-            },
-            'error'       : {
-                'title'   : '<?= __('Couldn\'t look up the product.') ?>',
-                'content' : '<?= __('Please fill in the details yourself.') ?>',
-            },
-            'no_image'    : '<?= __('Couldn\'t tell which picture to use.') ?>',
-            'no_title'    : '<?= __('Couldn\'t find the product name.') ?>',
-            'image_error' : '<?= __('Couldn\'t load the picture.') ?>',
-            'image_check' : '<?= __('Please check the picture address. The wish can be added anyway.') ?>',
-            'add'         : {
-                'title_image' : '<?= __('Please type a title and add a picture yourself.') ?>',
-                'title'       : '<?= __('Please type a title yourself.') ?>',
-                'image'       : '<?= __('Please add a picture yourself.') ?>',
-            },
-            'tip'         : '<?= __('Tip: in the shop, right-click the product picture (on a phone: press and hold it) and choose "Copy image address", then paste it into the Image field.') ?>',
-            'currency'    : '<?= __('The price is in {currency}, so it wasn\'t filled in.') ?>',
-            'add_anyway'  : '<?= __('Add anyway') ?>',
-            'fields'      : {
+            /** Some details could not be found */
+            'no_image'      : '<?= __('Couldn\'t find the product picture.') ?>',
+            'image_error'   : '<?= __('Couldn\'t load the product picture.') ?>',
+            'missing'       : '<?= __('Couldn\'t find the {fields}.') ?>',
+            'fill_in'       : '<?= __('Please fill in what\'s missing yourself.') ?>',
+            'title_guessed' : '<?= __('The title was guessed from the link – please check it.') ?>',
+            'tip'           : '<?= __('You can try copying the picture\'s address from the shop: press and hold the picture (on a computer: right-click it), choose "Copy image address" and paste it into the Image field. This works on some shops, not all.') ?>',
+            'currency'      : '<?= __('The price is in {currency}, so it wasn\'t filled in.') ?>',
+            /** A picture the user added can't be shown */
+            'image_note'    : '<?= __('This picture can\'t be shown. Please check the picture address.') ?>',
+            /** Pressing Add with the title or picture still empty */
+            'still_empty'   : '<?= __('Still empty: {fields}.') ?>',
+            'anyway_hint'   : '<?= __('Press "Add anyway" to continue without it.') ?>',
+            'add_anyway'    : '<?= __('Add anyway') ?>',
+            'and'           : '<?= __('and') ?>',
+            'fields'        : {
                 'title'       : '<?= __('title') ?>',
                 'image'       : '<?= __('picture') ?>',
                 'description' : '<?= __('description') ?>',

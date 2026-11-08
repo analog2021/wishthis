@@ -25,6 +25,10 @@ final class EmbedAutofillTest extends TestCase
         'https://shop.example/challenge'          => ['cloudflare-challenge.html', 403, ['cf-mitigated' => 'challenge', 'Server' => 'cloudflare']],
         'https://shop.example/too-many-requests'  => ['not-found.html', 429],
         'https://shop.example/gone'               => ['not-found.html', 404],
+        'https://shop.example/soft-error'         => 'error-page-200.html',
+        'https://shop.example/perimeterx'         => 'perimeterx-block.html',
+        'https://shop.example/datadome'           => 'datadome-block.html',
+        'https://shop.example/error-shirt'        => 'product-named-error.html',
     ];
 
     private FixtureClient $client;
@@ -51,13 +55,14 @@ final class EmbedAutofillTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->client              = new FixtureClient(
+        $this->client                        = new FixtureClient(
             self::FIXTURES + self::FIXTURES_SHOP + [
                 'https://shop.example/timeout' => new \RuntimeException('Operation timed out'),
             ]
         );
-        FixtureEmbedCache::$client = $this->client;
-        $this->cacheDirectory      = \sys_get_temp_dir() . '/wishthis-embed-test-' . \bin2hex(\random_bytes(4)) . '/embed';
+        FixtureEmbedCache::$client           = $this->client;
+        FixtureEmbedCache::$failingDetectors = [];
+        $this->cacheDirectory                = \sys_get_temp_dir() . '/wishthis-embed-test-' . \bin2hex(\random_bytes(4)) . '/embed';
     }
 
     protected function tearDown(): void
@@ -298,5 +303,60 @@ final class EmbedAutofillTest extends TestCase
         $cache->get(true);
 
         $this->assertFalse($cache->exists());
+    }
+
+    public function testErrorPageSentAsOkIsIgnored(): void
+    {
+        $cache = new FixtureEmbedCache('https://shop.example/soft-error', $this->cacheDirectory);
+        $info  = $cache->get(true);
+
+        $this->assertSame(Embed::PROBLEM_ERROR_PAGE, $info->problem);
+        $this->assertFalse($info->blocked, 'An error page is not a refusal.');
+        $this->assertObjectNotHasProperty('title', $info, 'The title "Error Page" must not be used.');
+        $this->assertObjectNotHasProperty('image', $info, 'The logo on the error page is not the product.');
+        $this->assertFalse($cache->exists(), 'The error page must not be cached.');
+    }
+
+    public function testBlockPagesSentAsOkAreBlocked(): void
+    {
+        foreach (['https://shop.example/perimeterx', 'https://shop.example/datadome'] as $url) {
+            $cache = new FixtureEmbedCache($url, $this->cacheDirectory);
+            $info  = $cache->get(true);
+
+            $this->assertSame(Embed::PROBLEM_BLOCKED, $info->problem, $url);
+            $this->assertTrue($info->blocked, $url);
+            $this->assertObjectNotHasProperty('title', $info, $url);
+            $this->assertFalse($cache->exists(), $url);
+        }
+    }
+
+    public function testProductNamedLikeAnErrorIsKept(): void
+    {
+        $cache = new FixtureEmbedCache('https://shop.example/error-shirt', $this->cacheDirectory);
+        $info  = $cache->get(true);
+
+        $this->assertNull($info->problem);
+        $this->assertSame('Error Page T-Shirt', $info->title);
+        $this->assertSame('https://shop.example/images/error-shirt.jpg', $info->image);
+    }
+
+    public function testOneFailingDetailDoesNotStopTheOthers(): void
+    {
+        /** The failure is logged, which is expected here */
+        $errorLog = \ini_set('error_log', '/dev/null');
+
+        FixtureEmbedCache::$failingDetectors = ['description', 'price', 'publishedTime'];
+
+        $cache = new FixtureEmbedCache('https://shop.example/foam-roller', $this->cacheDirectory);
+        $info  = $cache->get(true);
+
+        \ini_set('error_log', (string) $errorLog);
+
+        $this->assertNull($info->problem);
+        $this->assertSame('', $info->description);
+        $this->assertNull($info->price);
+        $this->assertSame('', $info->publishedTime);
+        $this->assertNotSame('', $info->title, 'The title is still found.');
+        $this->assertSame('https://shop.example/img/roller-large.jpg', $info->image, 'The image is still found.');
     }
 }
