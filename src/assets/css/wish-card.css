@@ -118,9 +118,10 @@
     }
 }
 
+/** List cards: a smaller picture on phones, so it still fits next to the text */
 .wishlist .ui.horizontal.card > .image {
-    display: none;
     position: relative;
+    width: 96px;
     height: inherit;
 
     border-top-right-radius: 0;
@@ -128,7 +129,7 @@
 }
 @media (min-width: 512px) {
     .wishlist .ui.horizontal.card > .image {
-        display: block;
+        width: 150px;
     }
 }
 
@@ -225,8 +226,13 @@
 }
 
 .wishlist .ui.horizontal.card > .content:not(.extra) {
-    width: calc(100% - 150px);
+    width: calc(100% - 96px);
     height: inherit;
+}
+@media (min-width: 512px) {
+    .wishlist .ui.horizontal.card > .content:not(.extra) {
+        width: calc(100% - 150px);
+    }
 }
 
 .wishlist .ui.card > .content > .header {

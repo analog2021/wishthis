@@ -64,14 +64,9 @@ $(function () {
         $('.ui.dropdown.filter.priority').api('query');
     });
 
+    /** Grid on every screen: it shows the pictures biggest */
     if ($('.ui.dropdown.wishlists').length === 0) {
-        const orientationIsPortrait = window.matchMedia('(orientation: portrait)');
-
-        if (orientationIsPortrait.matches) {
-            $('.buttons.view .button[value="list"]').trigger('click');
-        } else {
-            $('.buttons.view .button[value="grid"]').trigger('click');
-        }
+        $('.buttons.view .button[value="grid"]').trigger('click');
     }
 
 });
