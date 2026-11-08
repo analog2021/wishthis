@@ -42,82 +42,22 @@ function resetWishLookup(form) {
 }
 
 /**
- * Returns how many characters a title takes up in the database. Saving
- * encodes some symbols (`&`, quotes, `<`, `>` and control characters become
- * e. g. `&#38;`) and escapes backslashes. Counts the same way as
+ * Returns how many characters a title takes up in the database, see
+ * `getStoredTextLength()` in `default.js`. Counts the same way as
  * `Wish::getStoredTitleLength()`.
  */
 function getWishTitleStoredLength(title) {
-    return Array.from(title).reduce(function(length, character) {
-        var code = character.codePointAt(0);
-
-        if ('&\'"<>'.includes(character) || code < 32) {
-            return length + ('&#' + code + ';').length;
-        }
-
-        if ('\\' === character) {
-            return length + 2;
-        }
-
-        return length + 1;
-    }, 0);
+    return getStoredTextLength(title);
 }
 
 /**
- * Keeps the title within the limit as stored (see
- * `getWishTitleStoredLength()`). The browser's `maxlength` can't do this, as
- * it counts symbols such as `&` as one character. Of what was just typed or
- * pasted, only as much is kept as fits.
+ * Keeps the title within the limit as stored, see `limitStoredLength()` in
+ * `default.js`.
  *
  * @returns {boolean} Whether some of the input was left out.
  */
 function limitWishTitle(input) {
-    var max   = parseInt(input.attr('data-max-length'), 10);
-    var value = input.val();
-
-    if (!max || getWishTitleStoredLength(value) <= max) {
-        return false;
-    }
-
-    /** Find what was inserted by comparing with the value before */
-    var before   = Array.from(input.data('wishTitleBefore') || '');
-    var after    = Array.from(value);
-    var prefix   = 0;
-    var suffix   = 0;
-
-    while (prefix < before.length && prefix < after.length && before[prefix] === after[prefix]) {
-        prefix++;
-    }
-
-    while (
-           suffix < before.length - prefix
-        && suffix < after.length - prefix
-        && before[before.length - 1 - suffix] === after[after.length - 1 - suffix]
-    ) {
-        suffix++;
-    }
-
-    var start    = after.slice(0, prefix).join('');
-    var end      = after.slice(after.length - suffix).join('');
-    var inserted = after.slice(prefix, after.length - suffix);
-
-    while (inserted.length > 0 && getWishTitleStoredLength(start + inserted.join('') + end) > max) {
-        inserted.pop();
-    }
-
-    var limited = start + inserted.join('') + end;
-
-    /** Should the rest still not fit, shorten it from the end */
-    while (getWishTitleStoredLength(limited) > max) {
-        limited = Array.from(limited).slice(0, -1).join('');
-    }
-
-    var caret = Math.min((start + inserted.join('')).length, limited.length);
-
-    input.val(limited);
-    input[0].setSelectionRange(caret, caret);
-
-    return true;
+    return limitStoredLength(input, parseInt(input.attr('data-max-length'), 10), input.data('wishTitleBefore'));
 }
 
 /**

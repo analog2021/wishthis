@@ -123,6 +123,32 @@ class Sanitiser
     }
 
     /**
+     * Sanitises a single line of text like `sanitiseText()`, shortened so it
+     * fits a column of `$maxLength` characters as stored. Symbols such as `&`
+     * take up several characters once encoded, so the text is shortened
+     * before encoding and never ends in a cut off `&#38;`.
+     *
+     * The form fields keep within the limit already (`data-stored-max-length`
+     * in `default.js`), so this only matters for requests made otherwise.
+     *
+     * @param string $text      Plain text, as typed by the user.
+     * @param int    $maxLength The length of the database column.
+     *
+     * @return string
+     */
+    public static function sanitiseTextToFit(string $text, int $maxLength): string
+    {
+        /** Every character takes up at least one character as stored */
+        $text = \mb_substr(\trim($text), 0, $maxLength);
+
+        while ('' !== $text && \mb_strlen(self::sanitiseText($text)) > $maxLength) {
+            $text = \mb_substr($text, 0, -1);
+        }
+
+        return self::sanitiseText($text);
+    }
+
+    /**
      * Sanitise an email address.
      *
      * @param string $email

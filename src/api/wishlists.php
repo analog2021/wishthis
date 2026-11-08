@@ -19,7 +19,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
              * Create
              */
             $user_id       = Sanitiser::getNumber($user->getId());
-            $wishlist_name = Sanitiser::getTitle($_POST['wishlist-name']);
+            $wishlist_name = Sanitiser::sanitiseTextToFit($_POST['wishlist-name'], Wishlist::NAME_MAX_LENGTH);
             $wishlist_hash = \sha1(\time() . $user_id . $wishlist_name);
 
             $database->query(
@@ -261,7 +261,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 SET `name` = :wishlist_name
               WHERE `id`   = :wishlist_id',
             [
-                'wishlist_name' => Sanitiser::getTitle($_PUT['wishlist_title']),
+                'wishlist_name' => Sanitiser::sanitiseTextToFit($_PUT['wishlist_title'] ?? '', Wishlist::NAME_MAX_LENGTH),
                 'wishlist_id'   => Sanitiser::getNumber($_PUT['wishlist_id']),
             ]
         );

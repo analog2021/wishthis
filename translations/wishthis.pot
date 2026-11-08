@@ -1525,6 +1525,10 @@ msgstr ""
 msgid "The title is full. Symbols such as & and quotation marks take up several characters."
 msgstr ""
 
+#: assets/js/inline.js.php:198
+msgid "The name is full. Symbols such as & and quotation marks take up several characters."
+msgstr ""
+
 #: assets/js/inline.js.php:170
 msgid "Please add a picture yourself."
 msgstr ""

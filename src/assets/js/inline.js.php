@@ -194,6 +194,9 @@ global $options;
         /** The wish title field is full */
         'title_limit' : '<?= __('The title is full. Symbols such as & and quotation marks take up several characters.') ?>',
 
+        /** A name field (wishlist, first/last/nick name) is full */
+        'name_limit' : '<?= __('The name is full. Symbols such as & and quotation marks take up several characters.') ?>',
+
         'calendar' : {
             'today'   : '<?= _x('Today', 'Calendar') ?>',
             'now'     : '<?= _x('Now', 'Calendar') ?>',

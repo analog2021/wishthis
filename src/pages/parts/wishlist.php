@@ -94,7 +94,7 @@ $user = User::getCurrent();
                 <div class="field">
                     <label><?= __('Name') ?></label>
                     <div class="ui input">
-                        <input type="text" name="wishlist-name" data-default="<?= getWishlistNameSuggestion() ?>" />
+                        <input type="text" name="wishlist-name" data-default="<?= getWishlistNameSuggestion() ?>" data-stored-max-length="<?= Wishlist::NAME_MAX_LENGTH ?>" />
                     </div>
                 </div>
             </form>
@@ -121,7 +121,7 @@ $user = User::getCurrent();
         <form class="ui form wishlist-rename">
             <div class="field">
                 <label><?= __('Title') ?></label>
-                <input type="text" name="wishlist_title" maxlength="128" />
+                <input type="text" name="wishlist_title" data-stored-max-length="<?= Wishlist::NAME_MAX_LENGTH ?>" />
             </div>
         </form>
     </div>

@@ -10,6 +10,12 @@ namespace wishthis;
 
 class Wishlist
 {
+    /**
+     * How long a wishlist name may be, as stored (symbols such as `&` take
+     * up several characters), see `Sanitiser::sanitiseTextToFit()`.
+     */
+    public const NAME_MAX_LENGTH = 128;
+
     public static function getFromId(int $id): self|false
     {
         global $database;
