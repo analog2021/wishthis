@@ -1465,76 +1465,12 @@ msgstr ""
 msgid "Check the details and press Save."
 msgstr ""
 
-#: assets/js/inline.js.php:148
-msgid "Couldn't get the details automatically."
-msgstr ""
-
-#: assets/js/inline.js.php:149
-msgid "This shop blocks automatic lookups (bot protection)."
-msgstr ""
-
-#: assets/js/inline.js.php:152
-msgid "This link doesn't lead to a product page."
-msgstr ""
-
-#: assets/js/inline.js.php:153
-msgid "Please check the link."
-msgstr ""
-
-#: assets/js/inline.js.php:156
-msgid "The shop's website didn't answer."
-msgstr ""
-
-#: assets/js/inline.js.php:157
-msgid "Try again later, or fill in the details yourself."
-msgstr ""
-
-#: assets/js/inline.js.php:160
-msgid "Couldn't look up the product."
-msgstr ""
-
-#: assets/js/inline.js.php:161
-msgid "Please fill in the details yourself."
-msgstr ""
-
-#: assets/js/inline.js.php:163
-msgid "Couldn't tell which picture to use."
-msgstr ""
-
-#: assets/js/inline.js.php:164
-msgid "Couldn't find the product name."
-msgstr ""
-
-#: assets/js/inline.js.php:165
-msgid "Couldn't load the picture."
-msgstr ""
-
-#: assets/js/inline.js.php:166
-msgid "Please check the picture address. The wish can be added anyway."
-msgstr ""
-
-#: assets/js/inline.js.php:168
-msgid "Please type a title and add a picture yourself."
-msgstr ""
-
-#: assets/js/inline.js.php:169
-msgid "Please type a title yourself."
-msgstr ""
-
 #: assets/js/inline.js.php:191
 msgid "The title is full. Symbols such as & and quotation marks take up several characters."
 msgstr ""
 
 #: assets/js/inline.js.php:198
 msgid "The name is full. Symbols such as & and quotation marks take up several characters."
-msgstr ""
-
-#: assets/js/inline.js.php:170
-msgid "Please add a picture yourself."
-msgstr ""
-
-#: assets/js/inline.js.php:172
-msgid "Tip: in the shop, right-click the product picture (on a phone: press and hold it) and choose \"Copy image address\", then paste it into the Image field."
 msgstr ""
 
 #: assets/js/inline.js.php:173
@@ -1884,4 +1820,76 @@ msgstr ""
 
 #: pages/gifts.php:90
 msgid "Purchased"
+msgstr ""
+
+#: assets/js/inline.js.php:160
+msgid "Fully blocked by the shop's site protection."
+msgstr ""
+
+#: assets/js/inline.js.php:161
+msgid "You'll need to copy and paste the details, or just type them, then press Add."
+msgstr ""
+
+#: assets/js/inline.js.php:162
+msgid "You'll need to copy and paste the details, or just type them, then press Save."
+msgstr ""
+
+#: assets/js/inline.js.php:164
+msgid "Couldn't get any details from this page."
+msgstr ""
+
+#: assets/js/inline.js.php:166
+msgid "The link doesn't lead to a product page. Please check the link."
+msgstr ""
+
+#: assets/js/inline.js.php:167
+msgid "The shop's website didn't answer. Try again later, or fill in the details yourself."
+msgstr ""
+
+#: assets/js/inline.js.php:168
+msgid "The shop showed an error page instead of the product. Please fill in the details yourself."
+msgstr ""
+
+#: assets/js/inline.js.php:169
+msgid "Something went wrong while looking it up. Please fill in the details yourself."
+msgstr ""
+
+#: assets/js/inline.js.php:172
+msgid "Couldn't find the product picture."
+msgstr ""
+
+#: assets/js/inline.js.php:173
+msgid "Couldn't load the product picture."
+msgstr ""
+
+#: assets/js/inline.js.php:174
+msgid "Couldn't find the {fields}."
+msgstr ""
+
+#: assets/js/inline.js.php:175
+msgid "Please fill in what's missing yourself."
+msgstr ""
+
+#: assets/js/inline.js.php:176
+msgid "The title was guessed from the link – please check it."
+msgstr ""
+
+#: assets/js/inline.js.php:177
+msgid "You can try copying the picture's address from the shop: press and hold the picture (on a computer: right-click it), choose \"Copy image address\" and paste it into the Image field. This works on some shops, not all."
+msgstr ""
+
+#: assets/js/inline.js.php:180
+msgid "This picture can't be shown. Please check the picture address."
+msgstr ""
+
+#: assets/js/inline.js.php:182
+msgid "Still empty: {fields}."
+msgstr ""
+
+#: assets/js/inline.js.php:183
+msgid "Press \"Add anyway\" to continue without it."
+msgstr ""
+
+#: assets/js/inline.js.php:185
+msgid "and"
 msgstr ""

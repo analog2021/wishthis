@@ -419,7 +419,7 @@ $(function () {
                     .removeClass('disabled')
                     .text(wishthis.strings.lookup.add_anyway);
 
-                    showWishLookupResult(formAddOrEdit);
+                    showWishMissingPrompt(formAddOrEdit, missing);
                     formAddOrEdit.find('[name="wish_' + missing[0] + '"]').trigger('focus');
 
                     return;

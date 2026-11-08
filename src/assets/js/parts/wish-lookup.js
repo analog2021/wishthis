@@ -33,10 +33,11 @@ function rememberWishURL(form) {
  * Forgets the last lookup, e. g. when the add form is opened again.
  */
 function resetWishLookup(form) {
-    form.removeData(['wishLookupURL', 'wishLookup', 'wishLookupResult', 'wishLookupImage', 'wishImageFailed', 'wishAddAnyway']);
+    form.removeData(['wishLookupURL', 'wishLookup', 'wishLookupResult', 'wishLookupImage', 'wishLookupTitle', 'wishLookupDone', 'wishLookupHidden', 'wishImageFailed', 'wishAddAnyway']);
     form.find('.field.warning').removeClass('warning');
     form.find('.message.wish-lookup').hide().empty();
     form.find('.wish-image-preview').hide().removeAttr('src');
+    form.find('.wish-image-note').hide().empty();
 
     updateWishTitleLength(form);
 }
@@ -121,7 +122,7 @@ function lookUpWishURL(form) {
     }
 
     form.data('wishLookupURL', url);
-    form.removeData(['wishLookupResult', 'wishAddAnyway']);
+    form.removeData(['wishLookupResult', 'wishLookupImage', 'wishLookupTitle', 'wishLookupDone', 'wishLookupHidden', 'wishAddAnyway']);
     form.find('.field.warning').removeClass('warning');
     resetWishAddButton(form.closest('.modal'));
 
@@ -175,8 +176,8 @@ function lookUpWishURL(form) {
             showWishLookupMessage(
                 form,
                 'error',
-                wishthis.strings.lookup.error.title,
-                wishthis.strings.lookup.error.content
+                wishthis.strings.lookup.nothing,
+                wishthis.strings.lookup.reason.error
             );
         }
 
@@ -197,6 +198,11 @@ function fillWishForm(form, details) {
 
         if (!input.val() && details[field]) {
             input.val(details[field]);
+
+            /** Only a title filled in here is worth a note that it was guessed */
+            if ('title' === field && details.titleGuessed) {
+                form.data('wishLookupTitle', details[field]);
+            }
         }
     });
 
@@ -245,7 +251,34 @@ function getWishFieldsNotFound(form) {
 }
 
 /**
- * Says what the last lookup found and highlights what is still missing.
+ * Highlights the required fields (title, picture) which are still empty.
+ */
+function highlightMissingWishFields(form) {
+    form.find('.field.warning').removeClass('warning');
+
+    getMissingWishFields(form).forEach(function(field) {
+        form.find('[name="wish_' + field + '"]').closest('.field').addClass('warning');
+    });
+}
+
+/**
+ * Turns field names into a list for a sentence, e.g. "title, description
+ * and picture".
+ */
+function joinWishFields(fields) {
+    var names = fields.map(field => wishthis.strings.lookup.fields[field]);
+
+    if (names.length < 2) {
+        return names.join('');
+    }
+
+    return names.slice(0, -1).join(', ') + ' ' + wishthis.strings.lookup.and + ' ' + names[names.length - 1];
+}
+
+/**
+ * Says what the lookup found and what it couldn't. This is worked out once,
+ * when the lookup is done; the message goes away as soon as the user edits
+ * the details (see `hideWishLookupResult()`).
  */
 function showWishLookupResult(form) {
     var result = form.data('wishLookupResult');
@@ -254,66 +287,104 @@ function showWishLookupResult(form) {
         return;
     }
 
-    var strings = wishthis.strings.lookup;
-    var details = result.details;
-    var missing = getMissingWishFields(form);
-    var isAdd   = form.hasClass('wishlist-wish-add');
+    var strings  = wishthis.strings.lookup;
+    var details  = result.details;
+    var isAdd    = form.hasClass('wishlist-wish-add');
+    var hasValue = field => '' !== form.find('[name="wish_' + field + '"]').val().trim();
+    var notes    = [];
 
-    form.find('.field.warning').removeClass('warning');
+    form.data('wishLookupDone', true);
+    highlightMissingWishFields(form);
 
-    missing.forEach(function(field) {
-        form.find('[name="wish_' + field + '"]').closest('.field').addClass('warning');
-    });
+    if (form.data('wishLookupTitle') && form.find('[name="wish_title"]').val() === form.data('wishLookupTitle')) {
+        notes.push(strings.title_guessed);
+    }
 
-    /** What went wrong */
-    var title   = '';
-    var content = [];
-    var notes   = [];
+    var tip = hasValue('image') ? [] : [strings.tip];
 
     if (details.priceCurrency) {
-        notes.push(strings.currency.replace('{currency}', $('<div>').text(details.priceCurrency).html()));
+        tip.push(strings.currency.replace('{currency}', $('<div>').text(details.priceCurrency).html()));
     }
 
-    if (details.problem && strings[details.problem]) {
-        title = strings[details.problem].title;
-        content.push(strings[details.problem].content);
-    } else if ((details.imageError || form.data('wishImageFailed')) && missing.includes('image')) {
-        title = strings.image_error;
-    } else if (missing.includes('image')) {
-        title = strings.no_image;
-    } else if (missing.includes('title')) {
-        title = strings.no_title;
+    /** The page couldn't be read at all */
+    if (details.problem === 'blocked') {
+        showWishLookupMessage(form, 'warning', strings.blocked.title, [isAdd ? strings.blocked.add : strings.blocked.edit].concat(notes, tip).join(' '));
+
+        return;
     }
 
-    /** What to do about it. A wrong link needs fixing first. */
-    if ('not_found' !== details.problem) {
-        if (missing.length > 1) {
-            content.push(strings.add.title_image);
-        } else if (missing.length === 1) {
-            content.push(strings.add[missing[0]]);
+    if (details.problem) {
+        /** A wrong link needs fixing first */
+        if ('not_found' === details.problem) {
+            tip = [];
         }
 
-        if (missing.includes('image')) {
-            content.push(strings.tip);
+        showWishLookupMessage(form, 'warning', strings.nothing, [strings.reason[details.problem] || strings.reason.error].concat(notes, tip).join(' '));
+
+        return;
+    }
+
+    /** Only what couldn't be found and is still empty */
+    var imageFailed = details.imageError || form.data('wishImageFailed');
+    var failed      = ['title', 'description', 'image'].filter(function(field) {
+        var notFound = details.missing.includes(field) || ('image' === field && imageFailed);
+
+        return notFound && !hasValue(field);
+    });
+
+    if (0 === failed.length) {
+        if (notes.length > 0) {
+            showWishLookupMessage(form, 'warning', strings.title_guessed, [isAdd ? strings.found.add : strings.found.edit].concat(tip).join(' '));
+        } else {
+            showWishLookupMessage(form, 'success', strings.found.title, [isAdd ? strings.found.add : strings.found.edit].concat(tip).join(' '));
         }
+
+        return;
     }
 
-    if (missing.length > 0) {
-        showWishLookupMessage(form, 'warning', title, content.concat(notes).join(' '));
-    } else if (form.data('wishImageFailed')) {
-        /** The picture was filled in, but can't be shown */
-        form.find('[name="wish_image"]').closest('.field').addClass('warning');
+    /** The picture message only when the picture is all that's missing */
+    if (1 === failed.length && 'image' === failed[0]) {
+        showWishLookupMessage(form, 'warning', imageFailed ? strings.image_error : strings.no_image, notes.concat(tip).join(' '));
 
-        showWishLookupMessage(form, 'warning', strings.image_error, [strings.image_check].concat(notes).join(' '));
-    } else {
-        /** Everything there, either found or filled in by the user */
-        showWishLookupMessage(
-            form,
-            'success',
-            details.problem ? '' : strings.found.title,
-            [isAdd ? strings.found.add : strings.found.edit].concat(notes).join(' ')
-        );
+        return;
     }
+
+    showWishLookupMessage(
+        form,
+        'warning',
+        strings.missing.replace('{fields}', joinWishFields(failed)),
+        [strings.fill_in].concat(notes, tip).join(' ')
+    );
+}
+
+/**
+ * The user has started editing the details: they know what the lookup found,
+ * so its message goes away and isn't worked out again.
+ */
+function hideWishLookupResult(form) {
+    if (!form.data('wishLookupDone')) {
+        return;
+    }
+
+    form.data('wishLookupHidden', true);
+    form.find('.message.wish-lookup').hide().empty();
+}
+
+/**
+ * Asks to fill in the title or picture before adding, the first time Add is
+ * pressed without them.
+ */
+function showWishMissingPrompt(form, missing) {
+    var strings = wishthis.strings.lookup;
+
+    highlightMissingWishFields(form);
+
+    showWishLookupMessage(
+        form,
+        'warning',
+        strings.still_empty.replace('{fields}', joinWishFields(missing)),
+        strings.anyway_hint
+    );
 }
 
 /**
@@ -354,6 +425,7 @@ function showWishImagePreview(form) {
     var preview = form.find('.wish-image-preview');
 
     form.removeData('wishImageFailed');
+    form.find('.wish-image-note').hide().empty();
 
     if (!isWishURL(url)) {
         preview.hide().removeAttr('src');
@@ -390,15 +462,23 @@ $(function() {
         }, 1000);
     });
 
-    /** Image */
-    $(document).on('input', getWishLookupField('wish_image'), function() {
-        var form = $(this).closest('.ui.form');
+    /**
+     * Editing the details. The lookup's message goes away, and the highlight
+     * of a missing field once it has been filled in.
+     */
+    $(document).on('input', ['wish_description', 'wish_price', 'wish_image'].map(getWishLookupField).join(', '), function() {
+        var input = $(this);
+        var form  = input.closest('.ui.form');
 
-        showWishImagePreview(form);
-
-        if (form.data('wishLookupResult')) {
-            showWishLookupResult(form);
+        if ('wish_image' === input.attr('name')) {
+            showWishImagePreview(form);
         }
+
+        if (input.val().trim()) {
+            input.closest('.field').removeClass('warning');
+        }
+
+        hideWishLookupResult(form);
     });
 
     /** A picture which can't be shown is no use on the wish either */
@@ -410,23 +490,32 @@ $(function() {
         var preview    = $(event.target);
         var form       = preview.closest('.ui.form');
         var inputImage = form.find('[name="wish_image"]');
+        var isFound    = form.data('wishLookupImage') && inputImage.val() === form.data('wishLookupImage');
 
         preview.hide();
         form.data('wishImageFailed', true);
 
-        /** A picture found automatically is simply left out */
-        if (inputImage.val() === form.data('wishLookupImage')) {
+        /**
+         * A picture found automatically is simply left out. While the
+         * lookup's message is still showing, it now says so.
+         */
+        if (isFound) {
             inputImage.val('');
+
+            if (form.data('wishLookupDone') && !form.data('wishLookupHidden')) {
+                showWishLookupResult(form);
+
+                return;
+            }
         }
 
-        if (form.data('wishLookupResult')) {
-            showWishLookupResult(form);
-        } else {
-            inputImage.closest('.field').addClass('warning');
-        }
+        inputImage.closest('.field').addClass('warning');
+        form.find('.wish-image-note')
+        .html(isFound ? wishthis.strings.lookup.image_error : wishthis.strings.lookup.image_note)
+        .show();
     }, true);
 
-    /** Clear the highlight once a missing field has been filled in */
+    /** Title */
     $(document).on('input compositionend', getWishLookupField('wish_title'), function(event) {
         var input = $(this);
         var form  = input.closest('.ui.form');
@@ -438,8 +527,10 @@ $(function() {
 
         updateWishTitleLength(form, limitWishTitle(input));
 
-        if (form.data('wishLookupResult')) {
-            showWishLookupResult(form);
+        if (input.val().trim()) {
+            input.closest('.field').removeClass('warning');
         }
+
+        hideWishLookupResult(form);
     });
 });

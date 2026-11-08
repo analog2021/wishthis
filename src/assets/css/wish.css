@@ -109,6 +109,19 @@ i.affiliate.link {
     margin-top: 0.5em;
 }
 
+/** Wish form: a picture which can't be shown */
+.ui.form .wish-image-note {
+    margin-top: 0.25em;
+    font-size: 0.875em;
+    font-weight: bold;
+    color: #b58105;
+}
+@media (prefers-color-scheme: dark) {
+    .ui.form .wish-image-note {
+        color: #fbbd08;
+    }
+}
+
 /**
  * Wish form: length of the title, once it gets near the limit
  */
