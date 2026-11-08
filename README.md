@@ -6,15 +6,19 @@
 ### What's different in this fork
 
 -   Runs on PHP 8.5
--   Spoilers page for wishlist owners: see which wishes were fulfilled, and mark them as still needed
+-   Spoilers page for wishlist owners: see which wishes were fulfilled, mark them as still needed, and undo mistakes from the last hour
+-   Deleted a wish by mistake? Restore it within an hour
+-   "My gifts": the wishes you fulfilled for others, with an hour to undo a gift made by mistake
+-   Optional tidy-up: fulfilled wishes leave your lists after your birthday or Christmas, and stay visible under Spoilers
 -   Smarter wish auto-fill: details and a picture preview as soon as a link is pasted, Amazon product details, prices from any shop that publishes them, and a clear message when a shop blocks lookups
 -   Links are kept exactly as pasted, so size and colour options aren't lost
--   Security fixes: users can only change their own wishlists and wishes, and logging out now ends the session
+-   Wish cards show the picture below the title, and work with touch screens and iPad trackpads
+-   Security fixes: users can only change their own wishlists and wishes, logging out ends the session, private files (git history, configuration, the SQLite database) are no longer served, and link previews can't be replaced by visitors
 -   "Login as" works, with a "Return to admin" option
 -   Installer and update fixes so existing installs and configs aren't overwritten
 -   Home page: a section on sharing lists replaces the news section
 
-Full list of changes: [changelogs/unreleased.md](changelogs/unreleased.md)
+Current version: **1.6.0**. Full list of changes, per version: [changelogs/](changelogs/) (newest: [1.6.0](changelogs/1-6-0.md))
 
 # Make a wish
 
