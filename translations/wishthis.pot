@@ -1835,7 +1835,7 @@ msgid "Received wishes"
 msgstr ""
 
 #: pages/spoilers.php:209
-msgid "Two weeks after your birthday, fulfilled wishes leave your list. They are kept here, so you can look up what you were given."
+msgid "Fulfilled wishes leave your list once your birthday or Christmas is over. They are kept here, so you can look up what you were given."
 msgstr ""
 
 #: pages/spoilers.php:210
@@ -1851,11 +1851,11 @@ msgid "Received"
 msgstr ""
 
 #: pages/profile/profile.php:365
-msgid "Tidy up after my birthday"
+msgid "Tidy up after my birthday and Christmas"
 msgstr ""
 
 #: pages/profile/profile.php:370
-msgid "Two weeks after your birthday, wishes that have been fulfilled leave your lists. You can still see them under Spoilers, so you know what you were given."
+msgid "Fulfilled wishes leave your lists once your birthday or Christmas is over: two weeks after your birthday, or at the end of January after Christmas. If the next one is less than two months away, they wait for that one too. You can still see them under Spoilers, so you know what you were given."
 msgstr ""
 
 #: pages/profile/profile.php:373
@@ -1863,7 +1863,7 @@ msgid "Add your birthday under Personal to use this."
 msgstr ""
 
 #: pages/profile/profile-handle-post-received.php:36
-msgid "Fulfilled wishes will leave your lists two weeks after your birthday."
+msgid "Fulfilled wishes will leave your lists once your birthday or Christmas is over."
 msgstr ""
 
 #: pages/profile/profile-handle-post-received.php:37

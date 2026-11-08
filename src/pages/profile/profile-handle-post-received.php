@@ -33,7 +33,7 @@ if ('' !== $user->getBirthdate()) {
 
         $page->messages[] = Page::success(
             $userRemoveReceivedWishes
-                ? __('Fulfilled wishes will leave your lists two weeks after your birthday.')
+                ? __('Fulfilled wishes will leave your lists once your birthday or Christmas is over.')
                 : __('Fulfilled wishes will stay on your lists.'),
             __('Success')
         );

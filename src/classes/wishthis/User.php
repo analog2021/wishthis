@@ -15,6 +15,17 @@ class User
      */
     public const RECEIVED_DAYS_AFTER_BIRTHDAY = 14;
 
+    /**
+     * After Christmas, fulfilled wishes leave the lists at the end of January.
+     */
+    public const RECEIVED_AFTER_CHRISTMAS_UNTIL = '01-31';
+
+    /**
+     * If the next birthday or Christmas is closer than this, fulfilled wishes
+     * wait for it too. They may have been bought for it.
+     */
+    public const RECEIVED_WAIT_FOR_NEXT = '+2 months';
+
     public static function getFromID(int $user_id): self
     {
         global $database;
@@ -640,19 +651,23 @@ class User
     }
 
     /**
-     * Returns the most recent day on which fulfilled wishes leave the lists:
-     * two weeks after the last birthday, counted from `$today`.
+     * Returns the day on which a fulfilled wish leaves its owners lists.
+     *
+     * That is once the next birthday or Christmas after it was fulfilled is
+     * over: two weeks after the birthday, or at the end of January after
+     * Christmas. If the next of these is less than two months away by then,
+     * the wish may have been bought for that one, so it waits for it too.
      *
      * A birthday on the 29th of February falls on the 1st of March in other
      * years.
      *
+     * @param \DateTimeImmutable $fulfilled When the wish was fulfilled.
      * @param string             $birthdate Formatted as `YYYY-MM-DD`.
-     * @param \DateTimeImmutable $today
      *
      * @return \DateTimeImmutable|null The day (at midnight), or `null` if
      *                                 `$birthdate` is not a valid date.
      */
-    public static function getReceivedCutoff(string $birthdate, \DateTimeImmutable $today): ?\DateTimeImmutable
+    public static function getReceivedDate(\DateTimeImmutable $fulfilled, string $birthdate): ?\DateTimeImmutable
     {
         if (1 !== \preg_match('/^\d{4}-(\d{2})-(\d{2})$/', $birthdate, $matches)) {
             return null;
@@ -665,32 +680,70 @@ class User
             return null;
         }
 
-        $today = $today->setTime(0, 0);
-        $year  = (int) $today->format('Y');
+        $fulfilled = $fulfilled->setTime(0, 0);
+        $year      = (int) $fulfilled->format('Y');
 
-        /**
-         * Go back a year until the cutoff is not in the future. A birthday at
-         * the end of December has its cutoff in the next year, so early in
-         * January that can be two years back.
-         */
-        do {
-            $cutoff = $today
-            ->setDate($year, $month, $day)
-            ->modify('+' . self::RECEIVED_DAYS_AFTER_BIRTHDAY . ' days');
+        [$untilMonth, $untilDay] = \array_map('intval', \explode('-', self::RECEIVED_AFTER_CHRISTMAS_UNTIL));
 
-            $year--;
-        } while ($cutoff > $today);
+        /** The occasions from the year it was fulfilled on, and when they are over. */
+        $occasions = [];
 
-        return $cutoff;
+        for ($occasionYear = $year; $occasionYear <= $year + 2; $occasionYear++) {
+            $birthday    = $fulfilled->setDate($occasionYear, $month, $day);
+            $occasions[] = [
+                'date' => $birthday,
+                'over' => $birthday->modify('+' . self::RECEIVED_DAYS_AFTER_BIRTHDAY . ' days'),
+            ];
+
+            $occasions[] = [
+                'date' => $fulfilled->setDate($occasionYear, 12, 25),
+                'over' => $fulfilled->setDate($occasionYear + 1, $untilMonth, $untilDay),
+            ];
+        }
+
+        \usort(
+            $occasions,
+            function (array $a, array $b) {
+                return $a['date'] <=> $b['date'];
+            }
+        );
+
+        $receivedDate = null;
+
+        foreach ($occasions as $occasion) {
+            if ($occasion['date'] < $fulfilled) {
+                continue;
+            }
+
+            /** The first occasion after the wish was fulfilled. */
+            if (null === $receivedDate) {
+                $receivedDate = $occasion['over'];
+
+                continue;
+            }
+
+            /** Wait for the next occasion too, if it is close. */
+            if ($occasion['date'] <= $receivedDate->modify(self::RECEIVED_WAIT_FOR_NEXT)) {
+                $receivedDate = \max($receivedDate, $occasion['over']);
+
+                continue;
+            }
+
+            break;
+        }
+
+        return $receivedDate;
     }
 
     /**
-     * Takes the wishes which were fulfilled up to two weeks after the users
-     * last birthday off their lists, by marking them as received. They are
-     * still shown under Spoilers.
+     * Takes fulfilled wishes off the users lists once the birthday or
+     * Christmas they were likely bought for is over, by marking them as
+     * received. They are still shown under Spoilers.
      *
      * Does nothing if the user turned this off or has no birthday set. The
      * caller checks that the user is logged in.
+     *
+     * @see self::getReceivedDate()
      */
     public function markReceivedWishes(): void
     {
@@ -700,9 +753,36 @@ class User
             return;
         }
 
-        $cutoff = self::getReceivedCutoff($this->birthdate, new \DateTimeImmutable());
+        $wishesQuery = $database->query(
+            'SELECT `id`, `edited`
+               FROM `wishes`
+              WHERE `received` IS NULL
+                AND `status` IN (:status_fulfilled, :status_unavailable)
+                AND `wishlist` IN (
+                    SELECT `id`
+                      FROM `wishlists`
+                     WHERE `user` = :user_id
+                )',
+            [
+                'status_fulfilled'   => Wish::STATUS_FULFILLED,
+                'status_unavailable' => Wish::STATUS_UNAVAILABLE,
+                'user_id'            => $this->id,
+            ]
+        );
 
-        if (null === $cutoff) {
+        $today   = new \DateTimeImmutable('today');
+        $wishIds  = [];
+
+        foreach ($wishesQuery ? $wishesQuery->fetchAll(\PDO::FETCH_ASSOC) : [] as $wish) {
+            /** `edited` is when the wish was fulfilled, unless it was changed since. */
+            $receivedDate = self::getReceivedDate(new \DateTimeImmutable($wish['edited']), $this->birthdate);
+
+            if (null !== $receivedDate && $receivedDate <= $today) {
+                $wishIds[] = (int) $wish['id'];
+            }
+        }
+
+        if (empty($wishIds)) {
             return;
         }
 
@@ -714,20 +794,7 @@ class User
             'UPDATE `wishes`
                 SET `received` = ' . $database->getDateNow() . ',
                     `edited`   = `edited`
-              WHERE `received` IS NULL
-                AND `status` IN (:status_fulfilled, :status_unavailable)
-                AND DATE(`edited`) <= :cutoff
-                AND `wishlist` IN (
-                    SELECT `id`
-                      FROM `wishlists`
-                     WHERE `user` = :user_id
-                )',
-            [
-                'status_fulfilled'   => Wish::STATUS_FULFILLED,
-                'status_unavailable' => Wish::STATUS_UNAVAILABLE,
-                'cutoff'             => $cutoff->format('Y-m-d'),
-                'user_id'            => $this->id,
-            ]
+              WHERE `id` IN (' . \implode(', ', $wishIds) . ')'
         );
     }
 
