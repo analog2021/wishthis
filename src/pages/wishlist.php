@@ -8,7 +8,7 @@
 
 namespace wishthis;
 
-$wishlist = Wishlist::getFromHash($_GET['hash']);
+$wishlist = Wishlist::getFromHash($_GET['hash'] ?? '');
 
 if (false === $wishlist) {
     $page = new Page(__FILE__, 'Wishlist not found');

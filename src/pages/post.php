@@ -8,8 +8,15 @@
 
 namespace wishthis;
 
-$postSlug      = $_GET['slug'];
-$posts         = Blog::getPreviousCurrentNextPostBySlug($postSlug);
+$postSlug = $_GET['slug'] ?? '';
+
+/** A post which doesn't exist (any more) leads back to the blog. */
+try {
+    $posts = Blog::getPreviousCurrentNextPostBySlug($postSlug);
+} catch (\Exception $exception) {
+    redirect(Page::PAGE_BLOG);
+}
+
 $post          = $posts['current'];
 $postMediaHTML = isset($post->featured_media) && 0 !== $post->featured_media ? Blog::getMediaHTML($post->featured_media) : '';
 $postMedia     = isset($post->featured_media) && 0 !== $post->featured_media ? Blog::getMedia($post->featured_media)     : new \stdClass();
