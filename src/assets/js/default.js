@@ -412,3 +412,111 @@ function showToastGift(gift, onUndone) {
         ],
     });
 }
+
+/**
+ * Returns how many characters a text takes up in the database. Saving
+ * encodes some symbols (`&`, quotes, `<`, `>` and control characters become
+ * e. g. `&#38;`) and escapes backslashes, see `Sanitiser::sanitiseText()`.
+ */
+function getStoredTextLength(text) {
+    return Array.from(text).reduce(function(length, character) {
+        var code = character.codePointAt(0);
+
+        if ('&\'"<>'.includes(character) || code < 32) {
+            return length + ('&#' + code + ';').length;
+        }
+
+        if ('\\' === character) {
+            return length + 2;
+        }
+
+        return length + 1;
+    }, 0);
+}
+
+/**
+ * Keeps an input within `max` characters as stored (see
+ * `getStoredTextLength()`). The browser's `maxlength` can't do this, as it
+ * counts symbols such as `&` as one character. Of what was just typed or
+ * pasted, only as much is kept as fits.
+ *
+ * @param {jQuery} input
+ * @param {number} max    The length of the database column.
+ * @param {string} before The value before the latest input.
+ *
+ * @returns {boolean} Whether some of the input was left out.
+ */
+function limitStoredLength(input, max, before) {
+    var value = input.val();
+
+    if (!max || getStoredTextLength(value) <= max) {
+        return false;
+    }
+
+    /** Find what was inserted by comparing with the value before */
+    var beforeCharacters = Array.from(before || '');
+    var after            = Array.from(value);
+    var prefix           = 0;
+    var suffix           = 0;
+
+    while (prefix < beforeCharacters.length && prefix < after.length && beforeCharacters[prefix] === after[prefix]) {
+        prefix++;
+    }
+
+    while (
+           suffix < beforeCharacters.length - prefix
+        && suffix < after.length - prefix
+        && beforeCharacters[beforeCharacters.length - 1 - suffix] === after[after.length - 1 - suffix]
+    ) {
+        suffix++;
+    }
+
+    var start    = after.slice(0, prefix).join('');
+    var end      = after.slice(after.length - suffix).join('');
+    var inserted = after.slice(prefix, after.length - suffix);
+
+    while (inserted.length > 0 && getStoredTextLength(start + inserted.join('') + end) > max) {
+        inserted.pop();
+    }
+
+    var limited = start + inserted.join('') + end;
+
+    /** Should the rest still not fit, shorten it from the end */
+    while (getStoredTextLength(limited) > max) {
+        limited = Array.from(limited).slice(0, -1).join('');
+    }
+
+    var caret = Math.min((start + inserted.join('')).length, limited.length);
+
+    input.val(limited);
+    input[0].setSelectionRange(caret, caret);
+
+    return true;
+}
+
+/**
+ * Names (wishlists, first/last/nick name) with `data-stored-max-length` are
+ * kept within the length of their database column while typing, and say so
+ * when they are full, instead of failing to save.
+ */
+$(document).on('focus input', 'input[data-stored-max-length]', function (event) {
+    var input = $(this);
+    var hint  = input.closest('.field').find('.stored-length-full');
+
+    if ('input' === event.type) {
+        var max      = parseInt(input.attr('data-stored-max-length'), 10);
+        var isFull   = limitStoredLength(input, max, input.data('storedTextBefore'))
+                    || getStoredTextLength(input.val()) >= max;
+
+        if (isFull && 0 === hint.length) {
+            /** The string is HTML */
+            hint = $('<div class="ui pointing basic label stored-length-full"></div>')
+            .html(wishthis.strings.name_limit)
+            .insertAfter(input.closest('.ui.input').length ? input.closest('.ui.input') : input);
+        }
+
+        hint.toggle(isFull);
+    }
+
+    input.data('storedTextBefore', input.val());
+});

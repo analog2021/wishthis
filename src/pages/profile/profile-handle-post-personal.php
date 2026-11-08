@@ -10,7 +10,7 @@ namespace wishthis;
  * Name (First)
  */
 if (isset($_POST['user-name-first'])) {
-    $nameFirst = Sanitiser::sanitiseText($_POST['user-name-first']);
+    $nameFirst = Sanitiser::sanitiseTextToFit($_POST['user-name-first'], User::NAME_MAX_LENGTH);
 
     if ($nameFirst !== $user->getNameFirst()) {
         $database->query(
@@ -40,7 +40,7 @@ if (isset($_POST['user-name-first'])) {
  * Name (Last)
  */
 if (isset($_POST['user-name-last'])) {
-    $nameLast = Sanitiser::sanitiseText($_POST['user-name-last']);
+    $nameLast = Sanitiser::sanitiseTextToFit($_POST['user-name-last'], User::NAME_MAX_LENGTH);
 
     if ($nameLast !== $user->getNameLast()) {
         $database->query(
@@ -70,7 +70,7 @@ if (isset($_POST['user-name-last'])) {
  * Name (Nick)
  */
 if (isset($_POST['user-name-nick'])) {
-    $nameNick = Sanitiser::sanitiseText($_POST['user-name-nick']);
+    $nameNick = Sanitiser::sanitiseTextToFit($_POST['user-name-nick'], User::NAME_MAX_LENGTH);
 
     if ($nameNick !== $user->getNameNick()) {
         $database->query(

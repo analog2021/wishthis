@@ -26,6 +26,12 @@ class User
      */
     public const RECEIVED_WAIT_FOR_NEXT = '+2 months';
 
+    /**
+     * How long first, last and nick names may be, as stored (symbols such as
+     * `&` take up several characters), see `Sanitiser::sanitiseTextToFit()`.
+     */
+    public const NAME_MAX_LENGTH = 32;
+
     public static function getFromID(int $user_id): self
     {
         global $database;

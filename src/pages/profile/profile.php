@@ -58,19 +58,19 @@ $page->navigation();
                                 <div class="field">
                                     <label><?= __('First name') ?></label>
 
-                                    <input type="text" name="user-name-first" value="<?= $user->getNameFirst() ?>" />
+                                    <input type="text" name="user-name-first" value="<?= $user->getNameFirst() ?>" data-stored-max-length="<?= User::NAME_MAX_LENGTH ?>" />
                                 </div>
 
                                 <div class="field">
                                     <label><?= __('Last name') ?></label>
 
-                                    <input type="text" name="user-name-last" value="<?= $user->getNameLast() ?>" />
+                                    <input type="text" name="user-name-last" value="<?= $user->getNameLast() ?>" data-stored-max-length="<?= User::NAME_MAX_LENGTH ?>" />
                                 </div>
 
                                 <div class="field">
                                     <label><?= __('Nickname') ?></label>
 
-                                    <input type="text" name="user-name-nick" value="<?= $user->getNameNick() ?>" />
+                                    <input type="text" name="user-name-nick" value="<?= $user->getNameNick() ?>" data-stored-max-length="<?= User::NAME_MAX_LENGTH ?>" />
                                 </div>
                             </div>
 
