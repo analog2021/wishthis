@@ -327,6 +327,9 @@ $(function () {
                 }
             }
         });
+
+        /** The URL lookup can make it taller than the screen */
+        keepModalScrollable(modalWishlistWishAdd);
     });
 
     /**

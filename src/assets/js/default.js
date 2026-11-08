@@ -302,6 +302,53 @@ function showFailure(title = '', content = '', status = 200) {
 }
 
 /**
+ * Lets a modal scroll once it grows taller than the screen while it is open,
+ * e. g. when the URL lookup fills in the wish form.
+ *
+ * Fomantic only checks whether a modal fits when it is shown and when the
+ * window is resized. A modal which fitted at first can't be scrolled until
+ * the window is resized or the device is rotated.
+ *
+ * A modal which already scrolls is left alone: refreshing it would jump back
+ * to the top while the user is scrolling.
+ */
+function keepModalScrollable(modal) {
+    if (!('ResizeObserver' in window) || modal.data('scrollObserver')) {
+        return;
+    }
+
+    var observer = new ResizeObserver(function() {
+        /** Like Fomantic on resize: not while the observer is still running */
+        requestAnimationFrame(function() {
+            /**
+             * The modal's own class: Fomantic's `is scrolling` checks the
+             * page, which still has the class after a scrolling modal closed.
+             */
+            if (!modal.modal('is active') || modal.hasClass('animating') || modal.hasClass('scrolling')) {
+                return;
+            }
+
+            modal.modal('refresh');
+        });
+    });
+
+    observer.observe(modal[0]);
+    modal.data('scrollObserver', observer);
+}
+
+/**
+ * Stops watching the size of a modal, see `keepModalScrollable()`.
+ */
+function stopModalScrollable(modal) {
+    var observer = modal.data('scrollObserver');
+
+    if (observer) {
+        observer.disconnect();
+        modal.removeData('scrollObserver');
+    }
+}
+
+/**
  * Tells the user when a shop refused to let wishthis read the wish URL and
  * the title or image of the submitted wish form is still missing.
  */
