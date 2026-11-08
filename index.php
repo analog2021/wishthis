@@ -162,6 +162,15 @@ if (
 if (!isset($page)) {
     $page = isset($_GET['page']) ? $_GET['page'] : 'home';
 }
+
+/**
+ * Page names are plain words like `login-as`. Anything else (`../`, markup)
+ * would let a request load other PHP files, even this one again and again.
+ */
+if (!\is_string($page) || 1 !== \preg_match('/^[a-z][a-z\-]*$/', $page)) {
+    $page = 'not-found';
+}
+
 $pagePath    = __DIR__ . '/src/pages/' . $page . '.php';
 $pagePathAlt = __DIR__ . '/src/pages/' . $page . '/' . $page . '.php';
 
@@ -175,6 +184,5 @@ if (\file_exists($pagePath)) {
     <h1>Not found</h1>
     <p>The requested URL was not found on this server.</p>
     <?php
-    echo $pagePath;
     die();
 }
