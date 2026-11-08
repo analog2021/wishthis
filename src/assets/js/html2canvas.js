@@ -19,15 +19,19 @@ window.addEventListener("load", (event) => {
         data.append('preview', canvas.toDataURL());
         data.append('page', wishthis.$_GET.page);
 
-        /** Save page preview */
+        /**
+         * Save page preview
+         *
+         * This happens in the background, so a failure is not shown. During
+         * an update the API answers with the maintenance page, which would
+         * otherwise end up in an error dialog.
+         */
         fetch('/index.php?page=api&module=save-preview', {
             method      : 'POST',
             credentials : 'include',
             body        : data,
         })
-        .then(handleFetchError)
-        .then(handleFetchResponse)
-        .then(function(response) {})
-        .finally(function() {});
-    });
+        .catch(function() {});
+    })
+    .catch(function() {});
 });
