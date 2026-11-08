@@ -167,4 +167,76 @@ final class WishDetailsTest extends TestCase
         $this->assertSame($title, Wish::shortenLookupTitle($title));
         $this->assertSame('Hoodie, black', Wish::shortenLookupTitle('Hoodie, black'));
     }
+
+    public function testTitleIsGuessedFromTheURL(): void
+    {
+        $guesses = [
+            'https://www.tillys.com/product/rsq-womens-stripe-babydoll-top/540593927.html' => 'Rsq Womens Stripe Babydoll Top',
+            'https://www.amazon.com/MELT-Soft-Foam-Roller-Density/dp/B09MV8K5NZ'           => 'MELT Soft Foam Roller Density',
+            'https://www.amazon.com/MELT-Soft-Foam-Roller/dp/B09MV8K5NZ/ref=sr_1_1?th=1'   => 'MELT Soft Foam Roller',
+            'https://shop.example/en-us/products/blue-hoodie?variant=123#reviews'          => 'Blue Hoodie',
+            'https://shop.example/rice-cooker-3-cup_stainless'                             => 'Rice Cooker 3 Cup Stainless',
+            'https://www.amazon.com/dp/B09MV8K5NZ'                                         => '',
+            'https://shop.example/p/540593927'                                             => '',
+            'https://shop.example/product'                                                 => '',
+            'https://shop.example/'                                                        => '',
+        ];
+
+        foreach ($guesses as $url => $title) {
+            $this->assertSame($title, Wish::getTitleFromURL($url), $url);
+        }
+    }
+
+    public function testBlockedPageGetsATitleFromTheURL(): void
+    {
+        $details = Wish::getDetailsFromInfo(
+            self::info(
+                [
+                    'url'     => 'https://www.tillys.com/product/rsq-womens-stripe-babydoll-top/540593927.html',
+                    'blocked' => true,
+                    'problem' => Embed::PROBLEM_BLOCKED,
+                ]
+            ),
+            'EUR',
+            self::imageResponse(200)
+        );
+
+        $this->assertSame('Rsq Womens Stripe Babydoll Top', $details['title']);
+        $this->assertTrue($details['titleGuessed']);
+        $this->assertSame(['image', 'description', 'price'], $details['missing'], 'A guessed title is not missing.');
+    }
+
+    public function testNoTitleIsGuessedForAMissingPage(): void
+    {
+        $details = Wish::getDetailsFromInfo(
+            self::info(
+                [
+                    'url'     => 'https://shop.example/blue-hoodie',
+                    'problem' => Embed::PROBLEM_NOT_FOUND,
+                ]
+            ),
+            'EUR',
+            self::imageResponse(200)
+        );
+
+        $this->assertSame('', $details['title'], 'A link to a page which doesn\'t exist is wrong.');
+        $this->assertFalse($details['titleGuessed']);
+    }
+
+    public function testFoundTitleIsNotGuessed(): void
+    {
+        $details = Wish::getDetailsFromInfo(
+            self::info(
+                [
+                    'url'   => 'https://shop.example/blue-hoodie',
+                    'title' => 'Hoodie',
+                ]
+            ),
+            'EUR',
+            self::imageResponse(200)
+        );
+
+        $this->assertSame('Hoodie', $details['title']);
+        $this->assertFalse($details['titleGuessed']);
+    }
 }

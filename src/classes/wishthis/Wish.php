@@ -222,6 +222,68 @@ class Wish
     }
 
     /**
+     * Guesses the product name from the address of its page, e.g.
+     * `/product/rsq-womens-stripe-babydoll-top/540593927.html` gives
+     * "Rsq Womens Stripe Babydoll Top". Used when the page itself can't be
+     * read.
+     *
+     * Takes the part of the path with the most words joined by `-` or `_`,
+     * leaving out product numbers, file extensions and language codes. Words
+     * in lower case are capitalised, others are kept as they are.
+     *
+     * @param string $url
+     *
+     * @return string The guess, or an empty string if no part of the path
+     *                looks like a name.
+     */
+    public static function getTitleFromURL(string $url): string
+    {
+        $path  = (string) \parse_url($url, \PHP_URL_PATH);
+        $words = [];
+
+        foreach (\explode('/', $path) as $segment) {
+            $segment = \rawurldecode($segment);
+
+            /** Language codes (en-us) and parameters (ref=sr_1_1) */
+            if (\preg_match('/^[a-z]{2}(?:[-_][a-z]{2})?$/i', $segment) || \str_contains($segment, '=')) {
+                continue;
+            }
+
+            $segment          = \preg_replace('/\.[a-z0-9]{2,5}$/i', '', $segment);
+            $segmentWords     = \preg_split('/[-_+\s]+/u', $segment, -1, \PREG_SPLIT_NO_EMPTY);
+            $segmentWords     = \array_values(
+                \array_filter(
+                    $segmentWords,
+                    function (string $word): bool {
+                        /** Long numbers and codes like B09MV8K5NZ are product numbers */
+                        $isNumber = \preg_match('/^\d{5,}$/', $word);
+                        $isCode   = \preg_match('/^(?=.*\d)(?=.*[a-z])[a-z0-9]{8,}$/i', $word);
+
+                        return !$isNumber && !$isCode;
+                    }
+                )
+            );
+            $segmentWordCount = \count(
+                \array_filter(
+                    $segmentWords,
+                    fn (string $word): bool => 1 === \preg_match('/\p{L}{2,}/u', $word)
+                )
+            );
+
+            if ($segmentWordCount >= 2 && \count($segmentWords) > \count($words)) {
+                $words = $segmentWords;
+            }
+        }
+
+        $words = \array_map(
+            fn (string $word): string => \mb_strtolower($word) === $word ? \mb_convert_case($word, \MB_CASE_TITLE) : $word,
+            $words
+        );
+
+        return self::shortenLookupTitle(\implode(' ', $words));
+    }
+
+    /**
      * Returns the details found for a wish URL, ready to fill in the wish
      * form, and which of them are missing.
      *
@@ -235,8 +297,9 @@ class Wish
      *               not found), `problem` (see `Cache\Embed::PROBLEM_*`),
      *               `missing` (the names of the fields not found),
      *               `imageError` (whether an image was found but can't be
-     *               loaded) and `priceCurrency` (the currency of a price
-     *               which was not used).
+     *               loaded), `priceCurrency` (the currency of a price
+     *               which was not used) and `titleGuessed` (whether the
+     *               title was guessed from the URL, see `getTitleFromURL()`).
      */
     public static function getDetailsFromInfo(\stdClass $info, string $currency, ?callable $getImageResponse = null): array
     {
@@ -251,7 +314,17 @@ class Wish
             'missing'       => [],
             'imageError'    => false,
             'priceCurrency' => null,
+            'titleGuessed'  => false,
         ];
+
+        /**
+         * Without a title from the page, the address may still name the
+         * product. Not if the page doesn't exist: then the link is wrong.
+         */
+        if ('' === $details['title'] && !empty($info->url) && Cache\Embed::PROBLEM_NOT_FOUND !== $details['problem']) {
+            $details['title']        = self::getTitleFromURL($info->url);
+            $details['titleGuessed'] = '' !== $details['title'];
+        }
 
         /**
          * Image servers often refuse or rate limit requests from servers

@@ -15,9 +15,22 @@ final class FixtureEmbedCache extends Embed
 {
     public static ?ClientInterface $client = null;
 
+    /**
+     * Details whose detection fails, see `FailingDetector`.
+     *
+     * @var string[]
+     */
+    public static array $failingDetectors = [];
+
     public static function createEmbed(?ClientInterface $client = null): \Embed\Embed
     {
-        return FixtureClient::allowFixtureHosts(parent::createEmbed(self::$client));
+        $embed = FixtureClient::allowFixtureHosts(parent::createEmbed(self::$client));
+
+        foreach (self::$failingDetectors as $name) {
+            $embed->getExtractorFactory()->addDetector($name, FailingDetector::class);
+        }
+
+        return $embed;
     }
 
     public function __construct(string $url, string $directory)
