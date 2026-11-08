@@ -256,12 +256,18 @@ class Page
 
         /**
          * Link preview
+         *
+         * A screenshot saved by `src/api/save-preview.php`, or else the one
+         * which comes with wishthis.
          */
-        $screenshot_filepath = ROOT . '/src/assets/img/screenshots/' . $this->name . '.png';
-        $screenshot_url      = 'https://' . $_SERVER['HTTP_HOST'] . '/src/assets/img/screenshots/' . $this->name . '.png';
+        foreach (['screenshots/generated', 'screenshots'] as $screenshot_directory) {
+            $screenshot_path = 'src/assets/img/' . $screenshot_directory . '/' . $this->name . '.png';
 
-        if (\file_exists($screenshot_filepath)) {
-            $this->link_preview = $screenshot_url;
+            if (\file_exists(ROOT . '/' . $screenshot_path)) {
+                $this->link_preview = 'https://' . $_SERVER['HTTP_HOST'] . '/' . $screenshot_path;
+
+                break;
+            }
         }
 
         /**

@@ -2,6 +2,7 @@
 /service-worker.js
 /*.code-workspace
 /src/cache/*
+/src/assets/img/screenshots/generated/
 /src/config/config.php
 
 /vendor/bin

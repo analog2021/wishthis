@@ -3,6 +3,15 @@
 /**
  * Save preview
  *
+ * Crawlers send a screenshot of the page they are on (see
+ * `src/assets/js/html2canvas.js`), which is then used as the link preview
+ * (`og:image`) of every link to that page (see `Page::__construct()`).
+ *
+ * Because one screenshot stands for every link to a page, only pages which
+ * look the same to everybody who isn't logged in are accepted. A screenshot
+ * of someone's wishlist would otherwise show up in the preview of everybody
+ * else's wishlist links.
+ *
  * @category API
  */
 
@@ -16,39 +25,89 @@ if (!isset($page)) {
 }
 
 /**
- * Don't save previews before wishthis is installed. Creating a `Page` below
- * would redirect to the installer, which resets the installer's session.
+ * Don't save previews before wishthis is installed.
  */
 if (!$options || !$options->getOption('isInstalled')) {
     return;
 }
 
-$user = User::getCurrent();
+/**
+ * The pages a screenshot may be saved for.
+ */
+$previewPages = [
+    'home',
+    'blog',
+    'changelog',
+    'login',
+    'register',
+];
+
+/**
+ * The largest screenshot accepted, in bytes and in pixels per side.
+ */
+$previewMaxBytes  = 4 * 1024 * 1024;
+$previewMaxPixels = 4096;
+
+$response['saved'] = false;
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'POST':
-        if (isset($_POST['preview'], $_POST['page'])) {
-            $preview          = \substr($_POST['preview'], 22); // data:image/png;base64,
-            $preview          = \base64_decode($preview);
-            $preview_filepath = ROOT . '/src/assets/img/screenshots/' . $_POST['page'] . '.png';
-            $preview_create   = false;
+        $previewPage = $_POST['page']    ?? '';
+        $previewData = $_POST['preview'] ?? '';
 
-            $page_filepath = ROOT . 'src/pages/' . $_POST['page'] . '.php';
-            $page          = new Page($page_filepath);
-
-            if (\file_exists($preview_filepath)) {
-                $preview_age = \time() - \filemtime($preview_filepath);
-
-                if ($preview_age > Duration::MONTH) {
-                    $preview_create = true;
-                }
-            } else {
-                $preview_create = true;
-            }
-
-            if ($preview_create && $user->getPower() >= $page->power) {
-                \file_put_contents($preview_filepath, $preview);
-            }
+        if (!\is_string($previewPage) || !\in_array($previewPage, $previewPages, true)) {
+            break;
         }
+
+        /** Only from crawlers, which see the page as somebody who isn't logged in. */
+        $crawlerDetect = new \Jaybizzle\CrawlerDetect\CrawlerDetect();
+
+        if (!$crawlerDetect->isCrawler() || User::getCurrent()->isLoggedIn()) {
+            break;
+        }
+
+        /** A PNG data URL of a sensible size. */
+        $dataUrlPrefix = 'data:image/png;base64,';
+
+        if (!\is_string($previewData) || !\str_starts_with($previewData, $dataUrlPrefix)) {
+            break;
+        }
+
+        $preview = \base64_decode(\substr($previewData, \strlen($dataUrlPrefix)), true);
+
+        if (false === $preview || '' === $preview || \strlen($preview) > $previewMaxBytes) {
+            break;
+        }
+
+        $previewSize = \getimagesizefromstring($preview);
+
+        if (
+               false === $previewSize
+            || \IMAGETYPE_PNG !== $previewSize[2]
+            || $previewSize[0] < 1
+            || $previewSize[1] < 1
+            || $previewSize[0] > $previewMaxPixels
+            || $previewSize[1] > $previewMaxPixels
+        ) {
+            break;
+        }
+
+        /**
+         * Replace a screenshot at most once a month. They are kept apart from
+         * the screenshots which come with wishthis, so updating wishthis
+         * doesn't conflict with them.
+         */
+        $previewDirectory = ROOT . '/src/assets/img/screenshots/generated';
+        $previewFilepath  = $previewDirectory . '/' . $previewPage . '.png';
+
+        if (\file_exists($previewFilepath) && \time() - \filemtime($previewFilepath) <= Duration::MONTH) {
+            break;
+        }
+
+        if (!\is_dir($previewDirectory) && !\mkdir($previewDirectory, 0755, true) && !\is_dir($previewDirectory)) {
+            break;
+        }
+
+        $response['saved'] = false !== \file_put_contents($previewFilepath, $preview);
         break;
 }
