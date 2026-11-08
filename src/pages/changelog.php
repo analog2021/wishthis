@@ -51,6 +51,13 @@ $changelogFilepath   = $changelogsDirectory . '/changelog.md';
                         $filenameSanitised = \pathinfo($filepath, \PATHINFO_FILENAME);
                         $firstLine         = \fgets(\fopen($filepath, 'r'));
                         $label             = \preg_replace('/[^a-zA-Z0-9\-\.]/', '', $firstLine);
+
+                        /** Keep a Changelog headings ("## [1.6.0] - 2026-11-08") show only the version. */
+                        if (\preg_match('/\d+\.\d+\.\d+/', $firstLine, $matches)) {
+                            $label = 'v' . $matches[0];
+                        } elseif (\str_contains($firstLine, 'Unreleased')) {
+                            $label = 'Unreleased';
+                        }
                         ?>
                         <a class="item" data-tab="<?= $filenameSanitised ?>"><?= $label ?></a>
                         <?php
