@@ -33,15 +33,9 @@ $(function () {
                 $('.button.wishlist-wish-add').trigger('click');
             }
 
-            /** Set wishlist style */
+            /** Set wishlist style: grid on every screen, it shows the pictures biggest */
             if ($('.buttons.view .active.button[value]').length === 0) {
-                const orientationIsPortrait = window.matchMedia('(orientation: portrait)');
-
-                if (orientationIsPortrait.matches) {
-                    $('.buttons.view .button[value="list"]').trigger('click');
-                } else {
-                    $('.buttons.view .button[value="grid"]').trigger('click');
-                }
+                $('.buttons.view .button[value="grid"]').trigger('click');
             }
         },
     };
