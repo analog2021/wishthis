@@ -1,4 +1,23 @@
 #
+# Private files
+#
+# Only what browsers need is public: index.php, src/assets, semantic/dist, the
+# scripts and fonts used from node_modules and a few files in the root. Everything else (git history, configuration,
+# database, sources, dependencies, tests) answers "Not found".
+#
+# These are RedirectMatch rules on purpose: `URL::getPretty()` reads every
+# RewriteRule in this file.
+#
+<IfModule mod_alias.c>
+  RedirectMatch 404 /\.(?!well-known/)
+  RedirectMatch 404 ^/src/(?!assets/)
+  RedirectMatch 404 ^/src/assets/.*\.php$
+  RedirectMatch 404 ^/(vendor|tests)/
+  RedirectMatch 404 ^/node_modules/(?!(jquery|html2canvas)/dist/|@fontsource/[a-z\-]+/files/)
+  RedirectMatch 404 ^/(database\.sqlite|composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|semantic\.json|ruleset\.xml|transifex\.yml|CLAUDE\.md)$
+</IfModule>
+
+#
 # Rewrite
 #
 <IfModule mod_rewrite.c>
