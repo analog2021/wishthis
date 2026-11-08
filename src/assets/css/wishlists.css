@@ -17,3 +17,29 @@
         margin: 0 0 1em;
     }
 }
+
+/**
+ * Wishlist picker: the device's own picker on touch screens (e.g. an
+ * iPhone), Fomantic's dropdown everywhere else.
+ */
+.ui.form .ui.action.input > select.wishlists-native {
+    display: none;
+}
+@media (hover: none) and (pointer: coarse) {
+    .ui.form .ui.action.input > .ui.dropdown.wishlists {
+        display: none;
+    }
+
+    .ui.form .ui.action.input > select.wishlists-native {
+        display: block;
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0;
+
+        /** Smaller text makes Safari on iOS zoom in when the picker opens */
+        font-size: 16px;
+
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+}

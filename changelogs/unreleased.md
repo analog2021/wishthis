@@ -6,6 +6,7 @@
 -   When a shop blocks the lookup completely, wishthis says so ("Fully blocked by the shop's site protection") and guesses the title from the link, so it only needs checking
 -   The lookup's message goes away as soon as you start editing the details, instead of changing to "Found it!" when you add a picture yourself
 -   The tip about copying a picture's address says that it works on some shops, not all
+-   On phones and tablets without a mouse, the wishlist on My lists is picked with the device's own picker (e.g. the iPhone's) instead of a menu drawn by the page
 
 ### Fixed
 
