@@ -2,14 +2,25 @@
 
 namespace wishthis;
 
-if (!isset($_POST['section'])) {
+// The forms on the profile page. Each one has its own handler file.
+$profileSections = [
+    'personal',
+    'password',
+    'preferences',
+    'received',
+    'account',
+];
+
+$section = $_POST['section'] ?? null;
+
+if (!\is_string($section) || !\in_array($section, $profileSections, true)) {
     return;
 }
 
 $loginRequired = false;
 $userId        = $user->getId();
 
-require \sprintf(__DIR__ . '/profile-handle-post-%s.php', $_POST['section']);
+require __DIR__ . '/profile-handle-post-' . $section . '.php';
 
 if ($loginRequired) {
     \session_destroy();
