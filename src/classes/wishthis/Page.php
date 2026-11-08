@@ -257,17 +257,15 @@ class Page
         /**
          * Link preview
          *
-         * A screenshot saved by `src/api/save-preview.php`, or else the one
-         * which comes with wishthis.
+         * The screenshot which comes with wishthis, if there is one for this
+         * page. Screenshots sent in by visitors (`screenshots/generated`) are
+         * no longer used: anybody could send one by pretending to be a
+         * crawler, and it would have been shown on every shared link.
          */
-        foreach (['screenshots/generated', 'screenshots'] as $screenshot_directory) {
-            $screenshot_path = 'src/assets/img/' . $screenshot_directory . '/' . $this->name . '.png';
+        $screenshot_path = 'src/assets/img/screenshots/' . $this->name . '.png';
 
-            if (\file_exists(ROOT . '/' . $screenshot_path)) {
-                $this->link_preview = 'https://' . $_SERVER['HTTP_HOST'] . '/' . $screenshot_path;
-
-                break;
-            }
+        if (\file_exists(ROOT . '/' . $screenshot_path)) {
+            $this->link_preview = 'https://' . $_SERVER['HTTP_HOST'] . '/' . $screenshot_path;
         }
 
         /**
@@ -287,14 +285,6 @@ class Page
             'fomantic-ui' => 'semantic/dist/semantic.min.js',
             'default'     => 'src/assets/js/default.js',
         ];
-
-        /** html2canvas */
-        $CrawlerDetect = new \Jaybizzle\CrawlerDetect\CrawlerDetect();
-
-        if ($CrawlerDetect->isCrawler()) {
-            $this->scripts['html-2-canvas-1'] = 'node_modules/html2canvas/dist/html2canvas.min.js';
-            $this->scripts['html-2-canvas-2'] = 'src/assets/js/html2canvas.js';
-        }
 
         /**
          * Reduce data mode
