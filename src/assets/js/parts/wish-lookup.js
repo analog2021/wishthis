@@ -47,7 +47,7 @@ function resetWishLookup(form) {
  * `Wish::getStoredTitleLength()`.
  */
 function getWishTitleStoredLength(title) {
-    return getStoredTextLength(title);
+    return getStoredTextLength(title, true);
 }
 
 /**
@@ -57,7 +57,12 @@ function getWishTitleStoredLength(title) {
  * @returns {boolean} Whether some of the input was left out.
  */
 function limitWishTitle(input) {
-    return limitStoredLength(input, parseInt(input.attr('data-max-length'), 10), input.data('wishTitleBefore'));
+    return limitStoredLength(
+        input,
+        parseInt(input.attr('data-max-length'), 10),
+        input.data('wishTitleBefore'),
+        getWishTitleStoredLength
+    );
 }
 
 /**

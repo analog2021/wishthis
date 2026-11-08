@@ -416,9 +416,13 @@ function showToastGift(gift, onUndone) {
 /**
  * Returns how many characters a text takes up in the database. Saving
  * encodes some symbols (`&`, quotes, `<`, `>` and control characters become
- * e. g. `&#38;`) and escapes backslashes, see `Sanitiser::sanitiseText()`.
+ * e. g. `&#38;`), see `Sanitiser::sanitiseText()`.
+ *
+ * @param {string}  text
+ * @param {boolean} escapesBackslashes Whether backslashes are saved twice, as
+ *                                     with wish titles (`src/api/wishes.php`).
  */
-function getStoredTextLength(text) {
+function getStoredTextLength(text, escapesBackslashes) {
     return Array.from(text).reduce(function(length, character) {
         var code = character.codePointAt(0);
 
@@ -426,7 +430,7 @@ function getStoredTextLength(text) {
             return length + ('&#' + code + ';').length;
         }
 
-        if ('\\' === character) {
+        if (escapesBackslashes && '\\' === character) {
             return length + 2;
         }
 
@@ -440,16 +444,19 @@ function getStoredTextLength(text) {
  * counts symbols such as `&` as one character. Of what was just typed or
  * pasted, only as much is kept as fits.
  *
- * @param {jQuery} input
- * @param {number} max    The length of the database column.
- * @param {string} before The value before the latest input.
+ * @param {jQuery}   input
+ * @param {number}   max       The length of the database column.
+ * @param {string}   before    The value before the latest input.
+ * @param {Function} getLength How to count, `getStoredTextLength()` if not
+ *                             given.
  *
  * @returns {boolean} Whether some of the input was left out.
  */
-function limitStoredLength(input, max, before) {
-    var value = input.val();
+function limitStoredLength(input, max, before, getLength) {
+    var countLength = getLength || getStoredTextLength;
+    var value       = input.val();
 
-    if (!max || getStoredTextLength(value) <= max) {
+    if (!max || countLength(value) <= max) {
         return false;
     }
 
@@ -475,14 +482,14 @@ function limitStoredLength(input, max, before) {
     var end      = after.slice(after.length - suffix).join('');
     var inserted = after.slice(prefix, after.length - suffix);
 
-    while (inserted.length > 0 && getStoredTextLength(start + inserted.join('') + end) > max) {
+    while (inserted.length > 0 && countLength(start + inserted.join('') + end) > max) {
         inserted.pop();
     }
 
     var limited = start + inserted.join('') + end;
 
     /** Should the rest still not fit, shorten it from the end */
-    while (getStoredTextLength(limited) > max) {
+    while (countLength(limited) > max) {
         limited = Array.from(limited).slice(0, -1).join('');
     }
 

@@ -112,13 +112,18 @@ class Sanitiser
     /**
      * Sanitize a single line of text.
      *
+     * Symbols such as `&`, quotes, `<` and `>` are encoded (e. g. `&#38;`),
+     * so the text can be shown as it is. Backslashes are kept as they are:
+     * the text is only ever saved with prepared statements, and escaping
+     * them made them show up twice.
+     *
      * @param string $text
      *
      * @return string
      */
     public static function sanitiseText(string $text): string
     {
-        $sanitisedText = \trim(\addslashes(\filter_var($text, \FILTER_SANITIZE_SPECIAL_CHARS)));
+        $sanitisedText = \trim(\filter_var($text, \FILTER_SANITIZE_SPECIAL_CHARS));
 
         return $sanitisedText;
     }
