@@ -17,9 +17,10 @@ class Sanitiser
      */
     public static function getNumber(mixed $valueToSanitise): float|int
     {
-        $number = \preg_replace('/[^0-9\.]+/', '', $valueToSanitise);
+        $number = \preg_replace('/[^0-9\.]+/', '', (string) $valueToSanitise);
 
-        return $number;
+        /** Something like `abc` or `1.2.3` is no number, instead of an error */
+        return \is_numeric($number) ? $number + 0 : 0;
     }
 
     /**
