@@ -118,19 +118,35 @@
     }
 }
 
-/** List cards: a smaller picture on phones, so it still fits next to the text */
-.wishlist .ui.horizontal.card > .image {
-    position: relative;
-    width: 96px;
-    height: inherit;
-
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+/**
+ * List cards: a square thumbnail inside the card, next to the text. The
+ * picture is cropped to fill it. Smaller on phones, so the text still fits.
+ */
+.wishlist .ui.horizontal.card {
+    --wishThumbnailSize: 96px;
+    --wishThumbnailMargin: 0.75em;
 }
 @media (min-width: 512px) {
-    .wishlist .ui.horizontal.card > .image {
-        width: 150px;
+    .wishlist .ui.horizontal.card {
+        --wishThumbnailSize: 136px;
     }
+}
+
+.wishlist .ui.horizontal.card > .image {
+    position: relative;
+    flex: 0 0 auto;
+    align-self: center;
+
+    width: var(--wishThumbnailSize);
+    min-height: 0;
+    height: var(--wishThumbnailSize);
+    margin: var(--wishThumbnailMargin) 0 var(--wishThumbnailMargin) var(--wishThumbnailMargin);
+    overflow: hidden;
+
+    border-radius: 0.28571429rem;
+}
+.wishlist .ui.horizontal.card > .image > :is(svg, img.preview) {
+    width: 100%;
 }
 
 .wishlist .ui.card > .image > :is(svg, img.preview) {
@@ -226,13 +242,8 @@
 }
 
 .wishlist .ui.horizontal.card > .content:not(.extra) {
-    width: calc(100% - 96px);
+    width: calc(100% - var(--wishThumbnailSize) - var(--wishThumbnailMargin));
     height: inherit;
-}
-@media (min-width: 512px) {
-    .wishlist .ui.horizontal.card > .content:not(.extra) {
-        width: calc(100% - 150px);
-    }
 }
 
 .wishlist .ui.card > .content > .header {

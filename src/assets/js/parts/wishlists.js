@@ -34,9 +34,15 @@ $(function () {
                 $('.button.wishlist-wish-add').trigger('click');
             }
 
-            /** Set wishlist style: grid on every screen, it shows the pictures biggest */
+            /** Set wishlist style */
             if ($('.buttons.view .active.button[value]').length === 0) {
-                $('.buttons.view .button[value="grid"]').trigger('click');
+                const orientationIsPortrait = window.matchMedia('(orientation: portrait)');
+
+                if (orientationIsPortrait.matches) {
+                    $('.buttons.view .button[value="list"]').trigger('click');
+                } else {
+                    $('.buttons.view .button[value="grid"]').trigger('click');
+                }
             }
         },
     };
