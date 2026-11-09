@@ -129,7 +129,16 @@ $url = new URL($_SERVER['REQUEST_URI']);
  */
 if ($options && $options->getOption('isInstalled')) {
     if (-1 === \version_compare($options->version, VERSION)) {
-        $options->setOption('updateAvailable', true);
+        /**
+         * Without database changes, there is nothing to migrate: the new
+         * version is simply recorded, instead of sending everyone to the
+         * maintenance page until an admin presses "Migrate".
+         */
+        if ([] === $options->getPendingUpdates()) {
+            $options->completeUpdate();
+        } else {
+            $options->setOption('updateAvailable', true);
+        }
     }
 }
 

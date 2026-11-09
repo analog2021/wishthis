@@ -14,53 +14,23 @@ $page = new Page(__FILE__, __('Update'), 100);
  * Update
  */
 if ('POST' === $_SERVER['REQUEST_METHOD']) {
-    $versions_directory = ROOT . '/src/update';
-    $versions_contents  = \scandir($versions_directory);
-    $versions           = [];
+    foreach ($options->getPendingUpdates() as $update) {
+        $sql = \file_get_contents($update['filepath']);
 
-    foreach ($versions_contents as $filename) {
-        $filepath = $versions_directory . '/' . $filename;
-        $pathinfo = \pathinfo($filepath);
-
-        if (\is_file($filepath) && 'sql' === ($pathinfo['extension'] ?? '')) {
+        if ($sql) {
             /**
-             * A file of the same name in a directory named after the database
-             * engine (e. g. `sqlite/1-4-0.sql`) replaces the shared one, for
-             * changes which can't be written for both engines.
+             * A prepared statement only runs the first statement of a file on
+             * SQLite, so run the whole file directly there.
              */
-            $filepathEngine = $versions_directory . '/' . $database->engine . '/' . $filename;
-
-            $versions[] = [
-                'version'  => \str_replace('-', '.', $pathinfo['filename']),
-                'filepath' => \is_file($filepathEngine) ? $filepathEngine : $filepath,
-            ];
-        }
-    }
-
-    foreach ($versions as $version) {
-        if (-1 === \version_compare($options->version, $version['version'])) {
-            $sql = \file_get_contents($version['filepath']);
-
-            if ($sql) {
-                /**
-                 * A prepared statement only runs the first statement of a
-                 * file on SQLite, so run the whole file directly there.
-                 */
-                if ('sqlite' === $database->engine) {
-                    $database->pdo->exec($sql);
-                } else {
-                    $database->query($sql);
-                }
+            if ('sqlite' === $database->engine) {
+                $database->pdo->exec($sql);
+            } else {
+                $database->query($sql);
             }
         }
     }
 
-    /** Update version */
-    $options->setOption('version', VERSION);
-    $options->setOption('updateAvailable', false);
-
-    /** Update service-worker.js */
-    require ROOT . '/src/assets/js/service-worker.js.php';
+    $options->completeUpdate();
 
     $page->messages[] = Page::success(
         \sprintf(
