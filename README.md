@@ -16,10 +16,10 @@
 -   On phones, wishlists are picked with the phone's own picker
 -   Security fixes: users can only change their own wishlists and wishes, logging out ends the session, private files (git history, configuration, the SQLite database) are no longer served, and link previews can't be replaced by visitors
 -   "Login as" works, with a "Return to admin" option
--   Installer and update fixes so existing installs and configs aren't overwritten
+-   Installer and update fixes so existing installs and configs aren't overwritten. Updates without database changes apply themselves, without a maintenance page
 -   Home page: a section on sharing lists replaces the news section
 
-Current version: **1.7.1**. Full list of changes, per version: [changelogs/](changelogs/) (newest: [1.7.1](changelogs/1-7-1.md))
+Current version: **1.7.2**. Full list of changes, per version: [changelogs/](changelogs/) (newest: [1.7.2](changelogs/1-7-2.md))
 
 # Make a wish
 
