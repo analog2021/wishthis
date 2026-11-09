@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 1448" class="wish-diagram" role="img" aria-labelledby="t-124225637732992">
+<title id="t-124225637732992">Giving a wish</title>
+<style>.wish-diagram{font-family:"Atkinson Hyperlegible",Verdana,Arial,sans-serif}
+.wish-diagram .canvas{fill:#ffffff}
+.wish-diagram text{fill:#1d1f24}
+.wish-diagram .title{font-size:21px;font-weight:700}
+.wish-diagram .body{font-size:18px}
+.wish-diagram .b{font-weight:700}
+.wish-diagram .hdr-t{font-size:22px;font-weight:700}
+.wish-diagram .band{stroke:#4a4f58;stroke-width:1.5;stroke-dasharray:4 6}
+.wish-diagram .pill{fill:#ffffff;stroke:#4a4f58;stroke-width:1.5}
+.wish-diagram .band-t,.wish-diagram .edge-t{font-size:17px;font-weight:700}
+.wish-diagram .edge{fill:none;stroke:#4a4f58;stroke-width:2.5}
+.wish-diagram .arrowhead{fill:#4a4f58}
+.wish-diagram .badge-t{font-size:19px;font-weight:700;fill:#ffffff}
+.wish-diagram .k-bob .box,.wish-diagram .k-bob .hdr{fill:#e8f0fb;stroke:#2f5f9e;stroke-width:2.5}
+.wish-diagram .k-bob .badge{fill:#2f5f9e}
+.wish-diagram .k-alice .box,.wish-diagram .k-alice .hdr{fill:#f3eafa;stroke:#7a3f9d;stroke-width:2.5}
+.wish-diagram .k-alice .badge{fill:#7a3f9d}
+.wish-diagram .k-result .box,.wish-diagram .k-result .hdr{fill:#e6f4ea;stroke:#2e7d4f;stroke-width:2.5}
+.wish-diagram .k-result .badge{fill:#2e7d4f}
+.wish-diagram .k-warn .box,.wish-diagram .k-warn .hdr{fill:#fdeee4;stroke:#b5522b;stroke-width:2.5}
+.wish-diagram .k-warn .badge{fill:#b5522b}
+.wish-diagram .k-note .box,.wish-diagram .k-note .hdr{fill:#fff6cc;stroke:#9a7800;stroke-width:2.5}
+.wish-diagram .k-note .badge{fill:#9a7800}
+.wish-diagram .k-start .box,.wish-diagram .k-start .hdr{fill:#f1f1ef;stroke:#77736a;stroke-width:2.5}
+.wish-diagram .k-start .badge{fill:#77736a}</style><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="arrowhead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="canvas" x="0" y="0" width="940" height="1448"/>
+<g class="k-bob"><rect class="hdr" x="40" y="24" width="380" height="56" rx="28"/><text class="hdr-t" x="230.0" y="60" text-anchor="middle">Bob makes a wish</text></g>
+<g class="k-alice"><rect class="hdr" x="520" y="24" width="380" height="56" rx="28"/><text class="hdr-t" x="710.0" y="60" text-anchor="middle">Alice gives it to him</text></g>
+<line class="band" x1="40" y1="1114" x2="900" y2="1114"/><rect class="pill" x="360.0" y="1100" width="220" height="28" rx="14"/><text class="band-t" x="470.0" y="1120" text-anchor="middle">What happens next</text>
+<path class="edge" d="M230,240 L230,276" marker-end="url(#arrow)"/>
+<path class="edge" d="M230,404 L230,440" marker-end="url(#arrow)"/>
+<path class="edge" d="M230,568 L230,604" marker-end="url(#arrow)"/>
+<path class="edge" d="M230,732 L230,768" marker-end="url(#arrow)"/>
+<path class="edge" d="M230,896 L230,932" marker-end="url(#arrow)"/>
+<path class="edge" d="M420,996 L470,996 L470,176 L520,176" marker-end="url(#arrow)"/>
+<rect class="pill edge-pill" x="436.0" y="570.0" width="68" height="32" rx="16"/><text class="edge-t" x="470.0" y="592.0" text-anchor="middle">Later</text>
+<path class="edge" d="M710,240 L710,276" marker-end="url(#arrow)"/>
+<path class="edge" d="M710,404 L710,440" marker-end="url(#arrow)"/>
+<path class="edge" d="M710,568 L710,604" marker-end="url(#arrow)"/>
+<path class="edge" d="M710,732 L710,768" marker-end="url(#arrow)"/>
+<path class="edge" d="M710,896 L710,932" marker-end="url(#arrow)"/>
+<path class="edge" d="M710,1060 L710,1140" marker-end="url(#arrow)"/>
+<g class="k-bob"><rect class="box" x="40" y="112" width="380" height="128" rx="14"/>
+<circle class="badge" cx="70" cy="144" r="17"/><text class="badge-t" x="70" y="151" text-anchor="middle">1</text>
+<text class="title" x="98" y="148">Log in</text>
+<text class="body" x="98" y="177" xml:space="preserve">Type your Email and Password,</text>
+<text class="body" x="98" y="201" xml:space="preserve">then click <tspan class="b">Login</tspan>.</text>
+</g>
+<g class="k-bob"><rect class="box" x="40" y="276" width="380" height="128" rx="14"/>
+<circle class="badge" cx="70" cy="308" r="17"/><text class="badge-t" x="70" y="315" text-anchor="middle">2</text>
+<text class="title" x="98" y="312">Open your lists</text>
+<text class="body" x="98" y="341" xml:space="preserve">In the menu, click <tspan class="b">Wishlists</tspan>,</text>
+<text class="body" x="98" y="365" xml:space="preserve">then <tspan class="b">My lists</tspan>.</text>
+</g>
+<g class="k-bob"><rect class="box" x="40" y="440" width="380" height="128" rx="14"/>
+<circle class="badge" cx="70" cy="472" r="17"/><text class="badge-t" x="70" y="479" text-anchor="middle">3</text>
+<text class="title" x="98" y="476">Pick the right list</text>
+<text class="body" x="98" y="505" xml:space="preserve">Open the <tspan class="b">Wishlist </tspan>drop-down</text>
+<text class="body" x="98" y="529" xml:space="preserve">and choose the list.</text>
+</g>
+<g class="k-bob"><rect class="box" x="40" y="604" width="380" height="128" rx="14"/>
+<circle class="badge" cx="70" cy="636" r="17"/><text class="badge-t" x="70" y="643" text-anchor="middle">4</text>
+<text class="title" x="98" y="640">Start a new wish</text>
+<text class="body" x="98" y="669" xml:space="preserve">Click <tspan class="b">Add a wish</tspan>.</text>
+</g>
+<g class="k-bob"><rect class="box" x="40" y="768" width="380" height="128" rx="14"/>
+<circle class="badge" cx="70" cy="800" r="17"/><text class="badge-t" x="70" y="807" text-anchor="middle">5</text>
+<text class="title" x="98" y="804">Paste the link</text>
+<text class="body" x="98" y="833" xml:space="preserve">Paste the <tspan class="b">Link to the product</tspan>.</text>
+<text class="body" x="98" y="857" xml:space="preserve">wishthis fills in the rest.</text>
+<text class="body" x="98" y="881" xml:space="preserve">Check the Title and Priority.</text>
+</g>
+<g class="k-bob"><rect class="box" x="40" y="932" width="380" height="128" rx="14"/>
+<circle class="badge" cx="70" cy="964" r="17"/><text class="badge-t" x="70" y="971" text-anchor="middle">6</text>
+<text class="title" x="98" y="968">Save it</text>
+<text class="body" x="98" y="997" xml:space="preserve">Click <tspan class="b">Add</tspan>. You see: “Wish</text>
+<text class="body" x="98" y="1021" xml:space="preserve">successfully created.”</text>
+</g>
+<g class="k-alice"><rect class="box" x="520" y="112" width="380" height="128" rx="14"/>
+<circle class="badge" cx="550" cy="144" r="17"/><text class="badge-t" x="550" y="151" text-anchor="middle">1</text>
+<text class="title" x="578" y="148">Log in</text>
+<text class="body" x="578" y="177" xml:space="preserve">Type your Email and Password,</text>
+<text class="body" x="578" y="201" xml:space="preserve">then click <tspan class="b">Login</tspan>.</text>
+</g>
+<g class="k-alice"><rect class="box" x="520" y="276" width="380" height="128" rx="14"/>
+<circle class="badge" cx="550" cy="308" r="17"/><text class="badge-t" x="550" y="315" text-anchor="middle">2</text>
+<text class="title" x="578" y="312">Open remembered lists</text>
+<text class="body" x="578" y="341" xml:space="preserve">In the menu, click <tspan class="b">Wishlists</tspan>,</text>
+<text class="body" x="578" y="365" xml:space="preserve">then <tspan class="b">Remembered lists</tspan>.</text>
+</g>
+<g class="k-alice"><rect class="box" x="520" y="440" width="380" height="128" rx="14"/>
+<circle class="badge" cx="550" cy="472" r="17"/><text class="badge-t" x="550" y="479" text-anchor="middle">3</text>
+<text class="title" x="578" y="476">Open Bob’s list</text>
+<text class="body" x="578" y="505" xml:space="preserve">Under the name <tspan class="b">Bob</tspan>, click his</text>
+<text class="body" x="578" y="529" xml:space="preserve">list.</text>
+</g>
+<g class="k-alice"><rect class="box" x="520" y="604" width="380" height="128" rx="14"/>
+<circle class="badge" cx="550" cy="636" r="17"/><text class="badge-t" x="550" y="643" text-anchor="middle">4</text>
+<text class="title" x="578" y="640">Look at a wish</text>
+<text class="body" x="578" y="669" xml:space="preserve">Find one to give, then click</text>
+<text class="body" x="578" y="693" xml:space="preserve"><tspan class="b">Details</tspan>.</text>
+</g>
+<g class="k-alice"><rect class="box" x="520" y="768" width="380" height="128" rx="14"/>
+<circle class="badge" cx="550" cy="800" r="17"/><text class="badge-t" x="550" y="807" text-anchor="middle">5</text>
+<text class="title" x="578" y="804">Claim it</text>
+<text class="body" x="578" y="833" xml:space="preserve">Click <tspan class="b">Fulfil wish</tspan>. You see:</text>
+<text class="body" x="578" y="857" xml:space="preserve">“Thank you!”</text>
+</g>
+<g class="k-alice"><rect class="box" x="520" y="932" width="380" height="128" rx="14"/>
+<circle class="badge" cx="550" cy="964" r="17"/><text class="badge-t" x="550" y="971" text-anchor="middle">6</text>
+<text class="title" x="578" y="968">Buy it</text>
+<text class="body" x="578" y="997" xml:space="preserve">Click <tspan class="b">Visit </tspan>to open the store,</text>
+<text class="body" x="578" y="1021" xml:space="preserve">then buy it there.</text>
+</g>
+<g class="k-result"><rect class="box" x="520" y="1140" width="380" height="128" rx="14"/>
+<circle class="badge" cx="550" cy="1172" r="17"/><text class="badge-t" x="550" y="1179" text-anchor="middle">✓</text>
+<text class="title" x="578" y="1176">Everyone else</text>
+<text class="body" x="578" y="1205" xml:space="preserve">The wish is gone from Bob’s</text>
+<text class="body" x="578" y="1229" xml:space="preserve">list for everyone else, so</text>
+<text class="body" x="578" y="1253" xml:space="preserve">nobody buys it twice.</text>
+</g>
+<g class="k-result"><rect class="box" x="40" y="1140" width="380" height="128" rx="14"/>
+<circle class="badge" cx="70" cy="1172" r="17"/><text class="badge-t" x="70" y="1179" text-anchor="middle">✓</text>
+<text class="title" x="98" y="1176">Bob</text>
+<text class="body" x="98" y="1205" xml:space="preserve">Bob still sees the wish on his</text>
+<text class="body" x="98" y="1229" xml:space="preserve">own list. The surprise is</text>
+<text class="body" x="98" y="1253" xml:space="preserve">kept.</text>
+</g>
+<g class="k-note"><rect class="box" x="40" y="1304" width="860" height="104" rx="14" stroke-dasharray="7 5"/>
+<circle class="badge" cx="70" cy="1336" r="17"/><text class="badge-t" x="70" y="1343" text-anchor="middle">!</text>
+<text class="title" x="98" y="1340">Good to know</text>
+<text class="body" x="98" y="1369" xml:space="preserve">Bob’s own Details window has a <tspan class="b">Mark as fulfilled </tspan>button. That one is for Bob,</text>
+<text class="body" x="98" y="1393" xml:space="preserve">after he receives the gift. People giving a gift click <tspan class="b">Fulfil wish</tspan>.</text>
+</g>
+</svg>
