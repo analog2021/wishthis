@@ -10,7 +10,7 @@
 -   Deleted a wish by mistake? Restore it within an hour
 -   "My gifts": the wishes you fulfilled for others, with an hour to undo a gift made by mistake
 -   Optional tidy-up: fulfilled wishes leave your lists after your birthday or Christmas, and stay visible under Spoilers
--   Smarter wish auto-fill: details and a picture preview as soon as a link is pasted, Amazon product details, prices from any shop that publishes them, and a clear message that names only what couldn't be found. When a shop blocks lookups, it says so and guesses the title from the link
+-   Smarter wish auto-fill: details and a picture preview as soon as a link is pasted, Amazon product details, prices from any shop that publishes them, and a clear message that names only what couldn't be found. When a shop blocks lookups, it says so and guesses the title from the link. The add and edit windows can still be scrolled once the details are filled in
 -   Links are kept exactly as pasted, so size and colour options aren't lost
 -   Wish cards show the picture below the title, and work with touch screens and iPad trackpads. The list view shows square thumbnails, also on phones
 -   On phones, wishlists are picked with the phone's own picker
@@ -19,7 +19,7 @@
 -   Installer and update fixes so existing installs and configs aren't overwritten
 -   Home page: a section on sharing lists replaces the news section
 
-Current version: **1.7.0**. Full list of changes, per version: [changelogs/](changelogs/) (newest: [1.7.0](changelogs/1-7-0.md))
+Current version: **1.7.1**. Full list of changes, per version: [changelogs/](changelogs/) (newest: [1.7.1](changelogs/1-7-1.md))
 
 # Make a wish
 
