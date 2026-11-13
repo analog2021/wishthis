@@ -1,6 +1,13 @@
 const urlParams  = new URLSearchParams(wishthis.$_GET);
 const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
+/**
+ * API URLs (see `inline.js.php`). Set right away, not on ready: every `.api()`
+ * copies these settings when it is set up, and the pages set theirs up in
+ * their own ready handlers.
+ */
+$.fn.api.settings.api = wishthis.api;
+
 $(function() {
     /**
      * Fomantic UI
