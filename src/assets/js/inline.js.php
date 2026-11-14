@@ -239,23 +239,27 @@ global $options;
     ];
     ?>
 
-    document.addEventListener('DOMContentLoaded', function() {
-        /** API */
-        $.fn.api.settings.api = {
-            <?php
-            /** `new URL()` replaces `$_GET`, which the page still needs after the header. */
-            $requestGET = $_GET;
+    /**
+     * API URLs for Fomantic UI's `action` setting. `default.js` hands them to
+     * `$.fn.api.settings.api` as soon as Fomantic UI has loaded. Waiting for
+     * `DOMContentLoaded` is too late: jQuery can run the pages' ready handlers
+     * before that event, and an `.api()` set up without its URL never sends
+     * a request (e.g. a wishlist that shows no wishes).
+     */
+    wishthis.api = {
+        <?php
+        /** `new URL()` replaces `$_GET`, which the page still needs after the header. */
+        $requestGET = $_GET;
 
-            foreach ($api_urls as $action => $url) {
-                $url    = new URL($url);
-                $pretty = $url->getPretty();
+        foreach ($api_urls as $action => $url) {
+            $url    = new URL($url);
+            $pretty = $url->getPretty();
 
-                echo '\'' . $action . '\' : \'' . $pretty . '\',' . PHP_EOL;
-            }
+            echo '\'' . $action . '\' : \'' . $pretty . '\',' . PHP_EOL;
+        }
 
-            $_GET = $requestGET;
-            ?>
-        };
-    });
+        $_GET = $requestGET;
+        ?>
+    };
 
 </script>
