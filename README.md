@@ -18,8 +18,9 @@
 -   "Login as" works, with a "Return to admin" option
 -   Installer and update fixes so existing installs and configs aren't overwritten. Updates without database changes apply themselves, without a maintenance page
 -   Home page: a section on sharing lists replaces the news section
+-   Wishlists always load their wishes. Before, a list could stay blank, usually on the first visit after an update
 
-Current version: **1.7.2**. Full list of changes, per version: [changelogs/](changelogs/) (newest: [1.7.2](changelogs/1-7-2.md))
+Current version: **1.7.3**. Full list of changes, per version: [changelogs/](changelogs/) (newest: [1.7.3](changelogs/1-7-3.md))
 
 # Make a wish
 
